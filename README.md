@@ -12,6 +12,6 @@ didson. Elles permettent le recalcul du débit sur chaque volet / vanne du barra
 et d'extrapoler les données à partir des lecture sur le faisceau du didson qui ne représente qu'une faible part des dévalaisons possibles.
 Les analyses sont effectuées dans les différents chunks (code) du rapport sweave dans l'onglet rapport.
 
-
+![Anguille en migration au droit du didson](/image/ang1.png)
 
 Voir issue #1 pour les instructions pour créer un nouveau rapport.
