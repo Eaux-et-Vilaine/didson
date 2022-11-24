@@ -2,7 +2,8 @@
 
 Code pour créer le rapport didson 
 
-![didson](/image/didson.png)
+<img src="/image/didson.png" alt="didson" width="150"/>
+
 
 Le suivi des dévalaisons d'argentées sur la Vilaine est effectué à l'aide d'un radar multi-faisceau didson.
 Le bilan des migrations requiert la compilation des fichiers texte et des données de comptage, les saisies indépendantes
