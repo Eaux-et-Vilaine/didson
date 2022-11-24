@@ -2,6 +2,8 @@
 
 Code pour créer le rapport didson 
 
+![Anguille en migration au droit du didson](/image/didson.png)
+
 Le suivi des dévalaisons d'argentées sur la Vilaine est effectué à l'aide d'un radar multi-faisceau didson.
 Le bilan des migrations requiert la compilation des fichiers texte et des données de comptage, les saisies indépendantes
 dans le cahier et les fichiers textes de mesure de taille des anguilles réalisés lors des dépouillement sont introduits
