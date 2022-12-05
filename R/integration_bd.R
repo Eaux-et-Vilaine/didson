@@ -60,6 +60,19 @@ ta <- read.xlsx(
             "character"
         )
 )
+# read.xlsx convertit tout en GMT car il n'y a pas de tz dans excel
+# Il faut donc remettre les données à la main
+attributes (ta$dsf_timeinit)
+
+head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
+ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
+ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
+ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
+ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
+
+# vérifier que le nom du fichier correspond bien à la date
+View(head(ta))
+
 # pas de sauvegarde
 # nrow(ta)
 #colnames(ta)
@@ -70,6 +83,7 @@ ta <- ta[!(ta$dsr_csotdb == "echo" & !is.na(ta$dsr_csotdb)), ]
 
 ta <- ta[!is.na(ta$dsf_filename), ]
 ta <- ta[!is.na(ta$dsf_incl), ]
+
 # nrow(ta)
 # 2015 10630
 # 2016 9511
@@ -93,7 +107,7 @@ dsf[is.na(dsf$dsf_filename), ]
 dsf$dsf_readok <- as.logical(as.numeric(dsf$dsf_readok))
 dsf$dsf_readok[is.na(dsf$dsf_readok)] <- FALSE
 
-table(dsf$dsf_distancestart) # 5 9995
+table(dsf$dsf_distancestart) # 5 9993
 # 2015 correction
 
 #-7 3.75    5   =>  3.75    5
@@ -125,19 +139,25 @@ summary(dsf$dsf_incl)
 
 
 # ATTENTION AU CHANGEMENT D'HEURE, CERTAINS FICHIERS N'EXISTENT PAS
-# A la lecture le format est GMT à cause de pb 
+# Le format a été converti en tz=Europe/Paris et j'ai supprimé les données excel
+# Pour retrouver les lignes avant la conversion de GMT en CET on peut lancer :
+
 # Ci dessous je corrige le problème en forcant en CET ce qui transforme en
 # NA les données sur 4 lignes (1 complète 02:00 à 2:30, deux à moitié) 
 
-library(lubridate)
+#dsf$dsf_timeend <- lubridate::force_tz(dsf$dsf_timeend, tzone = "CET")
+#dsf$dsf_timeinit <- lubridate::force_tz(dsf$dsf_timeinit, tzone = "CET")
+#dsf <- dsf[!is.na(dsf$dsf_timeinit),]
+#dsf[dsf$dsf_timeinit=='2022-03-27 01:30:00' ,"dsf_timeend"]<-'2022-03-27 03:00:00'
 
-dsf$dsf_timeend <- lubridate::force_tz(dsf$dsf_timeend, tzone = "CET")
-dsf$dsf_timeinit <- lubridate::force_tz(dsf$dsf_timeinit, tzone = "CET")
+
+
    
 
 dsf[dsf$dsf_timeend <= dsf$dsf_timeinit,]
+dsf[is.na(dsf$dsf_timeinit),]
 dsf <- dsf[!is.na(dsf$dsf_timeinit),]
-dsf[dsf$dsf_timeinit=='2022-03-27 01:30:00' ,"dsf_timeend"]<-'2022-03-27 03:00:00'
+
 dsf$dsf_position <- tolower(dsf$dsf_position)
 
 
@@ -198,8 +218,8 @@ colnames(dsr)
 
 # Tests : il peut y avoir des champs textes dans les dates
 attributes(dsr$dsr_readend)
-dsr$dsr_readend <-  lubridate::force_tz(dsr$dsr_readend,  tz = "CET")
-dsr$dsr_readinit <- lubridate::force_tz(dsr$dsr_readinit, tz = "CET")
+#dsr$dsr_readend <-  lubridate::force_tz(dsr$dsr_readend,  tz = "CET")
+#dsr$dsr_readinit <- lubridate::force_tz(dsr$dsr_readinit, tz = "CET")
 
 
 
