@@ -1,5 +1,5 @@
 # scan_didsontxt
-# fichier de lecture des fichiers dépouillement, voir fiche recette
+# fichier de lecture des fichiers dï¿½pouillement, voir fiche recette
 # Author: cedric.briand
 #############################################
 
@@ -8,19 +8,15 @@ require(stringr)
 require(plyr)
 require("safer")
 require("getPass")
-require('sqldf') # mimict sql queries in a data.frame
-require('RPostgreSQL') # one can use RODBC, here I'm using direct connection via the sqldf package
-setwd("C:/workspace/p/didson/rapport")
+require('DBI') # mimict sql queries in a data.frame
+require('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
+setwd("C:/workspace/didson")
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
 pois <- getPass(msg="Main password")
 host <- decrypt_string(hostdistant,pois)
 user <- decrypt_string(userdistant,pois)
 password<- decrypt_string(passworddistant,pois)
-options(sqldf.RPostgreSQL.user = user, 
-		sqldf.RPostgreSQL.password = password,
-		sqldf.RPostgreSQL.dbname ="didson",
-		sqldf.RPostgreSQL.host =host,
-		sqldf.RPostgreSQL.port ="5432" )
+
 
 
 ####################################
@@ -28,7 +24,7 @@ options(sqldf.RPostgreSQL.user = user,
 #####################################
 #install.packages("R.utils")
 
-datawd <- "C:/temp/2021-2022/"
+datawd <- "C:/temp/didson/2021-2022/f/"
 #datawd<-"F:/projets/devalaison/fichier_txt_pb/"
 listoffiles <- list.files(str_c(datawd)) # list of files
 listoffiles <- listoffiles[grep(".txt",listoffiles)]
@@ -40,12 +36,12 @@ progress<-winProgressBar(title = "Chargement des fichiers texte",
 		initial = 0,
 		width = 400)
 
-#----- chargement des fichiers déjà rentrés pour vérification --------------------------------------
+#----- chargement des fichiers dÃ©jÃ  rentrÃ©s pour vÃ©rification --------------------------------------
 
 
 drr_id <- sqldf("select drr_id from did.t_didsonreadresult_drr 
 join did.t_didsonfiles_dsf on drr_dsf_id=dsf_id where dsf_timeinit>'2013-09-01'")
-fichiers_dans_la_base <- vector() # vecteur vide qui stockera les valeurs de fichiers déjà rentrés
+fichiers_dans_la_base <- vector() # vecteur vide qui stockera les valeurs de fichiers dï¿½jï¿½ rentrï¿½s
 #i=155
 #000000000000000000000000000000000000000 loop
 for (i in 1:length(chemins)){
@@ -53,7 +49,7 @@ for (i in 1:length(chemins)){
 	setWinProgressBar(progress,i,label=listoffiles[i])      
 # ouverture de la connection
 	con  <- file(chemins[i], open = "r")
-# la fonction readLines renvoit un vecteur charactère, un élément par ligne
+# la fonction readLines renvoit un vecteur charactï¿½re, un ï¿½lï¿½ment par ligne
 	re<- readLines(con,warn = FALSE)
 	close(con) # je referme la connexion
 	
@@ -63,25 +59,25 @@ for (i in 1:length(chemins)){
 	}
 	poissons_start<-which(re=="*** Manual Marking (Manual Sizing:  Q = Quality, N = Repeat Count) ***")+4
 	poissons_end<-which(re=="*** Source File Key ***")-3
-	# problème de format de fichier
+	# probleme de format de fichier
 	if (length(poissons_end)==0) {
 		poissons_end<-which(re=="END")-1
 	}
-	# certains fichiers n'ont pas de poissons, ça ne sert à rien de les charger...;
+	# certains fichiers n'ont pas de poissons, ï¿½a ne sert ï¿½ rien de les charger...;
 	if (poissons_end>=poissons_start) {
 #==================================================
-# I Extraction des données concernant le résumé du fichier
+# I Extraction des donnï¿½es concernant le rï¿½sumï¿½ du fichier
 #==================================================	
-# Total correspond aux quatre premières lignes.
+# Total correspond aux quatre premieres lignes.
 		total<-killfactor(data.frame("count"=sapply(strsplit(re[1:4],"="),"[[",1),
 						"number"=as.numeric(sapply(strsplit(re[1:4],"="),"[[",2))))
 		total2<-killfactor(as.data.frame(t(total[,2,drop=FALSE])))
 		colnames(total2)<-total$count
 		result[["total"]]<-total2
 # Une liste est un vecteur de mode liste, on peut utiliser c( pour concatener.
-# comme le format diffère entre chaque ligne, il faut l'harmoniser...
+# comme le format diffï¿½re entre chaque ligne, il faut l'harmoniser...
 #==================================================
-# II Extraction des données concernant l'Image
+# II Extraction des donnÃ©es concernant l'Image
 #==================================================
 		
 		if (length(grep("CSOT Min Cluster",re)) == 1) {
@@ -106,8 +102,8 @@ for (i in 1:length(chemins)){
 					strsplit(re[12],"=")
 			)
 		}
-# il peut y avoir des lignes avec un seul élément, ce qui fait planter la ligne d'après,
-# les lignes à un élément deviennent des lignes à 2.
+# il peut y avoir des lignes avec un seul Ã©lÃ©ment, ce qui fait planter la ligne d'aprÃ¨s,
+# les lignes Ã  un Ã©lÃ©ment deviennent des lignes Ã  2.
 #didson[[which(sapply(didson,function(X) length(X))==1)]]<-
 #		c(didson[[which(sapply(didson,function(X) length(X))==1)]],"?")
 		didson <- data.frame("parm"=gsub("\\s","",sapply(didson,"[[",1)),
@@ -126,10 +122,10 @@ for (i in 1:length(chemins)){
 		result[["didson"]]<-didson2
 		
 #==================================================
-# III Extraction des données de *** Manual Marking.... ***
+# III Extraction des donnÃ©es de *** Manual Marking.... ***
 #==================================================
-# A partir de maintenant, la référence des lignes va dépendre du nombre de poissons dans 
-# le tableau, il faut aller chercher les références des lignes
+# A partir de maintenant, la rÃ©fÃ©rence des lignes va dÃ©pendre du nombre de poissons dans 
+# le tableau, il faut aller chercher les rÃ©fÃ©rences des lignes
 		poissons<-re[poissons_start:poissons_end]
 		di<-matrix(NA,nrow=length(poissons),ncol=31) 
 		for (k in 1:length(poissons)){
@@ -155,13 +151,13 @@ for (i in 1:length(chemins)){
 		result[["total"]][1,2]=sum(di$dir=="Up") # Upstream
 		result[["total"]][1,3]=sum(di$dir!="Up") # Downstream
 #==================================================
-# IV Extraction des données de *** source file key ***
+# IV Extraction des donnï¿½es de *** source file key ***
 #==================================================
  # certains fichiers n'ont plus les infos de *** source file key ***   
 if (length(re)>=poissons_end+8){
 		filekey<-re[(poissons_end+5):(poissons_end+8)]
-		# gsub("\\s","" enlève tous les espaces qu'ils soient \t tabulation ou blanc
-		# regexpr recherche la positon d'un caractère
+		# gsub("\\s","" enlï¿½ve tous les espaces qu'ils soient \t tabulation ou blanc
+		# regexpr recherche la positon d'un caractï¿½re
 		path<-gsub("\\s","",substr(filekey[1],regexpr("Source File Name:",filekey[1])[1]+17,nchar(filekey[1])))
 		source_file_date<-gsub("\\s","",substr(filekey[2],regexpr("Source File Date:",filekey[2])[1]+20,nchar(filekey[1])))
 		source_file_start<-gsub("\\s","",substr(filekey[3],regexpr("Source File Start:",filekey[3])[1]+20,nchar(filekey[1])))
@@ -173,9 +169,9 @@ if (length(re)>=poissons_end+8){
 		source_file_end<-""
 	}
 		
-		# on va chercher la date du dison... le nom du fichier correspond à cette date plus les caractères jusqu'à la fin
-		# le problème c'est que le nom qui est dans source file key peut être le faux quand l'option 
-# merge append open file to existing file est cochée
+		# on va chercher la date du dison... le nom du fichier correspond ï¿½ cette date plus les caractï¿½res jusqu'ï¿½ la fin
+		# le problï¿½me c'est que le nom qui est dans source file key peut ï¿½tre le faux quand l'option 
+# merge append open file to existing file est cochï¿½e
 if (regexpr("FC_CSOT",didson[2,2])==-1) num=regexpr("FC_",didson[2,2])[1]+3 else num=regexpr("FC_CSOT_",didson[2,2])[1]+8
 # certains fichiers n'ont pas d'heure...
 if (grepl("_HF_",didson[2,2])==0){
@@ -203,7 +199,7 @@ if (grepl("_HF_",didson[2,2])==0){
 		t_didsonfiletemp_dsft$id<-id
 		t_poissonsfile_psf<-result[["poissons"]]
 		t_poissonsfile_psf$id<-id
-		# Teste si le nom du fichier est déjà dans la base, renverra une alerte en fin de boucle pour tous les noms de fichiers
+		# Teste si le nom du fichier est dï¿½jï¿½ dans la base, renverra une alerte en fin de boucle pour tous les noms de fichiers
 		if (t_didsonfiletemp_dsft$id%in%drr_id$drr_id) fichiers_dans_la_base<- c(fichiers_dans_la_base,listoffiles[i])
 		# en fin de boucle empilement des fichiers		
 		if (i==1){
@@ -216,7 +212,7 @@ if (grepl("_HF_",didson[2,2])==0){
 	} # end if poissons_end>=poissons_start
 }
 if (length(fichiers_dans_la_base)>0) {
-	print("Attention les fichiers suivants ont déjà été rentrés !!! \n")
+	print("Attention les fichiers suivants ont dÃ©jÃ  Ã©tÃ© rentrÃ©s !!! \n")
 	print (fichiers_dans_la_base)
 } 
 
@@ -229,7 +225,7 @@ close(progress)
 
 
 
-# Intégration des données dans la base ------------------------------------------------------------
+# IntÃ©gration des donnÃ©es dans la base ------------------------------------------------------------
 
 
 
@@ -246,39 +242,28 @@ colnames(all_t_didsonfiletemp_dsft)[18] <- "dsft_unknown"
 stopifnot(sum(duplicated(all_t_didsonfiletemp_dsft$dsft_id)) == 0)
 #all_t_didsonfiletemp_dsft[duplicated(all_t_didsonfiletemp_dsft$dsft_id),]
 #Creation des tables temporaires.
-sqldf(
-  "drop table if exists did.t_didsonfiletemp_dsft",
-  dbname = getOption("sqldf.RPostgreSQL.dbname"),
-  host = getOption("sqldf.RPostgreSQL.host"),
-	port = getOption("sqldf.RPostgreSQL.port")
-)
-sqldf(
-  "create table did.t_didsonfiletemp_dsft as select * from all_t_didsonfiletemp_dsft",
-  dbname = getOption("sqldf.RPostgreSQL.dbname"),
-  host = getOption("sqldf.RPostgreSQL.host"),
-			port=getOption("sqldf.RPostgreSQL.port")
-)
 
-sqldf(
-  "drop table if exists did.t_poissonsfiletemp_psf",
-  dbname = getOption("sqldf.RPostgreSQL.dbname"),
-  host = getOption("sqldf.RPostgreSQL.host"),
-			port=getOption("sqldf.RPostgreSQL.port")
-)
-sqldf(
-  "create table did.t_poissonsfiletemp_psf as select * from all_t_poissonsfiletemp_psf",
-  dbname = getOption("sqldf.RPostgreSQL.dbname"),
-  host = getOption("sqldf.RPostgreSQL.host"),
-	port=getOption("sqldf.RPostgreSQL.port")
-)
+con <- dbConnect(Postgres(), 		
+    dbname="didson", 		
+    host=host,
+    port=5432, 		
+    user= user, 		
+    password= password)
+#DBI::dbExecute(con, "drop table if exists did.t_didsonfiletemp_dsft")
+tt <- DBI::Id(schema = "did",    table = "t_didsonfiletemp_dsft")
+DBI::dbWriteTable(con, name=tt,  value = all_t_didsonfiletemp_dsft, overwrite = TRUE)
+ttp <- DBI::Id(schema = "did",    table = "t_poissonsfiletemp_psf")
+DBI::dbWriteTable(con, name=ttp,  value = all_t_poissonsfiletemp_psf, overwrite = TRUE)
 
-# Mise à jour des tables finales.
-# fait un insert into à partir des données des tables temporaires
+
+
+# Mise Ã  jour des tables finales.
+# fait un insert into Ã  partir des donnÃ©es des tables temporaires
 # Mais lancer l'ensemble du script sql scan_didsonfile.sql
 
 
 ######################################################
-# bout de script pour fichiers manquants ----------------------
+# bout de script pour fichiers manquants (TODO a adpter Ã  DBI si nÃ©cessaire)----------------------
 ########################################################
 sqldf(
 		"drop table if exists did.t_didsonfiletemppb_dsft",
