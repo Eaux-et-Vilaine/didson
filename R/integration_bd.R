@@ -64,11 +64,11 @@ ta <- read.xlsx(
 # Il faut donc remettre les données à la main
 attributes (ta$dsf_timeinit)
 
-head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
-ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
-ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
-ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
-ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
+#head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
+#ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
+#ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
+#ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
+#ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
 
 # vérifier que le nom du fichier correspond bien à la date
 View(head(ta))
@@ -179,7 +179,11 @@ con <- dbConnect(Postgres(),
     port=5432, 		
     user= user, 		
     password= password)
-DBI::dbWriteTable(con, "temp_dsf",dsf,overwrite = TRUE)
+# DO THIS, OVERWRITE DOES NOT RAISE ERROR AND THEN NOTHING IS WRITTEN
+DBI::dbExecute(con, "DROP TABLE IF exists temp_dsf")
+dsf$dsf_timeinit <- format(dsf$dsf_timeinit)
+dsf$dsf_timeend <- format(dsf$dsf_timeend)
+DBI::dbWriteTable(con, "temp_dsf",dsf)
 DBI::dbExecute(con, statement =
     "insert into did.t_didsonfiles_dsf(
         dsf_timeinit,
@@ -191,7 +195,17 @@ DBI::dbExecute(con, statement =
         dsf_fls_id,
         dsf_readok,
         dsf_filename)
-        select * from temp_dsf"
+        select 
+				dsf_timeinit::timestamp,
+        dsf_timeend::timestamp,
+        dsf_position,
+        dsf_incl,
+        dsf_distancestart,
+        dsf_depth,
+        dsf_fls_id,
+        dsf_readok,
+        dsf_filename
+ from temp_dsf"
 ) # 9993
 ## pb d'encrassement des lentilles+ turbidite
 #sqldf("update did.t_didsonfiles_dsf set dsf_fls_id=3 where dsf_timeinit>='2013-12-30 09:00:00' and
@@ -272,6 +286,9 @@ head(dsr[, c(
     "dsr_fryscore",
     "dsr_comment"
 )])
+DBI::dbExecute(con, "DROP TABLE IF EXISTS temp_dsr")
+dsr$dsr_readinit <- format(dsr$dsr_readinit)
+dsr$dsr_readend <- format(dsr$dsr_readend)
 DBI::dbWriteTable(con, "temp_dsr",dsr,overwrite = TRUE)
 DBI::dbExecute(con, statement =
 
@@ -288,8 +305,8 @@ DBI::dbExecute(con, statement =
         dsr_fryscore,
         dsr_comment)
         select dsr_dsf_id,
-        dsr_readinit,
-        dsr_readend,
+        dsr_readinit::timestamp,
+        dsr_readend::timestamp,
         dsr_reader,
         dsr_eelplus,
         dsr_eelminus,
