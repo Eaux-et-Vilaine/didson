@@ -1,31 +1,25 @@
-require(RODBC)
-require(stacomirtools)
-require(stringr)
-require(plyr)
-require(lubridate)
+require("RODBC")
+require("stacomirtools")
+require("stringr")
+require("plyr")
+require("lubridate")
 require("safer")
 require("getPass")
-require('sqldf') # mimict sql queries in a data.frame
+require("DBI")
 require('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 setwd("C:/workspace/p/didson/")
-source("rapport/Tablesiva_classes.R")
+library("SIVA")
 
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
 pois <- getPass(msg="Main password")
 host <- decrypt_string(hostdistant,pois)
 user <- decrypt_string(userdistant,pois)
 password<- decrypt_string(passworddistant,pois)
-options(sqldf.RPostgreSQL.user = user, 
-		sqldf.RPostgreSQL.password = password,
-		sqldf.RPostgreSQL.dbname = "didson",
-		sqldf.RPostgreSQL.host = host,
-		sqldf.RPostgreSQL.port = 5432)
 Sys.timezone()
 #Sys.setenv(TZ='GMT')
-#datawd<-"//srv-01/data/Migrateur/Devalaison/2017-2018/Depouillement//"
-datawd <- "C:/temp/depouillement/"
+datawd <- "C:/temp/didson/2021-2022/depouillement/"
 #######################################################################
-## essai de connection ? la base didson
+## essai de connection à la base didson
 #req<-new("RequeteODBC")
 #req@baseODBC<-c("didson_distant",passworddistant,userdistant)
 #req@sql<-"select * from   did.t_didsonfiles_dsf"
@@ -33,24 +27,30 @@ datawd <- "C:/temp/depouillement/"
 #odbcCloseAll()
 #req
 ## fin de l'essai
-# ?criture dans la base
-## cr?ation du fichier de structure
+# écriture dans la base
+## création du fichier de structure
 
-# r?cup?ration du fichier excel
+# récupération du fichier excel
 library("XLConnect")
-xls.file<-str_c(datawd,"depouillement_2020_total_cor.xlsx")
+install.packages("xlsx") 
+library("xlsx")
+xls.file<-str_c(datawd,"depouillement_2021_brice.xlsx")
 file.exists(xls.file)
 wb = loadWorkbook(xls.file, create = FALSE)
-ta<-readWorksheet ( wb , "depouillement" , startRow=0 , startCol=1 ,  endCol=19 ,
-		header = TRUE ,colTypes=
-				c(		rep("character",3),
-						rep("numeric",4),
-						"logical",
-						rep("character",4),
-						rep("numeric",2),
-						rep("character",2),
-						rep("numeric",2),
-						"character"))
+ta <- read.xlsx(xls.file ,
+    sheetName ="depouillement",
+    colIndex=1:19,
+    as.data.frame =TRUE,
+    header=TRUE,
+    colClasses=
+        c(		rep("character",3),
+            rep("numeric",4),
+            "logical",
+            rep("character",4),
+            rep("numeric",2),
+            rep("character",2),
+            rep("numeric",2),
+            "character"))
 # pas de sauvegarde
 # nrow(ta)
 #colnames(ta)
@@ -92,7 +92,7 @@ table(dsf$dsf_distancestart) # 10091
 # 2019
 # 5 
 # 5621 
-# je selectionne les donn?es uniques (parfois plusieurs lectures pour un fichier)
+# je selectionne les données uniques (parfois plusieurs lectures pour un fichier)
 dupl <- dsf$dsf_filename[duplicated(dsf$dsf_filename)] 
 # 2015 10608 
 # 2016 7
@@ -133,16 +133,16 @@ dsf$dsf_position<-tolower(dsf$dsf_position)
 # 2016 36058
 #2017 38169
 sqldf("insert into did.t_didsonfiles_dsf(
-dsf_timeinit,      
-dsf_timeend,
-dsf_position,     
-dsf_incl,
-dsf_distancestart,
-dsf_depth,        
-dsf_fls_id,
-dsf_readok,
-dsf_filename)
-select * from dsf")
+        dsf_timeinit,      
+        dsf_timeend,
+        dsf_position,     
+        dsf_incl,
+        dsf_distancestart,
+        dsf_depth,        
+        dsf_fls_id,
+        dsf_readok,
+        dsf_filename)
+        select * from dsf")
 ## pb d'encrassement des lentilles+ turbidite
 #sqldf("update did.t_didsonfiles_dsf set dsf_fls_id=3 where dsf_timeinit>='2013-12-30 09:00:00' and
 #				dsf_timeend<='2014-01-06 17:00:00'")
@@ -151,7 +151,7 @@ select * from dsf")
 #sqldf("update did.t_didsonfiles_dsf set dsf_fls_id=1 where dsf_timeinit>='2013-12-23 21:00:00' and
 #				dsf_timeend<='2013-12-24 11:30:00'")
 #sqldf("update did.t_didsonfiles_dsf set dsf_fls_id=2 where dsf_fls_id=3 and dsf_timeinit>='2013-10-01'")
-## cable arrach?
+## cable arraché
 #sqldf("update did.t_didsonfiles_dsf set dsf_fls_id=1 where dsf_timeinit>='2014-01-29 23:30:00' and
 #				dsf_timeend<='2014-02-05 16:00:00'")
 ## plantage bizarre du rotateur
@@ -189,7 +189,7 @@ dsr$dsr_eelplus[is.na(dsr$dsr_eelplus)] <- 0
 dsr$dsr_complete <- as.logical(as.numeric(dsr$dsr_complete))
 dsr$dsr_complete[is.na(dsr$dsr_complete)] <- FALSE
 #dsr[is.na(dsr$dsr_reader),"dsr_readinit"]
-dsr <- dsr[!is.na(dsr$dsr_reader),] # J'utilise dsr_reader .... v?rifier quand m?me ci dessus
+dsr <- dsr[!is.na(dsr$dsr_reader),] # J'utilise dsr_reader .... vérifier quand même ci dessus
 sum(dsr$dsr_reader=="")
 sum(dsr$dsr_reader==" ")
 dsr[dsr$dsr_reader==" ",]
@@ -198,12 +198,12 @@ dsr<-dsr[!dsr$dsr_reader=="",]
 dsr$dsr_reader<-str_c(toupper(substring(dsr$dsr_reader,1,1)),substring(dsr$dsr_reader,2,50))
 unique(dsr$dsr_reader)
 table(dsr$dsr_reader)
-  #Brice Gerard 
-  #740   2370 
-  #198   1590
-  #689   1359
-  #1014  1388
-  #3432   162 
+#Brice Gerard 
+#740   2370 
+#198   1590
+#689   1359
+#1014  1388
+#3432   162 
 
 dsf <- sqldf("select * from   did.t_didsonfiles_dsf")
 dsf <- dsf[,c("dsf_id","dsf_filename")]
@@ -211,48 +211,48 @@ dsf <- dsf[,c("dsf_id","dsf_filename")]
 
 dsr <- merge(dsf,dsr,by="dsf_filename")
 dsr <- chnames(dsr,"dsf_id","dsr_dsf_id")
-#v?rif
+#vérif
 head(dsr[,c("dsr_dsf_id", 
-						"dsr_readinit", 
-						"dsr_readend", 
-						"dsr_reader", 
-						"dsr_eelplus", 
-						"dsr_eelminus", 
-						"dsr_csotdb", 
-						"dsr_complete", 
-						"dsr_muletscore", 
-						"dsr_fryscore",
-						"dsr_comment")])
+            "dsr_readinit", 
+            "dsr_readend", 
+            "dsr_reader", 
+            "dsr_eelplus", 
+            "dsr_eelminus", 
+            "dsr_csotdb", 
+            "dsr_complete", 
+            "dsr_muletscore", 
+            "dsr_fryscore",
+            "dsr_comment")])
 
 sqldf("insert into did.t_didsonread_dsr(
-				dsr_dsf_id, 
-				dsr_readinit, 
-				dsr_readend, 
-				dsr_reader, 
-				dsr_eelplus, 
-				dsr_eelminus, 
-				dsr_csotdb, 
-				dsr_complete, 
-				dsr_muletscore, 
-				dsr_fryscore,
-				dsr_comment)
-				select dsr_dsf_id, 
-				dsr_readinit, 
-				dsr_readend, 
-				dsr_reader, 
-				dsr_eelplus, 
-				dsr_eelminus, 
-				dsr_csotdb, 
-				dsr_complete, 
-				dsr_muletscore, 
-				dsr_fryscore,
-				dsr_comment from dsr")
+        dsr_dsf_id, 
+        dsr_readinit, 
+        dsr_readend, 
+        dsr_reader, 
+        dsr_eelplus, 
+        dsr_eelminus, 
+        dsr_csotdb, 
+        dsr_complete, 
+        dsr_muletscore, 
+        dsr_fryscore,
+        dsr_comment)
+        select dsr_dsf_id, 
+        dsr_readinit, 
+        dsr_readend, 
+        dsr_reader, 
+        dsr_eelplus, 
+        dsr_eelminus, 
+        dsr_csotdb, 
+        dsr_complete, 
+        dsr_muletscore, 
+        dsr_fryscore,
+        dsr_comment from dsr")
 
 #dsr[dsr$dsr_dsf_id==103107,]
 
 
-# -- 2018 rajout de fichiers apr?s la fin de la saison
-# les fichiers manquants vont de  ? 
+# -- 2018 rajout de fichiers après la fin de la saison
+# les fichiers manquants vont de  à 
 #drr_filename
 #2017-12-23_193000_HF
 #2017-12-23_203000_HF
@@ -280,21 +280,21 @@ sqldf("insert into did.t_didsonread_dsr(
 #2017-12-27_070000_HF
 
 
-# r?cup?ration du fichier excel
+# récupération du fichier excel
 library("XLConnect")
 xls.file<-str_c(datawd,"depouillement_2017_supplementaire.xlsx")
 file.exists(xls.file)
 wb = loadWorkbook(xls.file, create = FALSE)
 ta<-readWorksheet ( wb , "depouillement" , startRow=0 , startCol=1 ,  endCol=19 ,
-	header = TRUE ,colTypes=
-		c(		rep("character",3),
-			rep("numeric",4),
-			"logical",
-			rep("character",4),
-			rep("numeric",2),
-			rep("character",2),
-			rep("numeric",2),
-			"character"))
+    header = TRUE ,colTypes=
+        c(		rep("character",3),
+            rep("numeric",4),
+            "logical",
+            rep("character",4),
+            rep("numeric",2),
+            rep("character",2),
+            rep("numeric",2),
+            "character"))
 # pas de sauvegarde
 # 9705 lignes # nrow(ta)
 colnames(ta)
@@ -337,7 +337,7 @@ dsr$dsr_eelplus[is.na(dsr$dsr_eelplus)]<-0
 dsr$dsr_complete<-as.logical(as.numeric(dsr$dsr_complete))
 dsr$dsr_complete[is.na(dsr$dsr_complete)]<-FALSE
 #dsr[is.na(dsr$dsr_reader),"dsr_readinit"]
-dsr<-dsr[!is.na(dsr$dsr_reader),] # J'utilise dsr_reader .... v?rifier quand m?me ci dessus
+dsr<-dsr[!is.na(dsr$dsr_reader),] # J'utilise dsr_reader .... vérifier quand même ci dessus
 sum(dsr$dsr_reader=="")
 sum(dsr$dsr_reader==" ")
 dsr[dsr$dsr_reader==" ",]
@@ -358,39 +358,39 @@ dsf<-dsf[,c("dsf_id","dsf_filename")]
 
 dsr<-merge(dsf,dsr,by="dsf_filename")
 dsr<-chnames(dsr,"dsf_id","dsr_dsf_id")
-#v?rif
+#vérif
 head(dsr[,c("dsr_dsf_id", 
-			"dsr_readinit", 
-			"dsr_readend", 
-			"dsr_reader", 
-			"dsr_eelplus", 
-			"dsr_eelminus", 
-			"dsr_csotdb", 
-			"dsr_complete", 
-			"dsr_muletscore", 
-			"dsr_fryscore",
-			"dsr_comment")])
+            "dsr_readinit", 
+            "dsr_readend", 
+            "dsr_reader", 
+            "dsr_eelplus", 
+            "dsr_eelminus", 
+            "dsr_csotdb", 
+            "dsr_complete", 
+            "dsr_muletscore", 
+            "dsr_fryscore",
+            "dsr_comment")])
 
 sqldf("insert into did.t_didsonread_dsr(
-		dsr_dsf_id, 
-		dsr_readinit, 
-		dsr_readend, 
-		dsr_reader, 
-		dsr_eelplus, 
-		dsr_eelminus, 
-		dsr_csotdb, 
-		dsr_complete, 
-		dsr_muletscore, 
-		dsr_fryscore,
-		dsr_comment)
-		select dsr_dsf_id, 
-		dsr_readinit, 
-		dsr_readend, 
-		dsr_reader, 
-		dsr_eelplus, 
-		dsr_eelminus, 
-		dsr_csotdb, 
-		dsr_complete, 
-		dsr_muletscore, 
-		dsr_fryscore,
-		dsr_comment from dsr")
+        dsr_dsf_id, 
+        dsr_readinit, 
+        dsr_readend, 
+        dsr_reader, 
+        dsr_eelplus, 
+        dsr_eelminus, 
+        dsr_csotdb, 
+        dsr_complete, 
+        dsr_muletscore, 
+        dsr_fryscore,
+        dsr_comment)
+        select dsr_dsf_id, 
+        dsr_readinit, 
+        dsr_readend, 
+        dsr_reader, 
+        dsr_eelplus, 
+        dsr_eelminus, 
+        dsr_csotdb, 
+        dsr_complete, 
+        dsr_muletscore, 
+        dsr_fryscore,
+        dsr_comment from dsr")
