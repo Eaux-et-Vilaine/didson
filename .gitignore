@@ -106,7 +106,8 @@ inst/doc
 
 # Other folders : markdown produced 
 data/
-**/any # any subfolder with any will be ignored
-**/[0-9]* # any subfolder starting with a number
+# ci dessous ne marche pas pour eclipse car image est en contrôle de source ?
+/**/any # any subfolder with any will be ignored
+/**/[0-9]* # any subfolder starting with a number
 table/
 
