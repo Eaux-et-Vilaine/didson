@@ -462,12 +462,12 @@ toutdebut <- str_c(2012,"-09-01 00:00:00")
 datedebut<-str_c(CY-1,"-09-01")
 datefin<-str_c(CY,"-05-01")
 graphics.off()
-setwd("C:/workspace/p/didson/rapport")
-datawd<-"C:/workspace/pdata/didson/rapport/data/" 
+setwd("C:/workspace/didson/R/report")
+datawd<-"C:/workspace/didson/data/" 
 datawdy<-str_c(datawd,CY,"/")
-imgwd<-"C:/workspace/pdata/didson/rapport/image/"
+imgwd<-"C:/workspace/didson/image/"
 imgwdy<-str_c(imgwd,CY,"/")
-tabwdy<-str_c("C:/workspace/pdata/didson/rapport/table/",CY,"/")
+tabwdy<-str_c("C:/workspace/didson/table",CY,"/")
 
 load_library('RODBC') # odbc connector
 load_library('stacomirtools') # connection tools
