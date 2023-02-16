@@ -1635,7 +1635,7 @@ t_didsonread_dsr  ON dsr_dsf_id=dsf_id
 LEFT JOIN t_didsonreadresult_drr drr ON drr_dsr_id=dsr_id) sub
 WHERE drr_total!=dsr_total; -- 15 lignes dont une en 2013 => 0 lignes après correctiON 0 après correctiON 
 --2019 =>0 lignes après correctiON 2020 0 lignes 2021
-
+--2022 7 lignes corrigées (voir ce dessous)
 /*
 2019
 UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=47635;
@@ -1645,6 +1645,18 @@ UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,1) WHERE dsr_id=49255
 /*
 Une correctiON manuelle 2017
 */
+/*
+2022
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,1) WHERE dsr_id=73159;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,1) WHERE dsr_id=73436;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,1) WHERE dsr_id=73440;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,1) WHERE dsr_id=73499;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(10,1) WHERE dsr_id=73968;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,1) WHERE dsr_id=75887;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(2,0) WHERE dsr_id=76023;
+*/
+
+
 
 /* 
 il manque les fichiers pour lesquels il y a des comptages mais pas de correspondance
@@ -1666,16 +1678,18 @@ SELECT distinct ON (dsf_timeinit) * FROM did.t_didsonfiles_dsf  dsf 	JOIN  did.t
 				JOIN did.t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species!='2014'
-				AND dsr_csotismin;
+				AND dsr_csotismin
+		    AND dsf_season = '2021-2022';
 
 
 
 -- ENSEMBLE DES POISSONS COMPTES (DANS LES TABLES POISSONS (DRR)) DANS LES FICHIERS CORRESPONDANT A CSOTISMIN
-SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) FROM t_didsonfiles_dsf 
+SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) count FROM t_didsonfiles_dsf 
 	JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id
 	LEFT JOIN t_didsonreadresult_drr
-	ON drr_dsr_id=dsr_id WHERE dsr_csotismin
-	AND dsr_pertefichiertxt IS FALSE
+	ON drr_dsr_id=dsr_id
+	WHERE dsr_csotismin
+  AND dsr_pertefichiertxt IS FALSE
 	group by dsf_season
 	ORDER BY dsf_season; 
 /*
@@ -1688,7 +1702,7 @@ SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) FROM t_didsonfiles_dsf
 2018-2019 1739=> 1736
 2019-2020	1434
 2020-2021 1985
-2021-2022
+2021-2022 1937
 */
 -- ENSEMBLE DES POISSONS COMPTES (DANS LES TABLES POISSONS (DRR)) Y COMPRIS LES COMPTAGES MULTIPLES
 SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) FROM t_didsonfiles_dsf 
@@ -1706,7 +1720,7 @@ SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) FROM t_didsonfiles_dsf
 "2018-2019";1739 => 1736 
 "2019-2020"	1434
 2020-2021 1985
-2021-2022
+2021-2022 1937
 */
 -- ENSEMBLE DES POISSONS COMPTES (DANS LES TABLES EXCEL (DSR)) Y COMPRIS LES COMPTAGES MULTIPLES
 -- ET AUSSI AVANT QU'ON PASSE EN LAMPROIES
@@ -1725,7 +1739,7 @@ FROM  t_didsonfiles_dsf
 "2018-2019";1739==>1736
 "2019-2020";1434
 2020-2021 1985
-2021-2022
+2021-2022 1937
 */
 -- ENSEMBLE DES POISSONS COMPTES (DANS LES TABLES EXCEL (DSR)) POUR LES CSOTISMIN
 SELECT dsf_season,sum(dsr_eelplus) + sum(dsr_eelminus) 
@@ -1746,7 +1760,7 @@ dsf_season;count
 2018-2019;1739 ==> 1736
 2019-2020;1434
 2020-2021 1985
-2021-2022
+2021-2022 1937
 
 
 */
@@ -1772,7 +1786,7 @@ FROM  t_didsonfiles_dsf
 "2018-2019";1739 =>1736
 "2019-2020";1434
 2020-2021 1985
-2021-2022
+2021-2022 1937
 */
 
 /* ci dessous la requête est lancée pour permettre de voir les jours ou il n'y a pas le même nombre
@@ -1815,28 +1829,36 @@ SELECT drr_id,dsf_season FROM v_dddpall WHERE (drr_eelplus>0 or drr_eelminus>0) 
 WHERE dsf_season='2016-2017'
 AND drr_id not in(SELECT psf_drr_id FROM t_poissonfile_psf WHERE psf_species='2014');
 SELECT distinct psf_species FROM t_poissonfile_psf ;
+/*
+2014
+2038
+2238
+*/
+
+SELECT drr_id FROM v_ddde except (SELECT drr_id FROM v_dddpall); -- rien
 
 
-SELECT drr_id FROM v_ddde except (SELECT drr_id FROM v_dddpall);
-
-
-SELECT * FROM t_poissonfile_psf WHERE psf_species!='2014' AND psf_species!='2038';
+SELECT * FROM t_poissonfile_psf WHERE psf_species!='2014' AND psf_species!='2038'; --4 2238
 
 --3343
-SELECT count(*) FROM did.t_poissonfile_psf WHERE psf_species='2038' AND  psf_dir='Up'  --6171 --9583 --12345 (2018) --15276 (2020) --17063 (2021)
+SELECT count(*) FROM did.t_poissonfile_psf WHERE psf_species='2038' AND  psf_dir='Up'; 
+--6171 --9583 --12345 (2018) --15276 (2020) --17063 (2021) 18844 (2022)
+
+
+
 SELECT count(*) FROM did.t_didsonfiles_dsf  dsf 	
 				JOIN  did.t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 				JOIN did.t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species!='2014'
-				AND dsr_csotismin; --6701 --10624 --13720 --15546 --16977 --18965
+				AND dsr_csotismin; --6701 --10624 --13720 --15546 --16977 --18965 --20902
 -- lamproies
 SELECT count(*) FROM did.t_didsonfiles_dsf  dsf 	
 				JOIN  did.t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 				JOIN did.t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species='2014'
-				AND dsr_csotismin; --2592 --657 -- 799 --1614 --1896 --1898 --1899 --1957
+				AND dsr_csotismin; --2592 --657 -- 799 --1614 --1896 --1898 --1899 --1957 --1962
 
 SELECT count(*),  psf_species FROM t_poissonfile_psf group by psf_species
 /* (2020)
@@ -1848,16 +1870,20 @@ count;psf_species
 1979  2014
 19170 2038
 4 2238
+(2022)
+1984  2014
+21107 2038
+4 2238
 */
 
 -- anguilles qui  ne sont pas dans les fichiers drr
 SELECT * FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE (dsr_eelplus>0 or dsr_eelminus>0) and
-dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr) AND dsr_csotismin ORDER BY dsf_timeinit;-- 0 2018 --0 2019 --0 2020
+dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr) AND dsr_csotismin ORDER BY dsf_timeinit;-- 0 2018 --0 2019 --0 2020 --0 2022
 
 
 SELECT * FROM t_didsonread_dsr RIGHT JOIN t_didsonreadresult_drr ON drr_dsr_id=dsr_id 
 WHERE dsr_eelplus != drr_eelplus
-or dsr_eelminus !=drr_eelminus --0 2018 --0 2020
+or dsr_eelminus !=drr_eelminus --0 2018 --0 2020 --0 2022
 /* Je n'ose pas lancer celui-là
 UPDATE t_didsonread_dsr SET (dsr_eelplus,dsr_eelminus)=(0,0) WHERE dsr_id in 
 (SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE (dsr_eelplus>0 or dsr_eelminus>0) and
@@ -1865,8 +1891,10 @@ dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr) AND dsr_csotismin 
 */
 
 SELECT sum(dsr_eelplus) FROM (SELECT * FROM t_didsonread_dsr  WHERE (dsr_eelplus>0 or dsr_eelminus>0) AND dsr_csotismin and
-dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr)) sub; --0 (2018) NULL (2020)
+dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr)) sub; --0 (2018) NULL (2020) NULL 2022
 
+
+-- tous les fichiers qui ne sont pas CSOTISMIN
 SELECT * FROM t_didsonread_dsr 
 JOIN t_didsonreadresult_drr
 ON drr_dsr_id=dsr_id WHERE dsr_csotismin=FALSE; 
@@ -2023,14 +2051,20 @@ File status manquants
 3	Qualité	Le fichier existe mais est de mauvaise qualité, ex :perte du fichier père, il ne reste que l'extraction, lecture impossible du fait du colmatage de la lentille
 */
 
-
+-- vérification des fls_id
 SELECT count(*), dsf_fls_id FROM did.t_didsonfiles_dsf WHERE dsf_season='2021-2022' GROUP BY dsf_fls_id;
 
 /*
 count dsf_id
+(2021)
 8136 NULL	
 718	1
 697	3
+(2022)
+8788  0
+1082  1
+4 3
+119 2
 */
 
 UPDATE did.t_didsonfiles_dsf SET dsf_fls_id=0 WHERE dsf_fls_id IS NULL AND dsf_season='2021-2022'; --8136
