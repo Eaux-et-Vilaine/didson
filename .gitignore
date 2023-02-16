@@ -106,6 +106,7 @@ inst/doc
 
 # Other folders : markdown produced 
 data/
-image/**/* # any subfolder of image
+**/any # any subfolder with any will be ignored
+**/[0-9]* # any subfolder starting with a number
 table/
 
