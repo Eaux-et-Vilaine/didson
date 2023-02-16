@@ -105,5 +105,7 @@ inst/doc
 
 
 # Other folders : markdown produced 
-
+data/
+image/**/* # any subfolder of image
+table/
 
