@@ -134,8 +134,6 @@ if (!params$work_with_db){
   load(file=str_c("C:/temp/debit_barrage.Rdata"))
 }
 debit_barrage <- traitement_siva(debit_barrage)
-Q12345 <- debit_total(param, param0 = param, debit_barrage)
-Q12345$tot_vol <- debit_barrage$tot_vol # volume total au barrage d'Arzal
 
 
 
@@ -348,7 +346,7 @@ dat$volet5[dat$volet5>3.8 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
 save(dat,file=str_c(datawdy,"dat.Rdata"))
 write.table(dat,file=str_c(datawdy,"dat.csv"),sep=";",row.names=FALSE)
 load(file=str_c(datawdy,"dat.Rdata"))
-
+# note à ce stade, traitement_siva a déjà été lancé....
 ###################################################################
 
 
@@ -361,8 +359,17 @@ load(file=str_c(datawdy,"dat.Rdata"))
 # STEP 3 CALCUL DES DEBITS
 ################################
 # Calcul du débit journalier
+
 Q12345 <- debit_total(param, param0 = param, dat)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
+Q12345$Qvanne  <- rowSums(Q12345[, c(
+            "qvanne1",
+            "qvanne2",
+            "qvanne3",
+            "qvanne4",
+            "qvanne5")]) * 600
+    
+    
 Qj <- debit_journalier(debit_barrage=dat, type = "recalcule")
 Q2j <- debit_journalier(debit_barrage=dat, type = "barrage_volume")
 Q3j <- debit_journalier(debit_barrage=dat, type = "barrage_debit")
@@ -524,34 +531,23 @@ ta <- new("tablesiva",
     debut=as.POSIXct(strptime(str_c(CY-1,"-09-01 00:00:00"),format="%Y-%m-%d %H:%M:%S")),
     fin=as.POSIXct(strptime(str_c(CY,"-05-01 00:00:00"),format="%Y-%m-%d %H:%M:%S"))
 )
-tur <- loaddb(ta)@rawdata
-tur$date <- as.Date(tur$Horodate)
+tur <- loaddb(ta, poolsiva)@rawdata
+tur$date <- as.Date(tur$horodate)
 
 
-
-
-stopifnot(nrow(Qj)==nrow(debj))
-#dev.off()
-debitjour <- cbind(Qj,"debitvoletcalcule"=debj$debitvoletcalcule)
-#nrow(debitjour)
-debitjour=left_join(debitjour, tur[,c("date","turbidite")])
-#nrow(debitjour)
-#colnames(debitjour)
-
+debitjour=left_join(QV, tur[,c("date","turbidite")])
+#nrow(debitjour) # 239
 #debitjour est une table temporaire.
 
-sqldf("drop table if exists did.debitjour")
-sqldf("create table did.debitjour as select * from debitjour")
+dbExecute(pooldidson,  "drop table if exists did.debitjour")
+dbWriteTable(pooldidson, DBI::Id(schema= "did", table = "debitjour"), debitjour)
 
-Q12345$volvannecalcule<-Q12345$Qvanne*600
-Q12345$volvilaine<-rowSums(Q12345[,c("volvannecalcule","volvoletcalcule","tot_vol_passe","tot_vol_siphon")])
-Q12345$Qvilaine<-Q12345$volvilaine/600
-Q12345$Qvolet<-Q12345$volvoletcalcule/600
-Q12345$Qpasse<-Q12345$tot_vol_passe/600
-Q12345$Qsiphon<-Q12345$tot_vol_siphon/600
 
-sqldf("drop table if exists did.t_env_env_temp")
-sqldf("create table did.t_env_env_temp(
+Q12345$Qpasse <- Q12345$tot_vol_passe/600 #env_debitpasse
+Q12345$Qsiphon <- Q12345$tot_vol_siphon/600 #env_debitsipon
+
+dbExecute(pooldidson,  "drop table if exists did.t_env_env_temp")
+dbExecute(pooldidson,"create table did.t_env_env_temp(
         env_id serial primary key,
         env_time timestamp without time zone,
         env_volet1 numeric,
@@ -589,8 +585,7 @@ sqldf("create table did.t_env_env_temp(
         env_qvolet5 numeric
         )");
 stopifnot(nrow(dat)==nrow(Q12345))
-stopifnot(nrow(Qvo12345)==nrow(Q12345))
-datexp<-cbind(
+t_env_env_temp <- cbind(
     dat[,c("horodate",
             "volet1",
             "volet2",             
@@ -604,65 +599,30 @@ datexp<-cbind(
             "vanne5",
             "niveauvilaine",
             "niveaumer")],
-    Q12345[c("Qvilaine",# env_debitvilaine =débit correspondant à débit volet recaculé +vanne recalculé+passe+siphon
+    Q12345[,c("Q",# env_debitvilaine =débit correspondant à débit volet recaculé +vanne recalculé+passe+siphon
             "debit_moyen_cran",
             "Qvanne", # env_debitvanne
             "Qvolet", # env_debitvolet
-            "Qpasse",#env_debitpasse
-            "Qsiphon",#env_debitsipon
-            "volvilaine", # env_volumetotal
-            "volvannecalcule", #env_volvanne
-            "volvoletcalcule",	# env_volvolet
+            "Qpasse", #env_debitpasse
+             "Qsiphon", #env_debitsiphon
+            "tot_vol", # env_volumetotal
+            "tot_vol_vanne", #env_volvanne
+            "tot_vol_volet",	# env_volvolet
             "tot_vol_passe",# env_volpasse	
             "tot_vol_siphon",# env_volsiphon
             "qvanne1",
             "qvanne2",
             "qvanne3",
             "qvanne4",
-            "qvanne5")],
-    Qvo12345[c("Qvolet1",
-            "Qvolet2",
-            "Qvolet3",
-            "Qvolet4",
-            "Qvolet5"
+            "qvanne5",
+            "qvolet1",
+            "qvolet2",
+            "qvolet3",
+            "qvolet4",
+            "qvolet5"
         )])
-sqldf("
-        insert into did.t_env_env_temp(
-        env_time,
-        env_volet1,
-        env_volet2,
-        env_volet3,
-        env_volet4,
-        env_volet5,
-        env_vanne1,
-        env_vanne2,
-        env_vanne3,
-        env_vanne4,
-        env_vanne5,
-        env_niveauvilaine,
-        env_niveaumer,
-        env_debitvilaine,
-        env_debitmoyencran,				
-        env_debitvanne,
-        env_debitvolet,
-        env_debitpasse,
-        env_debitsiphon,
-        env_volumetotal,				
-        env_volvanne,
-        env_volvolet,
-        env_volpasse,
-        env_volsiphon,
-        env_qvanne1 ,
-        env_qvanne2 ,
-        env_qvanne3 ,
-        env_qvanne4 ,
-        env_qvanne5 ,
-        env_qvolet1 ,
-        env_qvolet2 ,
-        env_qvolet3 ,
-        env_qvolet4 ,
-        env_qvolet5 
-        ) select * from datexp"	)
+dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp"),t_env_env_temp, overwrite=TRUE) 
+        
 
 ##########################################################
 # ===========>voir ligne 170 script  didson_database.sql
