@@ -626,7 +626,7 @@ dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp"),t_env_env_t
 
 ##########################################################
 # ===========>voir ligne 170 script  didson_database.sql
-# INTERGRATION DES DONNEES DE did.t_env_env_temp DANS t_env_env ;
+# INTEGRATION DES DONNEES DE did.t_env_env_temp DANS t_env_env ;
 # PUIS INTEGRATION DE debitjour dans did.t_envjour_enj
 ##########################################################
 
