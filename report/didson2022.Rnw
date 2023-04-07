@@ -444,7 +444,7 @@ Eriau}}}
 # CHUNKS d3ej d3ejperiodes d3ejfinal didson... tout ce qui utilise la fonction drawdi !
 #options("encoding" = "UTF-8")
 obj<-ls(all=TRUE)
-obj<-obj[!obj%in%c("passworddistant","passwordlocal","userdistant","hostdistant")]
+obj<-obj[!obj%in%c("passworddistant","passwordlocal","userdistant","hostdistant","mainpass")]
 
 rm(list=obj) # nettoyage complet sauf passwords
 load_library=function(necessary) {
@@ -462,7 +462,7 @@ toutdebut <- str_c(2012,"-09-01 00:00:00")
 datedebut<-str_c(CY-1,"-09-01")
 datefin<-str_c(CY,"-05-01")
 graphics.off()
-setwd("C:/workspace/didson/R/report")
+setwd("C:/workspace/didson/report")
 datawd<-"C:/workspace/didson/data/" 
 datawdy<-str_c(datawd,CY,"/")
 imgwd<-"C:/workspace/didson/image/"
@@ -1001,7 +1001,7 @@ briand_suivi_2021}.
 require("safer")
 require("getPass")
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
-pois <- getPass(msg="Main password")
+if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
 host <- decrypt_string(hostdistant,pois)
 user <- decrypt_string(userdistant,pois)
 password<- decrypt_string(passworddistant,pois)

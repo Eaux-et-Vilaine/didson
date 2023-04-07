@@ -104,10 +104,14 @@ local.properties
 inst/doc
 
 
-# Other folders : markdown produced 
+# Other folders  -------------------------
+
 data/
-# ci dessous ne marche pas pour eclipse car image est en contrôle de source ?
+# I'm not ignoring image because some of the images are used in the readme.
+
+# This works in eclipse but I need to create the folder after creating the wildcard and pattern
 /**/any # any subfolder with any will be ignored
 /**/[0-9]* # any subfolder starting with a number
+
 table/
 
