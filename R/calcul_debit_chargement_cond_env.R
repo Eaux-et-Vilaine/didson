@@ -621,6 +621,42 @@ t_env_env_temp <- cbind(
             "qvolet4",
             "qvolet5"
         )])
+colnames(t_env_env_temp) <- c(
+  "env_time",
+  "env_volet1",
+  "env_volet2",
+  "env_volet3",
+  "env_volet4",
+  "env_volet5",
+  "env_vanne1",
+  "env_vanne2",
+  "env_vanne3",
+  "env_vanne4",
+  "env_vanne5",
+  "env_niveauvilaine",
+  "env_niveaumer",
+  "env_debitvilaine",
+  "env_debitmoyencran",
+  "env_debitvanne",
+  "env_debitvolet",
+  "env_debitpasse",
+  "env_debitsiphon",
+  "env_volumetotal",
+  "env_volvanne",
+  "env_volvolet",
+  "env_volpasse",
+  "env_volsiphon",
+  "env_qvanne1",
+  "env_qvanne2",
+  "env_qvanne3",
+  "env_qvanne4",
+  "env_qvanne5",
+  "env_qvolet1",
+  "env_qvolet2",
+  "env_qvolet3",
+  "env_qvolet4",
+  "env_qvolet5")
+    
 dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp"),t_env_env_temp, overwrite=TRUE) 
         
 

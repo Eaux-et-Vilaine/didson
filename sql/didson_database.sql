@@ -120,7 +120,7 @@ Les données de températures abérrantes ont été écartées de l'analyse.
 */
 
 
-alter table did.t_env_env_temp alter column "env_time" type  timestamp without time zone;
+ALTER TABLE did.t_env_env_temp ALTER COLUMN "env_time" type  timestamp without time zone;
 
 
 /*
@@ -161,17 +161,29 @@ Retour à l'heure normale le Dimanche 28 Octobre 2018 - 02 h 00 (GMT + 1 h ) CET
 Année : 2019
 Passage à l'heure d'été le Dimanche 31 Mars 2019 - 03 h 00 (GMT + 2 h ) CEST
 Retour à l'heure normale le Dimanche 27 Octobre 2019 - 02 h 00 (GMT + 1 h ) CET
+Année : 2020
+Passage à l'heure d'été le Dimanche 29 Mars 2020 - 03 h 00 (GMT + 2 h ) CEST
+Retour à l'heure normale le Dimanche 25 Octobre 2020 - 02 h 00 (GMT + 1 h ) CET
+Année : 2021
+Passage à l'heure d'été le Dimanche 28 Mars 2021 - 03 h 00 (GMT + 2 h ) CEST
+Retour à l'heure normale le Dimanche 31 Octobre 2021 - 02 h 00 (GMT + 1 h ) CET
+Année : 2022
+Passage à l'heure d'été le Dimanche 27 Mars 2022 - 03 h 00 (GMT + 2 h ) CEST
+Retour à l'heure normale le Dimanche 30 Octobre 2022 - 02 h 00 (GMT + 1 h ) CET
 
 */
 
 DROP FUNCTION IF EXISTS did.adjust_time(TIMESTAMP) cascade;
 CREATE OR REPLACE FUNCTION did.adjust_time(TIMESTAMP) 
 RETURNS TIMESTAMP AS $$ 
-  SELECT case when $1 < TIMESTAMP '2018-10-28 03:00:00' or $1 > TIMESTAMP '2019-03-31 02:00:00' 
+  SELECT case when $1 < TIMESTAMP '2021-10-28 03:00:00' or $1 > TIMESTAMP '2022-03-27 02:00:00' 
   then $1 + INTERVAL '1 hour'
   else $1 end
 $$ LANGUAGE SQL;
 select * from did.t_env_env_temp limit 10;
+select * from did.t_env_env_temp WHERE env_time='2021-10-28 03:00:00';
+select * from did.t_env_env_temp WHERE env_time='2021-10-28 02:00:00';
+select * from did.t_env_env_temp WHERE env_time='2021-10-28 04:00:00';
 
 -----------------------------------------
 -- SCRIPT INTEGRATION DES DONNEES ANNUELLES DIDSON
@@ -297,8 +309,17 @@ env_qvolet2,
 env_qvolet3,
 env_qvolet4,
 env_qvolet5
- from did.t_env_env_temp;-- 34846(212-2013 refait2020) 34846 2013-2014 (refait 2021) 34696 --2015 34978 34840 (2016-2017) 34834 (2017-2018) 35274 (2018 restant) 52552 2019 34990 2020 34846 2021
-
+ from did.t_env_env_temp;
+ -- 34846(212-2013 refait2020) 
+ -- 34846 2013-2014 (refait 2021) 
+ -- 34696 --2015
+  -- 34978 34840 (2016-2017)
+  --  34834 (2017-2018) 
+  -- 35274 (2018 restant) 
+  --52552 2019 
+  -- 34990 2020
+  -- 34846 2021
+   --335782022
  
  /*
   * select  env_qvolet4, env_volet4 from did.t_env_env where env_time='2013-11-08 00:30:00'
@@ -330,8 +351,11 @@ ALTER TABLE did.t_envjour_enj ADD CONSTRAINT c_uk_enj_date UNIQUE(enj_date);
 select * from did.debitjour;
 select * from did.t_envjour_enj ORDER BY enj_date;
 INSERT INTO did.t_envjour_enj(enj_date,enj_turb,deb_qtotalj)  
-SELECT date, turbidite, debitvilainecalcule FROM did.debitjour
-WHERE date > (SELECT max(enj_date) FROM did.t_envjour_enj); --243 --242
+SELECT date, turbidite, debit_moyen_recalcule  FROM did.debitjour
+WHERE date > (SELECT max(enj_date) FROM did.t_envjour_enj); 
+--243 
+--242
+--239 (2022-2023)
 
 
 --select max(enj_date) from did.t_envjour_enj 
