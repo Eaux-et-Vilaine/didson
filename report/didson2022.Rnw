@@ -448,10 +448,10 @@ obj<-obj[!obj%in%c("passworddistant","passwordlocal","userdistant","hostdistant"
 
 rm(list=obj) # nettoyage complet sauf passwords
 load_library=function(necessary) {
-	if(!all(necessary %in% installed.packages()[, 'Package']))
-		install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
-	for(i in 1:length(necessary))
-		library(necessary[i], character.only = TRUE)
+  if(!all(necessary %in% installed.packages()[, 'Package']))
+    install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
+  for(i in 1:length(necessary))
+    library(necessary[i], character.only = TRUE)
 }
 load_library('stringr') # text handling
 CY=2022
@@ -469,11 +469,11 @@ imgwd<-"C:/workspace/didson/image/"
 imgwdy<-str_c(imgwd,CY,"/")
 tabwdy<-str_c("C:/workspace/didson/table",CY,"/")
 
-load_library('RODBC') # odbc connector
+#load_library('RODBC') # odbc connector
 load_library('stacomirtools') # connection tools
 load_library('grDevices') # star symbol
-load_library('sqldf') # mimict sql queries in a data.frame #citation("sqldf")
-load_library('RPostgreSQL') # one can use RODBC, here I'm using direct connection via the sqldf package
+#load_library('sqldf') # mimict sql queries in a data.frame #citation("sqldf")
+load_library('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 # loading RPostgresSQL ensures that postgres is used as a default driver by sqldf
 # setting options to access postgres using sqldf
 #load_library('plyr')# join fuction
@@ -497,7 +497,7 @@ load_library('tidyverse') # conflict with intersect ... fixed
 #'==========================================================
 
 sanitizeLatexS <- function(str) {
-	gsub('([#$%&~_\\^\\\\{}])', '\\\\\\\\\\1', str, perl = TRUE);
+  gsub('([#$%&~_\\^\\\\{}])', '\\\\\\\\\\1', str, perl = TRUE);
 }
 
 #'==========================================================
@@ -508,9 +508,9 @@ sanitizeLatexS <- function(str) {
 #'==========================================================
 makeTransparent<-function(someColor, alpha=100)
 {
-	newColor<-col2rgb(someColor)
-	apply(newColor, 2, function(curcoldata){rgb(red=curcoldata[1], green=curcoldata[2],
-						blue=curcoldata[3],alpha=alpha, maxColorValue=255)})
+  newColor<-col2rgb(someColor)
+  apply(newColor, 2, function(curcoldata){rgb(red=curcoldata[1], green=curcoldata[2],
+            blue=curcoldata[3],alpha=alpha, maxColorValue=255)})
 }	#note: always pass alpha on the 0-255 scale
 #'==========================================================
 #' FONCTION DE TRACAGE ET CALCUL DU didson
@@ -531,145 +531,145 @@ makeTransparent<-function(someColor, alpha=100)
 #'  Attention la surface de la zone de migration est surestimée de 0.2 pour des raisons graphiques, le calcul n'est pas repris dans le script....
 #'==========================================================
 drawdi<-function(fond=-7.72, profdid=-6.92, alphadegres=14, dist=6, betadegres=NA, d1=2.5,d2=d1+10, hvan=NA, hpas=2,
-		print=FALSE, graph=FALSE, divide=NA, volet=FALSE, chargevolet=NA, retrait=0.2, vectdist=NA, vectdir=NA,
-		couleur=rainbow(length(detection_frames),alpha=0.3)){
-	hautvolet<-1.38
-	if (is.na(chargevolet)) chargevolet<-0.3
-	if (is.na(hvan)) hvan=hpas
-	alpha= alphadegres*pi/180# conversion de degrés en radians (180°=Pi)
-	slopealpha=tan(alpha) # pente de l'angle par rapport à l'axe 0x
-	if (is.na(dist)&is.na(betadegres)|!is.na(dist)&!is.na(betadegres)) {
-		stop ("il faut dist ou béta, l'un des deux")
-	} else if (is.na(dist)){ # on donne un angle
-		beta=betadegres*pi/180
-		dist=(fond-profdid)/tan(beta) #H/dist=cos(pi/2-beta)
-		slopebeta=tan(beta)
-		if (print) cat ("la distance d'interception est de ", dist,"m \n")
-	} else { # on donne une distance 
-		
-		slopebeta=(fond-profdid)/dist
-		beta=atan(slopebeta)		
-		betadegres<-beta*180/pi
-		if (print) cat ("l'angle est de ",round(betadegres,2),"degrés \n")
-	}
-	pentesup <- tan(beta+alpha/2) # pente de la limite de la zone de détection vers la surface
-	penteinf <- tan(beta-alpha/2) # pente de la limite de la zone de détection vesr le fond
-	perpslope <- -1/slopebeta # pente de la droite perpendiculaire à l'axe de détection, le produit des
-	# coefficients directeurs vaut -1
-	# ou
-	#perpslope<-tan(beta+pi/2)
-	# CALCUL DES POLYGONES DE DETECTION ET MIGRATION
-	calculate_poly<-function(d1,d2){
-		d1supx=(d1/cos(alpha/2))*cos(beta+alpha/2)
-		d1infx=(d1/cos(-alpha/2))*cos(beta-alpha/2)
-		d1supy=pentesup*d1supx+profdid  # a partir de l'équation de la droite
-		d1infy=penteinf*d1infx+profdid  # a partir de l'équation de la droite
-		d2supx=(d2/cos(alpha/2))*cos(beta+alpha/2)
-		d2infx=(d2/cos(-alpha/2))*cos(beta-alpha/2)
-		d2supy=pentesup*d2supx+profdid  # a partir de l'équation de la droite
-		d2infy=penteinf*d2infx+profdid  # a partir de l'équation de la droite
-		poly<-cbind(c(d1supx,d2supx,d2infx,d1infx),c(d1supy,d2supy,d2infy,d1infy))
-		#polygon(poly2,col="red")
-		detection_frame <- as(poly, "gpc.poly")
-		return(detection_frame)
-	}
-	detection_frame<-calculate_poly(d1,d2)
-	poly2<-	cbind(c(18,18,retrait,retrait),c(fond,fond+hpas,fond+hpas,fond))
-	if (volet) poly2<-	cbind(c(18,18,retrait,retrait),c(hautvolet+chargevolet-hpas,hautvolet+chargevolet,hautvolet+chargevolet,hautvolet+chargevolet-hpas))
-	migration_frame <- as(poly2, "gpc.poly")	
-	# CALCUL D'UN DECOUPAGE DE POLYGONES
-	if (!is.na(divide[1])){
-		detection_frames <- list()
-		if (max(divide)>=(d2-d1)) stop("il n'est pas possible de diviser d2-d1=",d2-d1,"en portions de ",divide," m, suggestion mettre divide=NA" )
-		dist <- d1
-		i <- 1
-		dividev <- divide[1]
-		while (dist<d2-dividev){	
-			if (length(divide)>1)
-				dividev<-divide[i] else dividev<(divide[1])
-			detection_frames[[i]]<-list()
-			detection_frames[[i]][["range"]]<-str_c(dist,"-",dist+dividev)
-			detection_frames[[i]][["poly"]]<-calculate_poly(dist,dist+dividev)
-			dist=dist+dividev
-			i=i+1
-		}
-		# pour le dernier
-		detection_frames[[i]]<-list()
-		detection_frames[[i]][["range"]]<-str_c(dist,"-",d2)	
-		detection_frames[[i]][["poly"]]<-calculate_poly(dist,d2)
-		
-		
-		detection_frames_range <- sapply(detection_frames,function(X) X$range)	
-		detection_frames_intersect_area <- sapply(detection_frames,
-				function(X) round(gpclib::area.poly(gpclib::intersect(X$poly,migration_frame)),2))
-	} else {
-		detection_frames_range<-NA	
-		detection_frames_intersect_area<-NA
-	}
-	
-	# GRAPHIQUE
-	if (graph){
-		plot(x=NA,xlim=c(20,-2),ylim=c(fond-3,4.63),ylab="profondeur (m NGF)",xlab="distance(m)")
-		im <- readPNG( str_c(imgwd,"concrete.png"), native = TRUE )
-		rasterImage( im,  20, fond-3, -2, 4.63 )
-		rect(xleft=18,ybottom=fond,xright=retrait,ytop=4.63,col="aquamarine")
-		im <- readPNG( str_c(imgwd,"iron.png"), native = TRUE )
-		rasterImage( im,  xleft=18,ybottom=fond+hvan,xright=retrait,ytop=hautvolet+hvan)
-		
-		#polygon(x=c(19,19,18,18,0,0,-1,-1),y=c(fond-2,4.63,4.63,fond,fond,4.63,4.63,fond-2),col="grey20") # fond
-		
-		plot(migration_frame,poly.args = list(col=makeTransparent("yellow",alpha=100)),add=TRUE)
-		if(volet){
-			rect(xleft=18,ybottom=hautvolet,xright=retrait,ytop=hautvolet+chargevolet,col="aquamarine3")			
-		}
-		if (is.na(divide)){
-			# affichage si le polygone de détection n'est pas découpé
-			plot(detection_frame,poly.args = list(col = makeTransparent("yellow",alpha=100)), add = TRUE)
-		}
-		plot(gpclib::intersect(migration_frame,detection_frame),poly.args = list(col = makeTransparent("white",alpha=80)), add = TRUE)
-		points(0,profdid,col="green",cex=2,pch=16) # didson
-		# pour une droite bx+a, tracé des lignes
-		abline(a=profdid,b=slopebeta,col="red") # pour un intercept à la distance de dist, on touche le fond et il faut rajouter l'intercept x=(Y-b)/a
-		abline(a=profdid,b=pentesup,lty=2) # droite supérieure
-		abline(a=profdid,b=penteinf,lty=2) # droite inférieure
-		abline(b=perpslope,a=fond-perpslope*dist,lty=3) # perpendiculaire au point ou le centre touche le fond
-		# fonction pour tracer les droites perpendiculaires à l'axe du didson
-		fperp<-function(newdist,col){
-			y=profdid+newdist*sin(beta)
-			x=0+newdist*cos(beta)
-			adistx=y-perpslope*x# Y-slope*x
-			abline(a=adistx,b=perpslope,lty=4,col=col) # perpendiculaire au point ou le centre touche le fond
-			text(x,y,str_c(newdist,"m"),pos=4, col=col)
-		}
-		fperp(d1,"white")
-		fperp(d2,"white")
-		if (!is.na(divide)){
-			couleurs<-couleur
-			for (i in 1:length(detection_frames)){
-				plot(detection_frames[[i]]$poly,poly.args = list(col = couleurs[i]), add = TRUE)
-			}
-		}
-		
-		# ci dessous pour mettre les anguilles vues à un vecteur de dist du didson
-		# et pour un bruit (le long de la droite perpendiculaire) de distnoise
-		if (!is.na(vectdist[1])){
-			fpointperp<-function(vectdist,vectdir){
-				# au max on met des points jusqu'à 0.6 le bord
-				noise<-runif(length(vectdist),-d1*0.6*tan(alpha/2),d1*0.6*tan(alpha/2))
-				noise<-noise*vectdist/d1
-				y=profdid+vectdist*sin(beta)+noise*cos(beta)
-				x=0+vectdist*cos(beta)-noise*sin(beta)
-				dir<-vectdir=="Up"
-				points(x[dir],y[dir],pch="+",cex=0.7)
-				points(x[!dir],y[!dir],pch="-",cex=0.7)
-			}
-			fpointperp(vectdist,vectdir)
-		}
-	}
-	return(list("area_intersect"=round(area.poly(gpclib::intersect(detection_frame,migration_frame)),2),
-					"area_migration_frame"=area.poly(migration_frame),
-					"det_frames_int_area"=detection_frames_intersect_area,
-					"det_frames_range"=detection_frames_range))
+    print=FALSE, graph=FALSE, divide=NA, volet=FALSE, chargevolet=NA, retrait=0.2, vectdist=NA, vectdir=NA,
+    couleur=rainbow(length(detection_frames),alpha=0.3)){
+  hautvolet<-1.38
+  if (is.na(chargevolet)) chargevolet<-0.3
+  if (is.na(hvan)) hvan=hpas
+  alpha= alphadegres*pi/180# conversion de degrés en radians (180°=Pi)
+  slopealpha=tan(alpha) # pente de l'angle par rapport à l'axe 0x
+  if (is.na(dist)&is.na(betadegres)|!is.na(dist)&!is.na(betadegres)) {
+    stop ("il faut dist ou béta, l'un des deux")
+  } else if (is.na(dist)){ # on donne un angle
+    beta=betadegres*pi/180
+    dist=(fond-profdid)/tan(beta) #H/dist=cos(pi/2-beta)
+    slopebeta=tan(beta)
+    if (print) cat ("la distance d'interception est de ", dist,"m \n")
+  } else { # on donne une distance 
+    
+    slopebeta=(fond-profdid)/dist
+    beta=atan(slopebeta)		
+    betadegres<-beta*180/pi
+    if (print) cat ("l'angle est de ",round(betadegres,2),"degrés \n")
+  }
+  pentesup <- tan(beta+alpha/2) # pente de la limite de la zone de détection vers la surface
+  penteinf <- tan(beta-alpha/2) # pente de la limite de la zone de détection vesr le fond
+  perpslope <- -1/slopebeta # pente de la droite perpendiculaire à l'axe de détection, le produit des
+  # coefficients directeurs vaut -1
+  # ou
+  #perpslope<-tan(beta+pi/2)
+  # CALCUL DES POLYGONES DE DETECTION ET MIGRATION
+  calculate_poly<-function(d1,d2){
+    d1supx=(d1/cos(alpha/2))*cos(beta+alpha/2)
+    d1infx=(d1/cos(-alpha/2))*cos(beta-alpha/2)
+    d1supy=pentesup*d1supx+profdid  # a partir de l'équation de la droite
+    d1infy=penteinf*d1infx+profdid  # a partir de l'équation de la droite
+    d2supx=(d2/cos(alpha/2))*cos(beta+alpha/2)
+    d2infx=(d2/cos(-alpha/2))*cos(beta-alpha/2)
+    d2supy=pentesup*d2supx+profdid  # a partir de l'équation de la droite
+    d2infy=penteinf*d2infx+profdid  # a partir de l'équation de la droite
+    poly<-cbind(c(d1supx,d2supx,d2infx,d1infx),c(d1supy,d2supy,d2infy,d1infy))
+    #polygon(poly2,col="red")
+    detection_frame <- as(poly, "gpc.poly")
+    return(detection_frame)
+  }
+  detection_frame<-calculate_poly(d1,d2)
+  poly2<-	cbind(c(18,18,retrait,retrait),c(fond,fond+hpas,fond+hpas,fond))
+  if (volet) poly2<-	cbind(c(18,18,retrait,retrait),c(hautvolet+chargevolet-hpas,hautvolet+chargevolet,hautvolet+chargevolet,hautvolet+chargevolet-hpas))
+  migration_frame <- as(poly2, "gpc.poly")	
+  # CALCUL D'UN DECOUPAGE DE POLYGONES
+  if (!is.na(divide[1])){
+    detection_frames <- list()
+    if (max(divide)>=(d2-d1)) stop("il n'est pas possible de diviser d2-d1=",d2-d1,"en portions de ",divide," m, suggestion mettre divide=NA" )
+    dist <- d1
+    i <- 1
+    dividev <- divide[1]
+    while (dist<d2-dividev){	
+      if (length(divide)>1)
+        dividev<-divide[i] else dividev<(divide[1])
+      detection_frames[[i]]<-list()
+      detection_frames[[i]][["range"]]<-str_c(dist,"-",dist+dividev)
+      detection_frames[[i]][["poly"]]<-calculate_poly(dist,dist+dividev)
+      dist=dist+dividev
+      i=i+1
+    }
+    # pour le dernier
+    detection_frames[[i]]<-list()
+    detection_frames[[i]][["range"]]<-str_c(dist,"-",d2)	
+    detection_frames[[i]][["poly"]]<-calculate_poly(dist,d2)
+    
+    
+    detection_frames_range <- sapply(detection_frames,function(X) X$range)	
+    detection_frames_intersect_area <- sapply(detection_frames,
+        function(X) round(gpclib::area.poly(gpclib::intersect(X$poly,migration_frame)),2))
+  } else {
+    detection_frames_range<-NA	
+    detection_frames_intersect_area<-NA
+  }
+  
+  # GRAPHIQUE
+  if (graph){
+    plot(x=NA,xlim=c(20,-2),ylim=c(fond-3,4.63),ylab="profondeur (m NGF)",xlab="distance(m)")
+    im <- readPNG( str_c(imgwd,"concrete.png"), native = TRUE )
+    rasterImage( im,  20, fond-3, -2, 4.63 )
+    rect(xleft=18,ybottom=fond,xright=retrait,ytop=4.63,col="aquamarine")
+    im <- readPNG( str_c(imgwd,"iron.png"), native = TRUE )
+    rasterImage( im,  xleft=18,ybottom=fond+hvan,xright=retrait,ytop=hautvolet+hvan)
+    
+    #polygon(x=c(19,19,18,18,0,0,-1,-1),y=c(fond-2,4.63,4.63,fond,fond,4.63,4.63,fond-2),col="grey20") # fond
+    
+    plot(migration_frame,poly.args = list(col=makeTransparent("yellow",alpha=100)),add=TRUE)
+    if(volet){
+      rect(xleft=18,ybottom=hautvolet,xright=retrait,ytop=hautvolet+chargevolet,col="aquamarine3")			
+    }
+    if (is.na(divide)){
+      # affichage si le polygone de détection n'est pas découpé
+      plot(detection_frame,poly.args = list(col = makeTransparent("yellow",alpha=100)), add = TRUE)
+    }
+    plot(gpclib::intersect(migration_frame,detection_frame),poly.args = list(col = makeTransparent("white",alpha=80)), add = TRUE)
+    points(0,profdid,col="green",cex=2,pch=16) # didson
+    # pour une droite bx+a, tracé des lignes
+    abline(a=profdid,b=slopebeta,col="red") # pour un intercept à la distance de dist, on touche le fond et il faut rajouter l'intercept x=(Y-b)/a
+    abline(a=profdid,b=pentesup,lty=2) # droite supérieure
+    abline(a=profdid,b=penteinf,lty=2) # droite inférieure
+    abline(b=perpslope,a=fond-perpslope*dist,lty=3) # perpendiculaire au point ou le centre touche le fond
+    # fonction pour tracer les droites perpendiculaires à l'axe du didson
+    fperp<-function(newdist,col){
+      y=profdid+newdist*sin(beta)
+      x=0+newdist*cos(beta)
+      adistx=y-perpslope*x# Y-slope*x
+      abline(a=adistx,b=perpslope,lty=4,col=col) # perpendiculaire au point ou le centre touche le fond
+      text(x,y,str_c(newdist,"m"),pos=4, col=col)
+    }
+    fperp(d1,"white")
+    fperp(d2,"white")
+    if (!is.na(divide)){
+      couleurs<-couleur
+      for (i in 1:length(detection_frames)){
+        plot(detection_frames[[i]]$poly,poly.args = list(col = couleurs[i]), add = TRUE)
+      }
+    }
+    
+    # ci dessous pour mettre les anguilles vues à un vecteur de dist du didson
+    # et pour un bruit (le long de la droite perpendiculaire) de distnoise
+    if (!is.na(vectdist[1])){
+      fpointperp<-function(vectdist,vectdir){
+        # au max on met des points jusqu'à 0.6 le bord
+        noise<-runif(length(vectdist),-d1*0.6*tan(alpha/2),d1*0.6*tan(alpha/2))
+        noise<-noise*vectdist/d1
+        y=profdid+vectdist*sin(beta)+noise*cos(beta)
+        x=0+vectdist*cos(beta)-noise*sin(beta)
+        dir<-vectdir=="Up"
+        points(x[dir],y[dir],pch="+",cex=0.7)
+        points(x[!dir],y[!dir],pch="-",cex=0.7)
+      }
+      fpointperp(vectdist,vectdir)
+    }
+  }
+  return(list("area_intersect"=round(area.poly(gpclib::intersect(detection_frame,migration_frame)),2),
+          "area_migration_frame"=area.poly(migration_frame),
+          "det_frames_int_area"=detection_frames_intersect_area,
+          "det_frames_range"=detection_frames_range))
 }
 #'==========================================================
 #' FONCTION DE TRACAGE ET CALCUL DES DISTANCES DE PASSAGE D'ANGUILLES POUR DES CONDITIONS DONNEES
@@ -688,116 +688,116 @@ drawdi<-function(fond=-7.72, profdid=-6.92, alphadegres=14, dist=6, betadegres=N
 #' dans le champ perpendiculaire a la direction du faisceau sont générés aléatoirement.
 
 drawdicriter<-function(profdid,
-		incl,
-		Phi, # s ou f, les valeurs sf de transition sont inclues pour les deux
-		distancestart=NA,
-		timestamp=NA,
-		nomperiode="preciser",
-		print="pdf",
-		couleur=rainbow(5,alpha=0.3)){
+    incl,
+    Phi, # s ou f, les valeurs sf de transition sont inclues pour les deux
+    distancestart=NA,
+    timestamp=NA,
+    nomperiode="preciser",
+    print="pdf",
+    couleur=rainbow(5,alpha=0.3)){
 # regarder distancestart et ouverture vanne	
-	cat(nomperiode, "\n ---------------------------\n")
-	logi<-d3ej$dsf_incl==incl&
-			!is.na(d3ej$dsf_incl)&
-			d3ej$dsf_depth==profdid&
-			!is.na(d3ej$dsf_depth)&
-			grepl(Phi,d3ej$optvanne4)
-	if (!is.na(distancestart)) logi<-logi&d3ej$dsf_distancestart==distancestart
-	if (!is.na(timestamp[1])) {
-		if(length(timestamp)!=2) stop("le timestamp doit comporter une date de début et une date de fin")
-		timestamp<-strptime(timestamp,format="%Y-%m-%d %H:%M:%S")
-		logi<-logi&d3ej$dsf_timeinit>=timestamp[1]&
-				d3ej$dsf_timeinit<=timestamp[2]
-	}
-	
-	if (incl==0) incl_=incl+0.1 else incl_=incl#pb de division par zéro
-	if (sum(logi)==0) stop("attention ne correspond à aucun critères")
-	cat(str_c("N=",sum(logi),"\n"))
-	d3ej_per<-d3ej[logi,
-			c("dsf_id","dsf_timeinit","dsf_depth","optvanne4","dsf_distancestart","niveauvilaine30","hvanne4","dsr_eelplus","dsr_eelminus")]
-	daterange<-str_c(min(d3ej_per$dsf_timeinit),"=>",max(d3ej_per$dsf_timeinit))
-	eff<-d3ej_per$dsr_eelplus+d3ej_per$dsr_eelminus
-	cat((str_c("Nsuivi=",length(eff[!is.na(eff)]),"\n")))
-	cat((str_c("dates =",daterange," ")))
-	daterange<-str_c(format(as.Date(min(d3ej_per$dsf_timeinit)),"%d %b")," au ",format(as.Date(max(d3ej_per$dsf_timeinit)),"%d %b"))
-	cat((str_c("prof =",profdid," incl=",incl," Phi=",Phi,"\n")))
-	eff1<-eff
-	eff1[is.na(eff)]<-"NA"
-	cat((str_c("Eff=",str_c(eff1,collapse=","),"\n")))
-	
-	cat((str_c("Eff_tot=",sum(eff,na.rm=TRUE),"\n")))
-	if (Phi=="s"){
-		chargevolet<-round(weighted.mean(d3ej_per$niveauvilaine30[!is.na(eff)],eff[!is.na(eff)])-1.38,2)
-		volet=TRUE
-		hvanne4=0
-		hpas=chargevolet*PARM[2]
-	} else {
-		chargevolet<-NA
-		hvanne4<-round(weighted.mean(d3ej_per$hvanne4[!is.na(eff)],eff[!is.na(eff)]),2)
-		volet=FALSE
-		hpas=hvanne4*PARM[1]
-	}
-	d1<-unique(d3ej_per$dsf_distancestart)
-	if (length(d1)>1) {
-		cat(str_c("attention d1=",str_c(d1,collapse=",")," précisez les valeurs, utilisation de toute la gamme"))
-		d2=max(d1)+10
-		d1=min(d1)
-	} else {
-		d2=d1+10
-	}
+  cat(nomperiode, "\n ---------------------------\n")
+  logi<-d3ej$dsf_incl==incl&
+      !is.na(d3ej$dsf_incl)&
+      d3ej$dsf_depth==profdid&
+      !is.na(d3ej$dsf_depth)&
+      grepl(Phi,d3ej$optvanne4)
+  if (!is.na(distancestart)) logi<-logi&d3ej$dsf_distancestart==distancestart
+  if (!is.na(timestamp[1])) {
+    if(length(timestamp)!=2) stop("le timestamp doit comporter une date de début et une date de fin")
+    timestamp<-strptime(timestamp,format="%Y-%m-%d %H:%M:%S")
+    logi<-logi&d3ej$dsf_timeinit>=timestamp[1]&
+        d3ej$dsf_timeinit<=timestamp[2]
+  }
+  
+  if (incl==0) incl_=incl+0.1 else incl_=incl#pb de division par zéro
+  if (sum(logi)==0) stop("attention ne correspond à aucun critères")
+  cat(str_c("N=",sum(logi),"\n"))
+  d3ej_per<-d3ej[logi,
+      c("dsf_id","dsf_timeinit","dsf_depth","optvanne4","dsf_distancestart","niveauvilaine30","hvanne4","dsr_eelplus","dsr_eelminus")]
+  daterange<-str_c(min(d3ej_per$dsf_timeinit),"=>",max(d3ej_per$dsf_timeinit))
+  eff<-d3ej_per$dsr_eelplus+d3ej_per$dsr_eelminus
+  cat((str_c("Nsuivi=",length(eff[!is.na(eff)]),"\n")))
+  cat((str_c("dates =",daterange," ")))
+  daterange<-str_c(format(as.Date(min(d3ej_per$dsf_timeinit)),"%d %b")," au ",format(as.Date(max(d3ej_per$dsf_timeinit)),"%d %b"))
+  cat((str_c("prof =",profdid," incl=",incl," Phi=",Phi,"\n")))
+  eff1<-eff
+  eff1[is.na(eff)]<-"NA"
+  cat((str_c("Eff=",str_c(eff1,collapse=","),"\n")))
+  
+  cat((str_c("Eff_tot=",sum(eff,na.rm=TRUE),"\n")))
+  if (Phi=="s"){
+    chargevolet<-round(weighted.mean(d3ej_per$niveauvilaine30[!is.na(eff)],eff[!is.na(eff)])-1.38,2)
+    volet=TRUE
+    hvanne4=0
+    hpas=chargevolet*PARM[2]
+  } else {
+    chargevolet<-NA
+    hvanne4<-round(weighted.mean(d3ej_per$hvanne4[!is.na(eff)],eff[!is.na(eff)]),2)
+    volet=FALSE
+    hpas=hvanne4*PARM[1]
+  }
+  d1<-unique(d3ej_per$dsf_distancestart)
+  if (length(d1)>1) {
+    cat(str_c("attention d1=",str_c(d1,collapse=",")," précisez les valeurs, utilisation de toute la gamme"))
+    d2=max(d1)+10
+    d1=min(d1)
+  } else {
+    d2=d1+10
+  }
 # Dans dddp je n'ai pas les conditions de l'environnement, je vais chercher les bonnes lignes
 # avec dsf_id
-	
-	dddp_per<-dddp[dddp$dsf_id%in%d3ej_per$dsf_id,
-			c("dsf_timeinit","psf_dir","psf_l_cm","psf_q","psf_motion","psf_move","psf_comment","psf_radius_m")]
-	ppp[[nomperiode]]$plus<-sum(d3ej_per$dsr_eelplus,na.rm=TRUE) # 26
-	ppp[[nomperiode]]$minus<-sum(d3ej_per$dsr_eelminus,na.rm=TRUE)
-	ppp[[nomperiode]]$dates<-daterange
-	ppp[[nomperiode]]$dddp<-dddp_per
-	ppp[[nomperiode]]$d3ej<-d3ej_per
-	ppp[[nomperiode]]$hvanne4<-hvanne4
-	ppp[[nomperiode]]$d1<-d1
-	ppp[[nomperiode]]$chargevolet<-chargevolet
-	ppp[[nomperiode]]$N<-sum(logi)
-	ppp[[nomperiode]]$Nsuivis<-length(eff[!is.na(eff)])
-	ppp[[nomperiode]]$prof <-profdid
-	ppp[[nomperiode]]$incl<-incl
-	ppp[[nomperiode]]$Phi=Phi
-	dddp[dddp$dsf_id%in%d3ej_per$dsf_id,"periode"]<-nomperiode
-	if (print=="pdf"){
-		cat(str_c("écriture du fichier ",nomperiode,".pdf\n"))
-		pdf(file=str_c(imgwdy,nomperiode,".pdf"),width=7,height=5)
-	} else if (print=="png"){
-		cat(str_c("écriture du fichier ",nomperiode,".png\n"))
-		png(file=str_c(imgwdy,nomperiode,".png"),width=700,height=500)
-	}
-	d<-drawdi(fond=-7.72,
-			profdid=profdid,
-			alphadegres=14,
-			dist=NA,
-			betadegres=incl_,
-			d1=d1, 
-			d2=d2,
-			hpas=hpas,# lambda=6
-			hvan=hvanne4, 
-			graph=TRUE,
-			divide=2,
-			volet=volet,
-			chargevolet=chargevolet,
-			vectdist=dddp_per$psf_radius_m,
-			vectdir=dddp_per$psf_dir,
-			couleur=couleur)
-	if (print=="pdf"|print=="png"){
-		dev.off()
-	}
-	dddp<<-dddp
-	return(ppp)
+  
+  dddp_per<-dddp[dddp$dsf_id%in%d3ej_per$dsf_id,
+      c("dsf_timeinit","psf_dir","psf_l_cm","psf_q","psf_motion","psf_move","psf_comment","psf_radius_m")]
+  ppp[[nomperiode]]$plus<-sum(d3ej_per$dsr_eelplus,na.rm=TRUE) # 26
+  ppp[[nomperiode]]$minus<-sum(d3ej_per$dsr_eelminus,na.rm=TRUE)
+  ppp[[nomperiode]]$dates<-daterange
+  ppp[[nomperiode]]$dddp<-dddp_per
+  ppp[[nomperiode]]$d3ej<-d3ej_per
+  ppp[[nomperiode]]$hvanne4<-hvanne4
+  ppp[[nomperiode]]$d1<-d1
+  ppp[[nomperiode]]$chargevolet<-chargevolet
+  ppp[[nomperiode]]$N<-sum(logi)
+  ppp[[nomperiode]]$Nsuivis<-length(eff[!is.na(eff)])
+  ppp[[nomperiode]]$prof <-profdid
+  ppp[[nomperiode]]$incl<-incl
+  ppp[[nomperiode]]$Phi=Phi
+  dddp[dddp$dsf_id%in%d3ej_per$dsf_id,"periode"]<-nomperiode
+  if (print=="pdf"){
+    cat(str_c("écriture du fichier ",nomperiode,".pdf\n"))
+    pdf(file=str_c(imgwdy,nomperiode,".pdf"),width=7,height=5)
+  } else if (print=="png"){
+    cat(str_c("écriture du fichier ",nomperiode,".png\n"))
+    png(file=str_c(imgwdy,nomperiode,".png"),width=700,height=500)
+  }
+  d<-drawdi(fond=-7.72,
+      profdid=profdid,
+      alphadegres=14,
+      dist=NA,
+      betadegres=incl_,
+      d1=d1, 
+      d2=d2,
+      hpas=hpas,# lambda=6
+      hvan=hvanne4, 
+      graph=TRUE,
+      divide=2,
+      volet=volet,
+      chargevolet=chargevolet,
+      vectdist=dddp_per$psf_radius_m,
+      vectdir=dddp_per$psf_dir,
+      couleur=couleur)
+  if (print=="pdf"|print=="png"){
+    dev.off()
+  }
+  dddp<<-dddp
+  return(ppp)
 }
 
 open_in_excel <- function(some_df){
-	tFile<-paste("C:/temp/",gsub("\\\\","",tempfile(fileext=paste0(substitute(some_df), ".csv"),tmpdir="")),sep="")
-	write.table(some_df, tFile, row.names=F, sep=";", quote=F)
-	system(paste('open -a \"/ProgramData/Microsoft/Windows/Start Menu/Programs/Microsoft Office/Microsoft Excel 2010\"', tFile))
+  tFile<-paste("C:/temp/",gsub("\\\\","",tempfile(fileext=paste0(substitute(some_df), ".csv"),tmpdir="")),sep="")
+  write.table(some_df, tFile, row.names=F, sep=";", quote=F)
+  system(paste('open -a \"/ProgramData/Microsoft/Windows/Start Menu/Programs/Microsoft Office/Microsoft Excel 2010\"', tFile))
 }
 #'==========================================================
 #' Définition du nom des couleurs
@@ -997,42 +997,40 @@ briand_suivi_2021}.
 
 
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<sqldf, echo=FALSE, eval=FALSE,results=hide >>=
+<<database, echo=FALSE, eval=FALSE,results=hide >>=
 require("safer")
 require("getPass")
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
 if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
 host <- decrypt_string(hostdistant,pois)
 user <- decrypt_string(userdistant,pois)
-password<- decrypt_string(passworddistant,pois)
-options(sqldf.RPostgreSQL.user = user, 
-		sqldf.RPostgreSQL.password = password,
-		sqldf.RPostgreSQL.dbname ="didson",
-		sqldf.RPostgreSQL.host =host,
-		sqldf.RPostgreSQL.port ="5432" )
+password <- decrypt_string(passworddistant,pois)
+base <- c("didson",host,5432,user,password)
+req <- new("RequeteDB")
 # test de la connection en interne ou en externe EPTB-Vilaine
-t<-tryCatch(sqldf("select * from did.t_didsonfiles_dsf limit 1"),error=function(e) e)
-is_simple_error <- function(x) inherits(x, "simpleError")
-if (is_simple_error(t)) stop("didsant call using host failed, check connection to the database")
-cat("depouillement\n")
-depouillement = sqldf(str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, ",
-				"dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id",
-				" where dsf_timeinit>'",debut,
-				"' and dsf_timeinit<'",fin,"')",
-				" select mois,justify_hours(sum(temps_lecture)) from depouillement group by mois order by  mois"))
+cat("depouillement\n") #-------------------------------------------------
+    req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, ",
+        "dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id",
+        " where dsf_timeinit>'",debut,
+        "' and dsf_timeinit<'",fin,"')",
+        " select mois,justify_hours(sum(temps_lecture)) from depouillement group by mois order by  mois")
+depouillement <- query(req, base)
+depouillement <- getquery(depouillement)
 save(depouillement,file=str_c(datawdy,"depouillement.Rdata"))
-sumdepouillement = sqldf(str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
-						dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
-						where dsf_timeinit>'",debut,
-				"' and dsf_timeinit<'",fin,
-				"'--UNION
-						-- select NULL,NULL,9,NULL,NULL,'41:45'::interval
-						)
-						select justify_hours(sum(temps_lecture)) from depouillement "))
+req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+        dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
+        where dsf_timeinit>'",debut,
+    "' and dsf_timeinit<'",fin,
+    "'--UNION
+        -- select NULL,NULL,9,NULL,NULL,'41:45'::interval
+        )
+        select justify_hours(sum(temps_lecture)) from depouillement ")
+sumdepouillement <- query(req, base) %>% getquery()
 save(sumdepouillement,file=str_c(datawdy,"sumdepouillement.Rdata"))
-cat("d3edj\n") # ddde_dj dj=données journalières
-d3edj <- sqldf(str_c("select * from did.v_dddedj where enj_date>'",toutdebut,
-				"' and enj_date<'",datefin,"'"))
+cat("d3edj\n") #------------------------------------------ # ddde_dj dj=données journalières
+    req@sql <- str_c("select * from did.v_dddedj where enj_date>'",toutdebut,
+        "' and enj_date<'",datefin,"'")
+d3edj <- query(req, base) %>% getquery()
 save(d3edj,file=str_c(datawdy,"d3edj.all.Rdata"))
 #cat("vdlload\n")
 #vdlload<-sqldf("SELECT v_didsonlectures.dsf_id_csot, v_didsonlectures.dsf_filename, v_didsonlectures.dsf_timeinit,
@@ -1045,19 +1043,19 @@ save(d3edj,file=str_c(datawdy,"d3edj.all.Rdata"))
 #				FROM public.v_didsonlectures v_didsonlectures
 #				ORDER BY v_didsonlectures.round_time")
 #save(vdlload,file=str_c(datawdy,"vdlload.Rdata"))
-cat("dddp\n")
-dddp<-sqldf(str_c("select * from did.v_dddp 
-						where dsf_timeinit>'",toutdebut,
-				"' and dsf_timeinit<'",fin,
-				"'")) # dsf_dsr_drr_psf
-
-
+cat("dddp\n") #-----------------------------------------------------------
+    
+    req@sql <- str_c("select * from did.v_dddp 
+            where dsf_timeinit>'",toutdebut,
+        "' and dsf_timeinit<'",fin,
+        "'") # dsf_dsr_drr_psf
+dddp <- query(req, base) %>% getquery()
 # xtabs(count~dsf_distancestart+dsf_incl+dsf_position,data=dddp)
 dddp$mois<-strftime(dddp$dsf_timeinit,'%m')
 dddp$mois<-factor(dddp$mois, levels=c("09","10","11","12","01","02","03","04"),	ordered =TRUE)
 correct<-function(data,var,value,newvalue){
-	data[data[,var]==value&!is.na(data[,var]),var]<-newvalue
-	return(data)
+  data[data[,var]==value&!is.na(data[,var]),var]<-newvalue
+  return(data)
 }
 dddp<-correct(dddp,"dsf_distancestart",2,2.08)
 dddp<-correct(dddp,"dsf_distancestart",1.25,2.08)
@@ -1065,46 +1063,56 @@ dddp[dddp$psf_radius_m<=2,"psf_radius_m"]<-2.08 # pour éviter les pb ds cut... 
 stopifnot(all(dddp$psf_radius_m>2))
 save(dddp,file=str_c(datawdy,"dddp.all.Rdata"))
 # ATTENTION si mise à jour lancer d3ejperiodes pour reconstituer les périodes !!!!
-tps<-sqldf(str_c("select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
-						dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
-						where dsf_timeinit>'",debut,
-				"' and dsf_timeinit<'",fin,
-				"'"))
-tps$temps_lecture<-as.numeric(as.difftime(tps$temps_lecture,units = "mins"))
-# dd c'est juste didsonfiles et didsonread
-dd<-sqldf(str_c("select * from did.t_didsonfiles_dsf  dsf 	
-						join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-						where dsr_csotismin and dsf_timeinit>'",debut,
-				"' and dsf_timeinit<'",fin,
-				"'")) # dsf_dsr_drr_psf
-save(dd, file=str_c(datawdy,"dd.Rdata"))
+cat("tps \n") #----------------------------------------------------------------------
+    req@sql <- str_c("select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+            dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
+            where dsf_timeinit>'",debut,
+        "' and dsf_timeinit<'",fin,
+        "'")
+tps <- query(req, base) %>% getquery()
+tps$temps_lecture <- as.numeric(as.difftime(tps$temps_lecture,units = "mins"))
 save(tps, file=str_c(datawdy,"tps.Rdata"))
+cat("dd (didsonfile + didsonread) \n") ----------------------------------------------------------------------
+# dd c'est juste didsonfiles et didsonread
+    req@sql <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
+            join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+            where dsr_csotismin and dsf_timeinit>'",debut,
+        "' and dsf_timeinit<'",fin,
+        "'") # dsf_dsr_drr_psf    
+dd <- query(req, base) %>% getquery() 
+save(dd, file=str_c(datawdy,"dd.Rdata"))
+
 #données journalières
-enj <- sqldf(str_c("select * from did.t_envjour_enj
-						where enj_date>'",datedebut,
-				"' and enj_date<'",datefin,"'"))
+cat("enj (daily data) \n")# ----------------------------------------------------------------------
+    req@sql <- str_c("select * from did.t_envjour_enj
+            where enj_date>'",datedebut,
+        "' and enj_date<'",datefin,"'")
+enj <- query(req, base) %>% getquery()
 if(nrow(enj)==0) stop("Il faut faire tourner le script calcul_debit_chargement_cond_env.R pour charger les données environnementales")
 save(enj,file=str_c(datawdy,"enj.Rdata"))
 #plot(enj$enj_date,enj$enj_turb,type="l")
-env <- sqldf(str_c("select * from did.t_env_env 
-						where env_time>'",debut,
-				"' and env_time<'",fin,"' order by env_time" ))
-
+cat("environmental data \n") #----------------------------------------------------------------------
+req@sql <- str_c("select * from did.t_env_env 
+            where env_time>'",debut,
+        "' and env_time<'",fin,"' order by env_time" )
+env <- query(req, base) %>% getquery()
 #plot(env$env_time,env$env_tempaval,ylim=c(0,25))
 #points(env$env_time,env$env_tempamont,col="red")
 #points(env$env_time,env$env_tempair,col="blue",cex=0.2)
 # d3ej sera la selection de celui-ci pour le jour 
 save(env,file=str_c(datawdy,"env.Rdata"))
-ddde <- sqldf(str_c("select * from did.v_ddde
-						where dsf_timeinit>'",toutdebut,
-				"' and dsf_timeinit<'",fin,
-				"'"))
+cat("ddde didsonfile, didsonread, didsonreadresult env\n")# ----------------------------------------------------------------------
+    req@sql <- str_c("select * from did.v_ddde
+            where dsf_timeinit>'",toutdebut,
+        "' and dsf_timeinit<'",fin,
+        "'")
+ddde <- query(req, base) %>% getquery()
 
 ddde$count=1
 # xtabs(count~dsf_distancestart+dsf_incl+dsf_position,data=ddde)
 correct<-function(data,var,value,newvalue){
-	data[data[,var]==value&!is.na(data[,var]),var]<-newvalue
-	return(data)
+  data[data[,var]==value&!is.na(data[,var]),var]<-newvalue
+  return(data)
 }
 ddde <- correct(ddde,"dsf_distancestart",2,2.08)
 stopifnot(all(dddp$psf_radius_m>2))
@@ -1126,25 +1134,30 @@ write.table(ddde,file=str_c(datawdy,"ddde.csv"),sep=";",row.names=FALSE)
 #	"select sum(surface) from rht.crosstab_rhtvs2 where id_drain in (select rht.upstream_segments(212340))
 #		dbname=getOption("eda2.0_RHT"),
 #		host=getOption("sqldf.RPostgreSQL.hostname")) # 31.16
-nblpm=sqldf(str_c("select count(*), psf_dir from did.t_didsonfiles_dsf  dsf 	
-						join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-						join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
-						join did.t_poissonfile_psf on psf_drr_id=drr_id
-						where psf_species='2014'
-						and dsr_csotismin
-						and dsf_timeinit>'",debut,
-				"' and dsf_timeinit<'",fin,
-				"' group by psf_dir " ))
+cat("lpm  \n") #----------------------------------------------------------------------
+    reqnblpm <- str_c("select count(*), psf_dir from did.t_didsonfiles_dsf  dsf 	
+            join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+            join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
+            join did.t_poissonfile_psf on psf_drr_id=drr_id
+            where psf_species='2014'
+            and dsr_csotismin
+            and dsf_timeinit>'",debut,
+        "' and dsf_timeinit<'",fin,
+        "' group by psf_dir " )
+req@sql <- reqnblpm
+nblpm <- query(req, base) %>% getquery()
 
-lpm<-sqldf(str_c("select * from did.t_didsonfiles_dsf  dsf 	
-						join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-						join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
-						join did.t_poissonfile_psf on psf_drr_id=drr_id
-						where psf_species='2014' 
-						and dsr_csotismin 
-						and dsf_timeinit>'",debut,
-				"' and dsf_timeinit<'",fin,
-				"'"))
+reqlpm <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
+        join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+        join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
+        join did.t_poissonfile_psf on psf_drr_id=drr_id
+        where psf_species='2014' 
+        and dsr_csotismin 
+        and dsf_timeinit>'",debut,
+    "' and dsf_timeinit<'",fin,
+    "'")
+req@sql <- reqlpm
+lpm <- query(req, base) %>% getquery()
 lpm$date<-as.Date(lpm$dsf_timeinit,tz=Sys.timezone())
 save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 # FIN CHUNK sqldf
@@ -1253,22 +1266,22 @@ d3ej$ex <- NA #extrapolation
 # Fonctionnement OK
 d3ej$dsf_incl[d3ej$dsf_incl==0] <- 0.5 # sinon plante
 d3ej$ex[d3ej$optvanne4%in%c("s","sf")&d3ej$dsf_position=="s"| # surface surface
-				d3ej$optvanne4%in%c("s","sf")&d3ej$dsf_position=="f"&d3ej$dsf_incl>300&d3ej$position=="sl"| # surface et didson au fond regarde en haut
-				d3ej$optvanne4%in%c("f","sf")&d3ej$dsf_position=="f"| # fond et fond 
-				d3ej$optvanne4%in%c("f","sf")&d3ej$dsf_position=="s"&d3ej$position=="sl"&d3ej$dsf_incl<0]<-1 # fond et didson en surface regarde en bas
+        d3ej$optvanne4%in%c("s","sf")&d3ej$dsf_position=="f"&d3ej$dsf_incl>300&d3ej$position=="sl"| # surface et didson au fond regarde en haut
+        d3ej$optvanne4%in%c("f","sf")&d3ej$dsf_position=="f"| # fond et fond 
+        d3ej$optvanne4%in%c("f","sf")&d3ej$dsf_position=="s"&d3ej$position=="sl"&d3ej$dsf_incl<0]<-1 # fond et didson en surface regarde en bas
 d3ej$ex[d3ej$optvanne4%in%c("s")&d3ej$dsf_position=="f"&d3ej$position!="sl"|
-				d3ej$optvanne4%in%c("f")&d3ej$dsf_position=="s"&d3ej$position!="sl"] <- 3
+        d3ej$optvanne4%in%c("f")&d3ej$dsf_position=="s"&d3ej$position!="sl"] <- 3
 d3ej$ex[is.na(d3ej$dsr_id)] <- 2
 d3ej$ex[d3ej$position=="n"] <- 4 # le 2 est effacé par les pb techniques
 d3ej$ex[d3ej$dsf_fls_id%in%c(1,2)] <- 4
 d3ej$ex[d3ej$optvanne4=="0"] <- 0
 
 d3ej_perc_pos <- 
-		inner_join(
-				d3ej %>% group_by(dsf_season, ex)%>%summarize(Nex=n()),
-				d3ej %>% group_by(dsf_season)%>%summarize(N=n())
-		) %>% 
-		mutate(perc = Nex/N)
+    inner_join(
+        d3ej %>% group_by(dsf_season, ex)%>%summarize(Nex=n()),
+        d3ej %>% group_by(dsf_season)%>%summarize(N=n())
+    ) %>% 
+    mutate(perc = Nex/N)
 
 d3ej$lecture <- !is.na(d3ej$dsr_id)
 # pour verif d3ej[is.na(d3ej$ex),c("dsf_position","dsf_incl","optvanne4")]
@@ -1303,8 +1316,8 @@ d3ej$dsf_distancestart[d3ej$dsf_distancestart==4.58] <-5
 
 divide=matrix(NA,nrow=nrow(d3ej),ncol=5)
 divide[d3ej$dsf_distancestart<5,1:4] <- cbind(
-		(5-d3ej$dsf_distancestart)[d3ej$dsf_distancestart<5], 
-		2,2,2)
+    (5-d3ej$dsf_distancestart)[d3ej$dsf_distancestart<5], 
+    2,2,2)
 divide[d3ej$dsf_distancestart<5,5] <- 10-rowSums(divide[d3ej$dsf_distancestart<5,],na.rm=TRUE)
 divide[d3ej$dsf_distancestart==5,] <- rep(2,5)
 divide <- split(divide, c(row(divide))) # coercing to list
@@ -1316,20 +1329,20 @@ divide <- split(divide, c(row(divide))) # coercing to list
 #------------------------------------------------------------------------
 #date_seuil_pb_lentille <- dmy(13122018)
 system.time(d <- mapply(drawdi,
-				fond=-7.72,
-				profdid=d3ej$dsf_depth,
-				alphadegres=14,
-				dist=NA,		
-				betadegres=d3ej$dsf_incl,
-				d1=d3ej$dsf_distancestart,
-				d2=  d3ej$dsf_distancestart+10,   
-				hpas=hpas,
-				hvan=0, # on s'en fout
-				graph=FALSE,
-				divide=divide,
-				volet=volet,
-				#vectdist=c(2,5,7,9,11),
-				chargevolet=d3ej$chargevolet, SIMPLIFY =FALSE))
+        fond=-7.72,
+        profdid=d3ej$dsf_depth,
+        alphadegres=14,
+        dist=NA,		
+        betadegres=d3ej$dsf_incl,
+        d1=d3ej$dsf_distancestart,
+        d2=  d3ej$dsf_distancestart+10,   
+        hpas=hpas,
+        hvan=0, # on s'en fout
+        graph=FALSE,
+        divide=divide,
+        volet=volet,
+        #vectdist=c(2,5,7,9,11),
+        chargevolet=d3ej$chargevolet, SIMPLIFY =FALSE))
 # ATTENTION IL PEUT Y AVOIR UN PB AVEC INTERSECT SI LA METHODE EST CHARGEE PAR UN AUTRE PACKAGE
 save(d,file=str_c(datawdy,"d.Rdata")) # load(file=str_c(datawdy,"d.Rdata"))
 d3ej$area_intersect<-unlist(lapply(d,function(X) X$area_intersect))
@@ -1349,7 +1362,7 @@ d3ej$area_detframe[d3ej$dsf_position == "n"] <- NA
 d3ej$area_migration_frame <- unlist(lapply(d, function(X) sum(X$area_migration_frame)))
 d3ej$area_migration_frame[d3ej$dsf_position == "n"] <- NA
 d3ej[d3ej$vanne4, "area_migration_frame"] <- (d3ej$niveauvilaine30[d3ej$vanne4] + 
-			7.72 - PARM[3]) * 18
+      7.72 - PARM[3]) * 18
 d3ej$psurface <- d3ej$area_intersect/d3ej[, "area_migration_frame"]
 d3ej$psurface[d3ej$psurface == 0] <- NA  # pour ne pas diviser par zéro
 
@@ -1370,28 +1383,28 @@ rm(hpas,vanne,volet)
 ############################################
 d3ejs <- d3ej[d3ej$dsf_timeinit>=debut & d3ej$dsf_timeinit<=fin,]
 res <- d3ejs %>% 
-		group_by(dsf_incl,	dsf_depth,optvanne4) %>% 
-		summarize(start=min(dsf_timeinit, na.rm=TRUE), end=max(dsf_timeinit, na.rm=TRUE), nbperiode=n()) %>% 
-		filter (!is.na(dsf_depth) & optvanne4!="sf", nbperiode>10) %>%
-		arrange(start)	
+    group_by(dsf_incl,	dsf_depth,optvanne4) %>% 
+    summarize(start=min(dsf_timeinit, na.rm=TRUE), end=max(dsf_timeinit, na.rm=TRUE), nbperiode=n()) %>% 
+    filter (!is.na(dsf_depth) & optvanne4!="sf", nbperiode>10) %>%
+    arrange(start)	
 print(res, n=Inf,width=Inf)
 ppp<-list()
 #print= "sortieecran" # pour ne pas voir les graphes, peut importe ce qui est écrit ici
 print="png"
 
 for (j in 1:nrow(res)){
-	ppp<-drawdicriter(profdid=res$dsf_depth[j], 
-			incl=res$dsf_incl[j], 
-			Phi=res$optvanne4[j],
-			distancestart=NA,
-			timestamp=c(res$start[j],res$end[j]),
-			nomperiode=str_c("periode",j,
-					"_phi",res$optvanne4[j],
-					"_did", ifelse(res$dsf_depth[j]>-1,"s","f"),"_",
-					res$dsf_incl[j]),
-			print=print,
-			couleur=c(makeTransparent(jaune_EV,90),"#00FF664D", makeTransparent(bleu_EV,70),makeTransparent(turquoise_EV,90),
-					makeTransparent(orange_EV, 90))) 
+  ppp<-drawdicriter(profdid=res$dsf_depth[j], 
+      incl=res$dsf_incl[j], 
+      Phi=res$optvanne4[j],
+      distancestart=NA,
+      timestamp=c(res$start[j],res$end[j]),
+      nomperiode=str_c("periode",j,
+          "_phi",res$optvanne4[j],
+          "_did", ifelse(res$dsf_depth[j]>-1,"s","f"),"_",
+          res$dsf_incl[j]),
+      print=print,
+      couleur=c(makeTransparent(jaune_EV,90),"#00FF664D", makeTransparent(bleu_EV,70),makeTransparent(turquoise_EV,90),
+          makeTransparent(orange_EV, 90))) 
 }
 # les periodes sont écrites par la fonction dans dddp$periode, 
 # sur la nouvelle version dddp contient toutes les années, mais les données mises à jour sont écrites sur l'année en cours
@@ -1414,17 +1427,17 @@ save(dddp,file=str_c(datawdy,"dddp.Rdata"))
 #vannefond
 pdf(file=str_c(imgwdy,"didsonA.pdf"),width=8,height=6)
 listdidson<-list("didsonA"=drawdi(fond=-7.72, profdid=1, alphadegres=14, dist=NA, betadegres=-7,
-				d1=5, d2=15,
-				chargevolet=1.8, hpas=7.72+1.8, hvan=0, graph=TRUE, divide=2))
+        d1=5, d2=15,
+        chargevolet=1.8, hpas=7.72+1.8, hvan=0, graph=TRUE, divide=2))
 dev.off()
 #vannedroit
 pdf(file=str_c(imgwdy,"didsonD1.pdf"),width=8,height=6)
 listdidson$didsonD1=drawdi(fond=-7.72,profdid=-5.5,alphadegres=14,dist=NA,
-		betadegres=0.5,d1=5,d2=15,hpas=7.72+1.6,hvan=1.5,print=TRUE,graph=TRUE,divide=2)
+    betadegres=0.5,d1=5,d2=15,hpas=7.72+1.6,hvan=1.5,print=TRUE,graph=TRUE,divide=2)
 dev.off()
 pdf(file=str_c(imgwdy,"didsonD2.pdf"),width=8,height=6)
 listdidson$didsonC2=drawdi(fond=-7.72,profdid=-4.5,alphadegres=14,dist=NA,betadegres=-7,
-		d1=5,d2=15,hpas=7.72+1.6,hvan=1.5,print=TRUE,graph=TRUE,divide=2)
+    d1=5,d2=15,hpas=7.72+1.6,hvan=1.5,print=TRUE,graph=TRUE,divide=2)
 dev.off()
 
 vvv$listdidson<-listdidson
@@ -1461,8 +1474,8 @@ load(file=str_c(datawdy, "ppp.Rdata"))
 #require(Hmisc)
 #describe(dddp)
 correct<-function(data,var,value,newvalue){
-	data[data[,var]==value&!is.na(data[,var]),var]<-newvalue
-	return(data)
+  data[data[,var]==value&!is.na(data[,var]),var]<-newvalue
+  return(data)
 }
 dddp <- correct(dddp,"dsf_distancestart",2,2.08)
 ddde <- correct(ddde,"dsf_distancestart",2,2.08)
@@ -1470,15 +1483,15 @@ ddde <- ddde[!is.na(ddde$dsr_id),]
 ddde$hour <- as.numeric(strftime(ddde$round_time,format="%H"))
 lpm$count <- 1
 horaires <- function(data){
-	data$Hdeb<-as.numeric(strftime(data$dsf_timeinit,"%H"))+as.numeric(strftime(data$dsf_timeinit,"%M"))/60
-	data$Hfin<-as.numeric(strftime(data$dsf_timeend,"%H"))+round(as.numeric(strftime(data$dsf_timeend,"%M"))/60,2)
-	data$Hfin[data$Hfin==0]<-24
-	indx<-data$Hfin==24&data$Hdeb==0
-	data[indx,"Hfin"]<-24.0
-	data[indx,"Hdeb"]<-23.5
-	data$xmin<-as.POSIXct(strptime(str_c(as.character(data$date)," 09:00"),"%Y-%m-%d %H:%M")) # pour les graphiques en rectangle
-	data$xmax<-as.POSIXct(strptime(str_c(as.character(data$date)," 17:00"),"%Y-%m-%d %H:%M"))
-	return(data)
+  data$Hdeb<-as.numeric(strftime(data$dsf_timeinit,"%H"))+as.numeric(strftime(data$dsf_timeinit,"%M"))/60
+  data$Hfin<-as.numeric(strftime(data$dsf_timeend,"%H"))+round(as.numeric(strftime(data$dsf_timeend,"%M"))/60,2)
+  data$Hfin[data$Hfin==0]<-24
+  indx<-data$Hfin==24&data$Hdeb==0
+  data[indx,"Hfin"]<-24.0
+  data[indx,"Hdeb"]<-23.5
+  data$xmin<-as.POSIXct(strptime(str_c(as.character(data$date)," 09:00"),"%Y-%m-%d %H:%M")) # pour les graphiques en rectangle
+  data$xmax<-as.POSIXct(strptime(str_c(as.character(data$date)," 17:00"),"%Y-%m-%d %H:%M"))
+  return(data)
 }
 ddde <- horaires(ddde)
 d3ej <- horaires(d3ej)
@@ -1490,36 +1503,36 @@ fulldays <- unique(ddde[ddde$Hdeb >= 10 & ddde$Hdeb <= 16, "date"])  # jours com
 # ci dessous deux formats historiques différents que je compile en un seul ficher
 #https://www.sunrise-and-sunset.com/fr/sun/france/nantes/2020/decembre
 for (Y in 2013:2014){
-	eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
-					sep = ";"))  #ephéméride	
-	eph$lever_soleil <- strptime(paste(eph$date,eph$lever_soleil), format = "%d/%m/%Y %H:%M")
-	eph$coucher_soleil <- strptime(paste(eph$date,eph$coucher_soleil), format = "%d/%m/%Y %H:%M")
-	eph$lever_soleil_h <- as.numeric(strftime(eph$lever_soleil, "%H")) + as.numeric(strftime(eph$lever_soleil, 
-					"%M"))/60
-	eph$coucher_soleil_h <- as.numeric(strftime(eph$coucher_soleil, "%H")) + as.numeric(strftime(eph$coucher_soleil, 
-					"%M"))/60
-	eph$date <- as.Date(eph$lever_soleil)
-	if (Y==2013){
-		ephall1 <- eph
-	} else {
-		ephall1 <- rbind(ephall1,eph)
-	}	
+  eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
+          sep = ";"))  #ephéméride	
+  eph$lever_soleil <- strptime(paste(eph$date,eph$lever_soleil), format = "%d/%m/%Y %H:%M")
+  eph$coucher_soleil <- strptime(paste(eph$date,eph$coucher_soleil), format = "%d/%m/%Y %H:%M")
+  eph$lever_soleil_h <- as.numeric(strftime(eph$lever_soleil, "%H")) + as.numeric(strftime(eph$lever_soleil, 
+          "%M"))/60
+  eph$coucher_soleil_h <- as.numeric(strftime(eph$coucher_soleil, "%H")) + as.numeric(strftime(eph$coucher_soleil, 
+          "%M"))/60
+  eph$date <- as.Date(eph$lever_soleil)
+  if (Y==2013){
+    ephall1 <- eph
+  } else {
+    ephall1 <- rbind(ephall1,eph)
+  }	
 }
 for (Y in 2015:CY){
-	eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
-					sep = ";"))  #ephéméride
-	eph$lever_soleil <- strptime(eph$lever, format = "%d/%m/%Y %H:%M")
-	eph$coucher_soleil <- strptime(eph$coucher, format = "%d/%m/%Y %H:%M")
-	eph$lever_soleil_h <- as.numeric(strftime(eph$lever_soleil, "%H")) + as.numeric(strftime(eph$lever_soleil, 
-					"%M"))/60
-	eph$coucher_soleil_h <- as.numeric(strftime(eph$coucher_soleil, "%H")) + as.numeric(strftime(eph$coucher_soleil, 
-					"%M"))/60
-	eph$date <- as.Date(eph$lever_soleil, tz = Sys.timezone())
-	if (Y==2015){
-		ephall2 <- eph
-	} else {
-		ephall2 <- rbind(ephall2,eph)
-	}	
+  eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
+          sep = ";"))  #ephéméride
+  eph$lever_soleil <- strptime(eph$lever, format = "%d/%m/%Y %H:%M")
+  eph$coucher_soleil <- strptime(eph$coucher, format = "%d/%m/%Y %H:%M")
+  eph$lever_soleil_h <- as.numeric(strftime(eph$lever_soleil, "%H")) + as.numeric(strftime(eph$lever_soleil, 
+          "%M"))/60
+  eph$coucher_soleil_h <- as.numeric(strftime(eph$coucher_soleil, "%H")) + as.numeric(strftime(eph$coucher_soleil, 
+          "%M"))/60
+  eph$date <- as.Date(eph$lever_soleil, tz = Sys.timezone())
+  if (Y==2015){
+    ephall2 <- eph
+  } else {
+    ephall2 <- rbind(ephall2,eph)
+  }	
 }
 ephall2 <- ephall2[,colnames(ephall1)]
 eph <- rbind(ephall1, ephall2)
@@ -2247,14 +2260,14 @@ par(oma=c(0,2,0,0))
 # d3ej[,c("dsf_timeinit","dsf_fls_id")]
 pb<-d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==3&!is.na(d3ej$dsf_fls_id[thisseason])]
 if (length(pb>0)){
-	pb<-data.frame("date"=pb,"delta"=NA)
-	pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-	pb$delta[1]<-30
-	w<-which(pb$delta>690)
-	dateinit<-c(pb[1,"date"],pb[w,"date"])
-	dateinit<-as.Date(dateinit,tz=Sys.timezone())
-	datefin<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-	datefin<-as.Date(datefin,tz=Sys.timezone())
+  pb<-data.frame("date"=pb,"delta"=NA)
+  pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
+  pb$delta[1]<-30
+  w<-which(pb$delta>690)
+  dateinit<-c(pb[1,"date"],pb[w,"date"])
+  dateinit<-as.Date(dateinit,tz=Sys.timezone())
+  datefin<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
+  datefin<-as.Date(datefin,tz=Sys.timezone())
 } else {dateinit=NULL;datefin=NULL}
 #pb<-d3ej$dsf_timeinit[d3ej$dsf_fls_id==2&!is.na(d3ej$dsf_fls_id)]
 #if (length(pb>0)){
@@ -2270,23 +2283,23 @@ if (length(pb>0)){
 ############################
 pb<-d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==1]
 if (length(pb>0)){
-	pb<-data.frame("date"=pb,"delta"=NA)
-	pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-	pb$delta[1]<-30
-	w<-which(pb$delta>690)
-	dateinit3<-c(pb[1,"date"],pb[w,"date"])
-	dateinit3<-as.Date(dateinit3,tz=Sys.timezone())
-	datefin3<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-	datefin3<-as.Date(datefin3,tz=Sys.timezone())
+  pb<-data.frame("date"=pb,"delta"=NA)
+  pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
+  pb$delta[1]<-30
+  w<-which(pb$delta>690)
+  dateinit3<-c(pb[1,"date"],pb[w,"date"])
+  dateinit3<-as.Date(dateinit3,tz=Sys.timezone())
+  datefin3<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
+  datefin3<-as.Date(datefin3,tz=Sys.timezone())
 } else {dateinit3=NULL;datefin3=NULL}
 # plot, mais pas les axes 
 thisseason <- d3edj$enj_date>=datedebut
 plot(d3edj$enj_date[thisseason],d3edj$deb_qtotalj[thisseason],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,1000))
 if (!is.null(dateinit3)){
-	rect(xleft=dateinit3,ybottom=102,xright=datefin3,ytop=800,col=jaune_EV,border=jaune_EV,density=6)
+  rect(xleft=dateinit3,ybottom=102,xright=datefin3,ytop=800,col=jaune_EV,border=jaune_EV,density=6)
 }
 if (!is.null(dateinit)){
-	rect(xleft=dateinit,ybottom=102,xright=datefin,ytop=800,col=orange_EV,border=rouille)
+  rect(xleft=dateinit,ybottom=102,xright=datefin,ytop=800,col=orange_EV,border=rouille)
 }
 
 #rect(xleft=date_seuil_pb_lentille,ybottom=102,xright=as.Date(max(d3ej$dsf_timeinit)),ytop=1000,col=makeTransparent("yellow",70),border="orange")
@@ -2356,15 +2369,15 @@ depouillement$temps<-gsub("day","jour",depouillement$temps)
 depouillement[nrow(depouillement),"mois"]<-"total"
 options(encoding = "UTF-8")
 depouillement.tex<-latex(depouillement,
-		label="tabletps",
-		rowlabel="",
-		rowname=NULL,
-		numeric.dollar=FALSE,
-		where="h!",
-		caption=str_c("Temps de dépouillement des fichiers didson en ",saison,". 
-						Les temps donnés ne correspondent qu'au temps passé au dépouillement."),
-		caption.lot=str_c("Temps de dépouillement"),
-		file=str_c(tabwdy,"depouillement.tex"))
+    label="tabletps",
+    rowlabel="",
+    rowname=NULL,
+    numeric.dollar=FALSE,
+    where="h!",
+    caption=str_c("Temps de dépouillement des fichiers didson en ",saison,". 
+            Les temps donnés ne correspondent qu'au temps passé au dépouillement."),
+    caption.lot=str_c("Temps de dépouillement"),
+    file=str_c(tabwdy,"depouillement.tex"))
 options(encoding = "native.enc")
 ##################
 # tpspoint
@@ -2373,21 +2386,21 @@ options(encoding = "native.enc")
 pdf(file=str_c(imgwdy,"tpspoint.pdf"),width=6,height=5)
 ggplot(tps)+geom_point(aes(x=dsf_timeinit,y=temps_lecture,col=dsr_reader),size=2)+
 #   geom_smooth(aes(x=dsf_timeinit,y=temps_lecture,col=dsr_reader))+
-		ylab("temps de dépouillement d'un ficher de 30 minutes en minutes")+
-		xlab("Jour d'enregistrement du fichier")+
-		scale_colour_manual("lecteur",values=c("Brice"=orange_EV,"Gerard"=turquoise_EV))
+    ylab("temps de dépouillement d'un ficher de 30 minutes en minutes")+
+    xlab("Jour d'enregistrement du fichier")+
+    scale_colour_manual("lecteur",values=c("Brice"=orange_EV,"Gerard"=turquoise_EV))
 dev.off()
 ##################
 # tpsboxplot
 ##################
 tps$mois<-factor(tps$mois,levels=c("9","10","11", 
-				"12", "1","2","3","4"), order=TRUE) 
+        "12", "1","2","3","4"), order=TRUE) 
 pdf(file=str_c(imgwdy,"tpsboxplot.pdf"),width=6,height=5)
 ggplot(tps)+geom_boxplot(aes(x=mois,y=temps_lecture,fill=dsr_reader))+
-		ylab("temps de dépouillement d'un ficher de 30 minutes en minutes")+
-		xlab("Mois")+
-		#scale_y_continuous(limits=c(0,100))+
-		scale_fill_manual("lecteur",values=c("Brice"=orange_EV,"Gerard"=turquoise_EV))
+    ylab("temps de dépouillement d'un ficher de 30 minutes en minutes")+
+    xlab("Mois")+
+    #scale_y_continuous(limits=c(0,100))+
+    scale_fill_manual("lecteur",values=c("Brice"=orange_EV,"Gerard"=turquoise_EV))
 
 dev.off()		
 #tapply(tps$temps_lecture,tps$mois,mean,na.rm=TRUE)
@@ -2395,32 +2408,32 @@ tabfls <- as.data.frame.matrix(table(d3ej$dsf_fls_id[d3ej$dsf_season==saison],d3
 #colnames(tabfls)<-c("f","s","n")
 options(encoding = "UTF-8")
 xtafls<-xtable::xtable(tabfls,
-		label="tabfls",
-		caption="Fonctionnement (nombre de suivis de 30 minutes) du didson en fonction de l'ouverture de la vanne
-				et de la position, $s$= appareil en surface, $f5$= appareil en vannes, $n$ appareil en panne,
-				0 enregistrement normal, 1 problème d'acquisition, 2 problèmes d'écriture sur le disque, 3 problèmes de qualité.",
-		digits=0
+    label="tabfls",
+    caption="Fonctionnement (nombre de suivis de 30 minutes) du didson en fonction de l'ouverture de la vanne
+        et de la position, $s$= appareil en surface, $f5$= appareil en vannes, $n$ appareil en panne,
+        0 enregistrement normal, 1 problème d'acquisition, 2 problèmes d'écriture sur le disque, 3 problèmes de qualité.",
+    digits=0
 )
 print(xtafls,file=str_c(tabwdy,"tabfls.tex"),
-		table.placement="htbp",
-		caption.placement = "top",
-		NA.string = "",
-		include.rownames=TRUE)	
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=TRUE)	
 
 tabflsall <- as.data.frame.matrix(table(d3ej$dsf_fls_id,d3ej$position))
 #colnames(tabfls)<-c("f","s","n")
 xtafls<-xtable::xtable(tabflsall,
-		label="tabfls",
-		caption="Fonctionnement du didson en fonction de l'ouverture de la vanne
-				et de la position pour l'ensemble des saisons de suivi, $s$= appareil en surface, $f3$ $f5$= appareil en vannes, $n$ appareil en panne,
-				0 enregistrement normal, 1 problème d'acquisition, 2 problèmes d'écriture sur le disque, 3 problèmes de qualité.",
-		digits=0
+    label="tabfls",
+    caption="Fonctionnement du didson en fonction de l'ouverture de la vanne
+        et de la position pour l'ensemble des saisons de suivi, $s$= appareil en surface, $f3$ $f5$= appareil en vannes, $n$ appareil en panne,
+        0 enregistrement normal, 1 problème d'acquisition, 2 problèmes d'écriture sur le disque, 3 problèmes de qualité.",
+    digits=0
 )
 print(xtafls,file=str_c(tabwdy,"tabflsall.tex"),
-		table.placement="htbp",
-		caption.placement = "top",
-		NA.string = "",
-		include.rownames=TRUE)	
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=TRUE)	
 options(encoding = "native.enc")
 @
 Le dépouillement correspond à du temps de lecture de fichier (Figure
@@ -2606,7 +2619,7 @@ coloring["sf","f"] <- turquoise_EV
 #long.labels <- list(set_varnames = c(dsf_position="Position didson (0=non lu,f=fond,s=surface)",
 #				optvanne4="Ouverture vanne (0=fermee,s=surface,f=fond,sf=les deux)"))
 long.labels <- list(set_varnames = c(dsf_position="Position didson",
-				optvanne4="Ouverture vanne"))
+        optvanne4="Ouverture vanne"))
 #pdf(file=str_c(imgwdy,"position09.pdf"),width=4,height=4)
 #mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="09"),
 #		gp=gpar(fill=coloring,col="black"),
@@ -2616,45 +2629,45 @@ long.labels <- list(set_varnames = c(dsf_position="Position didson",
 pdf(file=str_c(imgwdy,"position10.pdf"),width=4,height=4)
 #if (nrow(subset(d3ej2,d3ej2$mois=="10"))!=0) 
 mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="10"),
-		gp=gpar(fill=coloring,col="black"),
-		labeling_args = long.labels,
-		split_vertical=TRUE,main="") 
+    gp=gpar(fill=coloring,col="black"),
+    labeling_args = long.labels,
+    split_vertical=TRUE,main="") 
 dev.off()
 pdf(file=str_c(imgwdy,"position11.pdf"),width=4,height=4)
 mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="11"),
-		gp=gpar(fill=coloring,col="black"),
-		labeling_args = long.labels,
-		split_vertical=TRUE,main="") 
+    gp=gpar(fill=coloring,col="black"),
+    labeling_args = long.labels,
+    split_vertical=TRUE,main="") 
 dev.off()
 pdf(file=str_c(imgwdy,"position12.pdf"),width=4,height=4)
 mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="12"),
-		gp=gpar(fill=coloring,col="black"),
-		labeling_args = long.labels,
-		split_vertical=TRUE,main="") 
+    gp=gpar(fill=coloring,col="black"),
+    labeling_args = long.labels,
+    split_vertical=TRUE,main="") 
 dev.off()
 pdf(file=str_c(imgwdy,"position01.pdf"),width=4,height=4)
 mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="01"),
-		gp=gpar(fill=coloring,col="black"),
-		labeling_args = long.labels,
-		split_vertical=TRUE,main="") 
+    gp=gpar(fill=coloring,col="black"),
+    labeling_args = long.labels,
+    split_vertical=TRUE,main="") 
 dev.off()
 pdf(file=str_c(imgwdy,"position02.pdf"),width=4,height=4)
 mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="02"),
-		gp=gpar(fill=coloring,col="black"),
-		labeling_args = long.labels,
-		split_vertical=TRUE,main="") 
+    gp=gpar(fill=coloring,col="black"),
+    labeling_args = long.labels,
+    split_vertical=TRUE,main="") 
 dev.off()
 pdf(file=str_c(imgwdy,"position03.pdf"),width=4,height=4)
 mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="03"),
-		gp=gpar(fill=coloring,col="black"),
-		labeling_args = long.labels,
-		split_vertical=TRUE,main="") 
+    gp=gpar(fill=coloring,col="black"),
+    labeling_args = long.labels,
+    split_vertical=TRUE,main="") 
 dev.off()
 pdf(file=str_c(imgwdy,"position04.pdf"),width=4,height=4)
 mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="04"),
-		gp=gpar(fill=coloring,col="black"),
-		labeling_args = long.labels,
-		split_vertical=TRUE,main="") 
+    gp=gpar(fill=coloring,col="black"),
+    labeling_args = long.labels,
+    split_vertical=TRUE,main="") 
 dev.off()
 vvv$perc$"0" <- round(100*d3ej_perc_pos[d3ej_perc_pos$ex=="0" & d3ej_perc_pos$dsf_season==saison,"perc"])
 vvv$perc$"1" <- round(100*d3ej_perc_pos[d3ej_perc_pos$ex=="1" & d3ej_perc_pos$dsf_season==saison,"perc"])
@@ -2903,40 +2916,40 @@ pdf(file=str_c(imgwdy,"taille_distance.pdf"))
 #				height=unit(c(0.2,0.8),"null")))
 grid.newpage()
 vp<-viewport(layout=grid.layout(2,2,width=unit(c(0.8,0.2),"null"),
-				height=unit(c(0.2,0.8),"null")))
+        height=unit(c(0.2,0.8),"null")))
 vplayout <- function(x, y) { viewport(layout.pos.row = x, layout.pos.col = y)   }
 pushViewport(vp)
 g <- ggplot(dddp,aes(x=psf_l_cm,y=psf_radius_m))+
-		stat_bin2d(bins = 30)+
-		geom_density2d(colour="yellow")+
-		theme(legend.key = element_rect(colour = NA, fill = 'grey20'),
-				legend.position=c(0.9,0.8),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.title = element_text(size = 10, face = "bold", hjust = 0, colour = 'black'),
-				legend.box='horizontal',
-				legend.background = element_rect(colour = NA, fill = NA))	+
-		scale_fill_gradient(low=bleu_EV, high=turquoise_EV)+
-		ylab("distance d'observation (m)")+
-		xlab("Taille anguille (cm)")+
-		scale_x_continuous(limits=c(20,120))+
-		scale_y_continuous(limits=c(5,15))+
-		theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
+    stat_bin2d(bins = 30)+
+    geom_density2d(colour="yellow")+
+    theme(legend.key = element_rect(colour = NA, fill = 'grey20'),
+        legend.position=c(0.9,0.8),
+        legend.text = element_text(size = 10, colour = 'black'), 
+        legend.title = element_text(size = 10, face = "bold", hjust = 0, colour = 'black'),
+        legend.box='horizontal',
+        legend.background = element_rect(colour = NA, fill = NA))	+
+    scale_fill_gradient(low=bleu_EV, high=turquoise_EV)+
+    ylab("distance d'observation (m)")+
+    xlab("Taille anguille (cm)")+
+    scale_x_continuous(limits=c(20,120))+
+    scale_y_continuous(limits=c(5,15))+
+    theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
 print(g,vp=vplayout(2,1))
 g<-ggplot(dddp,aes(x=psf_l_cm))+geom_bar(colour=turquoise_EV,fill=rouille)+
-		xlab("")+ylab("N")+scale_x_continuous(limits=c(20,120))+
-		theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
+    xlab("")+ylab("N")+scale_x_continuous(limits=c(20,120))+
+    theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
 print(g,vp=vplayout(1,1))
 g<-ggplot(dddp,aes(x=psf_radius_m))+geom_bar(colour=turquoise_EV,fill=rouille)+
-		xlab("")+ylab("N")+scale_x_continuous(limits=c(5,15))+
-		theme(plot.margin = unit(c(0,0,0,0), "cm"))+coord_flip()
+    xlab("")+ylab("N")+scale_x_continuous(limits=c(5,15))+
+    theme(plot.margin = unit(c(0,0,0,0), "cm"))+coord_flip()
 print(g,vp=vplayout(2,2))
 pushViewport(vplayout(1,1))
 grid.text(str_c("N=",nrow(dddp)), x=0.5, y=0.5, rot=0,
-		gp=gpar(fontsize=20, col="yellow"))
+    gp=gpar(fontsize=20, col="yellow"))
 upViewport()
 pushViewport(vplayout(1,2))
 grid.text(str_c("Tous"), x=0.5, y=0.5, rot=-45,
-		gp=gpar(fontsize=20, col="black"))
+    gp=gpar(fontsize=20, col="black"))
 dev.off()
 
 
@@ -2946,29 +2959,29 @@ mycolors <- colorRampPalette(c(bleu_EV, "blue", turquoise_EV, orange_EV, "brown"
 # Pour toutes les années
 pdf(file=str_c(imgwdy,"taille_dist_mois_all.pdf"),width=8,height=4)
 ggplot(dddp[dddp$mois%in%c("11","12","01","02","03","04"),],aes(x=psf_l_cm))+
-		geom_density(aes(y = ..density..,fill=mois),position="stack",alpha=1)+
-		facet_grid(. ~ c_radius2,scales="free_x")+
-		scale_fill_manual("Mois",values=mycolors(length(unique(dddp$mois))))+
-		coord_flip()+theme_bw()+
-		xlab("Taille (mm)")+ylab("classes de distance (densite)")+
-		theme(
-				axis.line = element_line(colour = "black", size = 0.2), 
-				axis.text.x = element_text(size = 12 * 0.8, colour = 'white', lineheight = 0.9, vjust = 1), 
-				axis.ticks = element_line(colour = "white", size = 0.2))
+    geom_density(aes(y = ..density..,fill=mois),position="stack",alpha=1)+
+    facet_grid(. ~ c_radius2,scales="free_x")+
+    scale_fill_manual("Mois",values=mycolors(length(unique(dddp$mois))))+
+    coord_flip()+theme_bw()+
+    xlab("Taille (mm)")+ylab("classes de distance (densite)")+
+    theme(
+        axis.line = element_line(colour = "black", size = 0.2), 
+        axis.text.x = element_text(size = 12 * 0.8, colour = 'white', lineheight = 0.9, vjust = 1), 
+        axis.ticks = element_line(colour = "white", size = 0.2))
 dev.off()
 
 # même graphique pour la saison en cours....
 pdf(file=str_c(imgwdy,"taille_dist_mois.pdf"),width=8,height=4)
 ggplot(subset(dddp,dddp$mois%in%c("11","12","01","02","03","04") &	dddp$date>datedebut),aes(x=psf_l_cm))+
-		geom_density(aes(y = ..density..,fill=mois),position="stack",alpha=1)+
-		facet_grid(. ~ c_radius2,scales="free_x")+
-		scale_fill_manual("Mois",values=mycolors(length(unique(dddp$mois))))+
-		coord_flip()+theme_bw()+
-		xlab("Taille (mm)")+ylab("classes de distance (densite)")+
-		theme(
-				axis.line = element_line(colour = "black", size = 0.2), 
-				axis.text.x = element_text(size = 12 * 0.8, colour = 'white', lineheight = 0.9, vjust = 1), 
-				axis.ticks = element_line(colour = "white", size = 0.2))
+    geom_density(aes(y = ..density..,fill=mois),position="stack",alpha=1)+
+    facet_grid(. ~ c_radius2,scales="free_x")+
+    scale_fill_manual("Mois",values=mycolors(length(unique(dddp$mois))))+
+    coord_flip()+theme_bw()+
+    xlab("Taille (mm)")+ylab("classes de distance (densite)")+
+    theme(
+        axis.line = element_line(colour = "black", size = 0.2), 
+        axis.text.x = element_text(size = 12 * 0.8, colour = 'white', lineheight = 0.9, vjust = 1), 
+        axis.ticks = element_line(colour = "white", size = 0.2))
 dev.off()
 
 
@@ -2987,11 +3000,11 @@ c_dddp<-cor.test(dddp$psf_radius_m,dddp$psf_l_cm) # highly significant
 tab<-xtabs(count~psf_l_cl2+c_radius2,data=dddp)
 # effectifs dans chaque classe taille*distance / effectif total par classe distance
 mat<-matrix(rep(table(dddp$c_radius),length(levels(dddp$psf_l_cl))),
-		nrow =length(levels(dddp$psf_l_cl)) , 
-		ncol=length(levels(dddp$c_radius)), 
-		byrow=T)
+    nrow =length(levels(dddp$psf_l_cl)) , 
+    ncol=length(levels(dddp$c_radius)), 
+    byrow=T)
 prop = as.matrix(xtabs(count~psf_l_cl+c_radius,data=dddp))/
-		mat
+    mat
 ##################################
 # ANALYSE DES PROPORTIONS PAR MOIS
 ####################################
@@ -3182,40 +3195,40 @@ anguilles.}}
 pdf(file=str_c(imgwdy,"taille_distance_volet.pdf"))
 grid.newpage()
 vp<-viewport(layout=grid.layout(2,2,width=unit(c(0.8,0.2),"null"),
-				height=unit(c(0.2,0.8),"null")))
+        height=unit(c(0.2,0.8),"null")))
 vplayout <- function(x, y) { viewport(layout.pos.row = x, layout.pos.col = y)   }
 pushViewport(vp)
 g<-ggplot(dddpv,aes(x=psf_l_cm,y=psf_radius_m))+stat_bin2d(bins = 20)+
-		geom_density2d(colour="yellow")+
-		scale_x_continuous(limits=c(20,120))+
-		theme(legend.key = element_rect(colour = NA, fill = 'grey20'),
-				legend.position=c(0.9,0.8),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.title = element_text(size = 10, face = "bold", hjust = 0, colour = 'black'),
-				legend.box='horizontal',
-				legend.background = element_rect(colour = NA, fill = NA))	+
-		scale_fill_gradient(low=bleu_EV, high=turquoise_EV)+
-		ylab("distance d'observation (m)")+
-		xlab("Taille anguille (cm)")+
-		scale_x_continuous(limits=c(20,120))+
-		scale_y_continuous(limits=c(5,15))+
-		theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
+    geom_density2d(colour="yellow")+
+    scale_x_continuous(limits=c(20,120))+
+    theme(legend.key = element_rect(colour = NA, fill = 'grey20'),
+        legend.position=c(0.9,0.8),
+        legend.text = element_text(size = 10, colour = 'black'), 
+        legend.title = element_text(size = 10, face = "bold", hjust = 0, colour = 'black'),
+        legend.box='horizontal',
+        legend.background = element_rect(colour = NA, fill = NA))	+
+    scale_fill_gradient(low=bleu_EV, high=turquoise_EV)+
+    ylab("distance d'observation (m)")+
+    xlab("Taille anguille (cm)")+
+    scale_x_continuous(limits=c(20,120))+
+    scale_y_continuous(limits=c(5,15))+
+    theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
 print(g,vp=vplayout(2,1))
 g<-ggplot(dddpv,aes(x=psf_l_cm))+geom_bar(colour=turquoise_EV)+
-		xlab("")+ylab("N")+scale_x_continuous(limits=c(20,120))+
-		theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
+    xlab("")+ylab("N")+scale_x_continuous(limits=c(20,120))+
+    theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
 print(g,vp=vplayout(1,1))
 g<-ggplot(dddpv,aes(x=psf_radius_m))+geom_bar(colour=turquoise_EV)+
-		xlab("")+ylab("N")+scale_x_continuous(limits=c(5,15))+
-		theme(plot.margin = unit(c(0,0,0,0), "cm"))+coord_flip()
+    xlab("")+ylab("N")+scale_x_continuous(limits=c(5,15))+
+    theme(plot.margin = unit(c(0,0,0,0), "cm"))+coord_flip()
 print(g,vp=vplayout(2,2))
 pushViewport(vplayout(1,1))
 grid.text(str_c("N=",nrow(dddpv)), x=0.5, y=0.5, rot=0,
-		gp=gpar(fontsize=20, col="#B3FFB3"))
+    gp=gpar(fontsize=20, col="#B3FFB3"))
 upViewport()
 pushViewport(vplayout(1,2))
 grid.text(str_c("Surface \n -7° 5-15m"), x=0.5, y=0.5, rot=-45,
-		gp=gpar(fontsize=20, col="black"))
+    gp=gpar(fontsize=20, col="black"))
 dev.off()
 
 #dddpv$mois<-strftime(dddpv$dsf_timeinit,'%m')
@@ -3269,39 +3282,39 @@ pdf(file=str_c(imgwdy,"taille_distance_vannefond.pdf"))
 vplayout <- function(x, y) { viewport(layout.pos.row = x, layout.pos.col = y)   }
 grid.newpage()
 vp<-viewport(layout=grid.layout(2,2,width=unit(c(0.8,0.2),"null"),
-				height=unit(c(0.2,0.8),"null")))
+        height=unit(c(0.2,0.8),"null")))
 vplayout <- function(x, y) { viewport(layout.pos.row = x, layout.pos.col = y)   }
 pushViewport(vp)
 g<-ggplot(dddpf5,aes(x=psf_l_cm,y=psf_radius_m))+stat_bin2d(bins = 20)+
-		geom_density2d(colour="yellow")+
-		scale_x_continuous(limits=c(20,120))+
-		theme(legend.key = element_rect(colour = NA, fill = 'grey20'),
-				legend.position=c(0.9,0.8),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.title = element_text(size = 10, face = "bold", hjust = 0, colour = 'black'),
-				legend.box='horizontal',
-				legend.background = element_rect(colour = NA, fill = NA))	+
-		scale_fill_gradient(low=bleu_EV, high=turquoise_EV)+
-		ylab("distance d'observation (m)")+
-		xlab("Taille anguille (cm)")+
-		scale_y_continuous(limits=c(5,14))+
-		theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
+    geom_density2d(colour="yellow")+
+    scale_x_continuous(limits=c(20,120))+
+    theme(legend.key = element_rect(colour = NA, fill = 'grey20'),
+        legend.position=c(0.9,0.8),
+        legend.text = element_text(size = 10, colour = 'black'), 
+        legend.title = element_text(size = 10, face = "bold", hjust = 0, colour = 'black'),
+        legend.box='horizontal',
+        legend.background = element_rect(colour = NA, fill = NA))	+
+    scale_fill_gradient(low=bleu_EV, high=turquoise_EV)+
+    ylab("distance d'observation (m)")+
+    xlab("Taille anguille (cm)")+
+    scale_y_continuous(limits=c(5,14))+
+    theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
 print(g,vp=vplayout(2,1))
 g<-ggplot(dddpf5,aes(x=psf_l_cm))+geom_bar(colour=turquoise_EV,fill=rouille)+
-		xlab("")+ylab("N")+scale_x_continuous(limits=c(20,120))+
-		theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
+    xlab("")+ylab("N")+scale_x_continuous(limits=c(20,120))+
+    theme(plot.margin = unit(c(0,0.2,0,0), "cm"))
 print(g,vp=vplayout(1,1))
 g<-ggplot(dddpf5,aes(x=psf_radius_m))+geom_bar(colour=turquoise_EV, fill=rouille)+
-		xlab("")+ylab("N")+scale_x_continuous(limits=c(0,14))+
-		theme(plot.margin = unit(c(0,0,0,0), "cm"))+coord_flip()
+    xlab("")+ylab("N")+scale_x_continuous(limits=c(0,14))+
+    theme(plot.margin = unit(c(0,0,0,0), "cm"))+coord_flip()
 print(g,vp=vplayout(2,2))
 pushViewport(vplayout(1,1))
 grid.text(str_c("N=",nrow(dddpf5)), x=0.5, y=0.5, rot=0,
-		gp=gpar(fontsize=20, col="yellow"))
+    gp=gpar(fontsize=20, col="yellow"))
 upViewport()
 pushViewport(vplayout(1,2))
 grid.text(str_c("+6° 2-12m"), x=0.5, y=0.5, rot=-45,
-		gp=gpar(fontsize=20, col="black"))
+    gp=gpar(fontsize=20, col="black"))
 dev.off()
 
 
@@ -3353,32 +3366,32 @@ dddp$distance_m[dddp$distance_m=="(2,5]" & dddp$saison=="2014-2015"] <-"(5,7]" #
 #table(dddp$distancestart,dddp$distance_m,dddp$saison)
 
 N <- dddp %>% 
-		dplyr::group_by(saison,taille_cm,distance_m, position, distancestart) %>% 
-		dplyr::summarize(N=sum(count),.groups="drop")
+    dplyr::group_by(saison,taille_cm,distance_m, position, distancestart) %>% 
+    dplyr::summarize(N=sum(count),.groups="drop")
 #N %>% print(n=500)
 corrected<-
-		rbind(
-				data.frame("position"="volet",
-						"corrected"=vvv$volet$det_frames_int_area/vvv$volet$det_frames_int_area[1],
-						"distance_m"=c("(5,7]","(7,9]","(9,11]","(11,13]","(13,15]"),
-						"distancestart"=5
-				),
-				data.frame("position"="volet",
-						"corrected"=vvv$f3$det_frames_int_area/vvv$f3$det_frames_int_area[1],
-						"distance_m"=c("(2,5]","(5,7]","(7,9]","(9,11]","(11,13]"),
-						"distancestart"=3
-				),
-				data.frame("position"="vanne",
-						"corrected"=vvv$f3$det_frames_int_area/vvv$f3$det_frames_int_area[1]
-						,"distance_m"=c("(2,5]","(5,7]","(7,9]","(9,11]","(11,13]"),
-						"distancestart"=3
-				),
-				data.frame("position"="vanne",
-						"corrected"=vvv$f5$det_frames_int_area/vvv$f5$det_frames_int_area[1],
-						"distance_m"=c("(5,7]","(7,9]","(9,11]","(11,13]","(13,15]"),
-						"distancestart"=5
-				)
-		)
+    rbind(
+        data.frame("position"="volet",
+            "corrected"=vvv$volet$det_frames_int_area/vvv$volet$det_frames_int_area[1],
+            "distance_m"=c("(5,7]","(7,9]","(9,11]","(11,13]","(13,15]"),
+            "distancestart"=5
+        ),
+        data.frame("position"="volet",
+            "corrected"=vvv$f3$det_frames_int_area/vvv$f3$det_frames_int_area[1],
+            "distance_m"=c("(2,5]","(5,7]","(7,9]","(9,11]","(11,13]"),
+            "distancestart"=3
+        ),
+        data.frame("position"="vanne",
+            "corrected"=vvv$f3$det_frames_int_area/vvv$f3$det_frames_int_area[1]
+            ,"distance_m"=c("(2,5]","(5,7]","(7,9]","(9,11]","(11,13]"),
+            "distancestart"=3
+        ),
+        data.frame("position"="vanne",
+            "corrected"=vvv$f5$det_frames_int_area/vvv$f5$det_frames_int_area[1],
+            "distance_m"=c("(5,7]","(7,9]","(9,11]","(11,13]","(13,15]"),
+            "distancestart"=5
+        )
+    )
 
 # joining with the previous table
 N <- left_join(N,corrected,by=c("position","distance_m","distancestart"))
@@ -3403,25 +3416,25 @@ N <- left_join(N,maxeff,by=c("position","taille_cm","distancestart","saison"))
 # On calcule les effectifs par classe de qualité >4 et 5, pour les groupes taille*position
 
 Nq <- dddp |> 
-		mutate(q45=psf_q>3)%>%
-		filter(!is.na(q45)) %>%
-		group_by(taille_cm, position,q45,saison) %>% 
-		summarize(N=n(),.groups="drop")
+    mutate(q45=psf_q>3)%>%
+    filter(!is.na(q45)) %>%
+    group_by(taille_cm, position,q45,saison) %>% 
+    summarize(N=n(),.groups="drop")
 # on passe en format large pour avoir les deux colonnes côte à côte et calculer le ratio entre anguilles
 # de qualité >=4 (4,5) et celles <3 (2,3)
 Nq2 <- Nq %>% 
-		pivot_wider(names_from="q45",names_prefix ="q45_",values_from="N") %>%
-		mutate(ratio_qal=q45_TRUE/(q45_TRUE+q45_FALSE))
+    pivot_wider(names_from="q45",names_prefix ="q45_",values_from="N") %>%
+    mutate(ratio_qal=q45_TRUE/(q45_TRUE+q45_FALSE))
 
 # la référence est la classe de taille (80,150] #  0.6875000 0.6614173 0.7901235 0.8510638
 ref_volet <- Nq2 %>%
-		filter(position=="volet" & taille_cm=="(80,150]" & !saison %in% c("2017-2018","2018-2019")) %>%
-		pull(ratio_qal) %>%
-		mean()
+    filter(position=="volet" & taille_cm=="(80,150]" & !saison %in% c("2017-2018","2018-2019")) %>%
+    pull(ratio_qal) %>%
+    mean()
 # on calcule le coefficient maximum d'efficacité (ratio_qal) par année, position, et classe de taille
 Nq3 <- Nq2 %>%
-		mutate(ratio_qal_cor=pmin(ratio_qal/ref_volet,1)) %>%
-		select(taille_cm, position, ratio_qal_cor, saison)
+    mutate(ratio_qal_cor=pmin(ratio_qal/ref_volet,1)) %>%
+    select(taille_cm, position, ratio_qal_cor, saison)
 # print(Nq3,n=Inf)
 Nq3[is.na(Nq3$ratio_qal_cor),"ratio_qal_cor"] <-1
 N <- left_join(N,Nq3,by = c("taille_cm", "position","saison"))
@@ -3443,26 +3456,26 @@ N$distance_mc <- as.numeric(N$distance_m)
 maxeffplot <- subset(N, NC==maxeff)
 
 (N %>% 	
-			ggplot()+
-			geom_point(aes(x=distance_mc, y=maxeff), colour="black", pch=21, fill="yellow", size=4,
-					data=maxeffplot)+
-			geom_point(aes(x=distance_mc,y=N,colour=taille_cm,group=taille_cm))+
-			geom_line(aes(x=distance_mc,y=N,colour=taille_cm,group=taille_cm))+
-			geom_point(aes(x=distance_mc,y=NC,colour=taille_cm,group=taille_cm), pch=13)+
-			geom_line(aes(x=distance_mc,y=NC,colour=taille_cm,group=taille_cm),lty=3)+
-			scale_colour_manual("Classe taille",values=c(bleu_EV,turquoise_EV,orange_EV,jaune_EV))+
-			scale_x_continuous(breaks=1:6,labels=levels(N$distance_m)) +
-			facet_grid(position~saison+distancestart)+
-			ylab("Nombre")+
-			xlab("Classe de distance d'observation (m)")+
-			theme_bw()+
-			theme(panel.background = element_rect(fill = "grey95", 
-							colour = "black"),
-					axis.line=element_line(colour = "black"),
-					panel.grid.major = element_line(colour = "grey99",size = 0.1),
-					panel.grid.minor = element_line(colour = "white", size = 0.1)
-			)
-			)
+      ggplot()+
+      geom_point(aes(x=distance_mc, y=maxeff), colour="black", pch=21, fill="yellow", size=4,
+          data=maxeffplot)+
+      geom_point(aes(x=distance_mc,y=N,colour=taille_cm,group=taille_cm))+
+      geom_line(aes(x=distance_mc,y=N,colour=taille_cm,group=taille_cm))+
+      geom_point(aes(x=distance_mc,y=NC,colour=taille_cm,group=taille_cm), pch=13)+
+      geom_line(aes(x=distance_mc,y=NC,colour=taille_cm,group=taille_cm),lty=3)+
+      scale_colour_manual("Classe taille",values=c(bleu_EV,turquoise_EV,orange_EV,jaune_EV))+
+      scale_x_continuous(breaks=1:6,labels=levels(N$distance_m)) +
+      facet_grid(position~saison+distancestart)+
+      ylab("Nombre")+
+      xlab("Classe de distance d'observation (m)")+
+      theme_bw()+
+      theme(panel.background = element_rect(fill = "grey95", 
+              colour = "black"),
+          axis.line=element_line(colour = "black"),
+          panel.grid.major = element_line(colour = "grey99",size = 0.1),
+          panel.grid.minor = element_line(colour = "white", size = 0.1)
+      )
+      )
 dev.off()
 
 #pdf(file=str_c(imgwdy,"efficacite_taille_volet.pdf"),width=8,height=4)
@@ -3537,9 +3550,9 @@ summary(gef12<-glm(efficacite~distance_m*taille_cm+ saison2+ position,data=N),fa
 summary(gef13<-glm(efficacite~distance_m*taille_cm*position+saison2,data=N),family="binomial",link="logit")# BREAK
 
 ff <- function(x){
-	capture.output(formula(eval(parse(text =x))))}
+  capture.output(formula(eval(parse(text =x))))}
 aic<- cbind(AIC(gef0,gef1,gef2,gef3,gef4,gef5,gef6,gef7,gef8,gef9,gef10,gef12,gef13),
-		map_chr(.x=c("gef0","gef1","gef2","gef3","gef4","gef5","gef6","gef7","gef8","gef9","gef10","gef12","gef13"),.f=ff))
+    map_chr(.x=c("gef0","gef1","gef2","gef3","gef4","gef5","gef6","gef7","gef8","gef9","gef10","gef12","gef13"),.f=ff))
 aic[order(aic$AIC),]
 (aovlmsel<-as.data.frame(anova(gef12,test="Chisq")))
 (pdev <- deviance(gef0)-deviance(gef12))/deviance(gef0) # le modèle explique 73 % de la déviance totale
@@ -3557,14 +3570,14 @@ colnames(aovlmsel)<-c("$df$","$dev.$","$res. df$", "$res. dev.$","$P(>chi^2$)$")
 # le fichier est enregistré en UTF8
 options(encoding = "UTF-8")
 toto<-latex(aovlmsel,
-		title="",
-		where="htbp",
-		col.just=strsplit("l r r r r r", " ")[[1]],	
-		label="tab_aovefficacite",
-		caption=str_c("Analyse de variance du modèle logit des efficacités. 
-						$\\tau$= taille, $\\delta$= distance au didson"),
-		caption.lot=str_c("aov efficacité"),		
-		file=str_c(tabwdy,"aovefficacite.tex"))
+    title="",
+    where="htbp",
+    col.just=strsplit("l r r r r r", " ")[[1]],	
+    label="tab_aovefficacite",
+    caption=str_c("Analyse de variance du modèle logit des efficacités. 
+            $\\tau$= taille, $\\delta$= distance au didson"),
+    caption.lot=str_c("aov efficacité"),		
+    file=str_c(tabwdy,"aovefficacite.tex"))
 options(encoding = "native.enc")
 N$E <- NA # pour eviter warning
 N$E[ok]<-predict(gef12,type="response")
@@ -3601,14 +3614,14 @@ dev.off()
 png(file=str_c(imgwdy,"efficacite.png"),width = 35, height = 25, units = 'cm', res = 300)
 
 g <-  ggplot(N, aes(y=taille_cm,x=distance_m))+
-		geom_tile(aes(fill=E))+
-		scale_fill_continuous(name="efficacite",low=orange_EV,high=turquoise_EV)+
-		facet_wrap(~position+ saison2)+
-		geom_text(aes(label=label))+
-		theme_bw() +
-		theme(panel.border = element_rect(colour = "black"),
-				strip.background =  element_rect(colour = "black",fill="white"))+
-		xlab(expression(delta (m)))+ylab(expression(tau (cm)))
+    geom_tile(aes(fill=E))+
+    scale_fill_continuous(name="efficacite",low=orange_EV,high=turquoise_EV)+
+    facet_wrap(~position+ saison2)+
+    geom_text(aes(label=label))+
+    theme_bw() +
+    theme(panel.border = element_rect(colour = "black"),
+        strip.background =  element_rect(colour = "black",fill="white"))+
+    xlab(expression(delta (m)))+ylab(expression(tau (cm)))
 print(g)
 dev.off()
 # ci dessous c'est la correction des effectifs observés en comptage
@@ -3617,44 +3630,44 @@ dev.off()
 # mais ça donne une idée....
 png(filename=str_c(imgwdy,"Ncor.png"),width = 35, height = 25, units = 'cm', res = 300)
 g <-  ggplot(N, aes(y=taille_cm,x=distance_m))+
-		geom_tile(aes(fill=Ncor))+
-		scale_fill_continuous(name="Ncor",low=bleu_EV,high=orange_EV)+facet_wrap(~position+ saison2)+
-		geom_text(aes(label=round(Ncor)), colour="white")+
-		theme_bw() +
-		theme(panel.border = element_rect(colour = "black"),
-				strip.background =  element_rect(colour = "black",fill="white"))+
-		xlab(expression(delta (m)))+ylab(expression(tau (cm)))
+    geom_tile(aes(fill=Ncor))+
+    scale_fill_continuous(name="Ncor",low=bleu_EV,high=orange_EV)+facet_wrap(~position+ saison2)+
+    geom_text(aes(label=round(Ncor)), colour="white")+
+    theme_bw() +
+    theme(panel.border = element_rect(colour = "black"),
+        strip.background =  element_rect(colour = "black",fill="white"))+
+    xlab(expression(delta (m)))+ylab(expression(tau (cm)))
 print(g)
 dev.off()
 
 corr <- corrected %>% 
-		rename("coef"="corrected")
+    rename("coef"="corrected")
 corr%>%group_by(position) %>%summarize(coeffall=sum(coef)) # 8.33
 
 # l'efficacite moyenne E est pondérée par la surface de chaque faisceau. E0 c'est avant correction (simple moyenne utilisée avant 2021)
 efficacite_moyenne <-
-		N %>% 
-		group_by(saison, position) %>%
-		left_join(corr) %>%
-		summarize(E0=mean(E), E=sum(E*coef)/sum(coef), .groups="drop")
+    N %>% 
+    group_by(saison, position) %>%
+    left_join(corr) %>%
+    summarize(E0=mean(E), E=sum(E*coef)/sum(coef), .groups="drop")
 save(efficacite_moyenne, file=str_c(datawdy,"efficacite_moyenne.Rdata"))
 #load(file=str_c(datawdy,"efficacite_moyenne.Rdata"))
 options(encoding = "UTF-8")
 xtaefficacite_moyenne <- xtable::xtable(efficacite_moyenne[,c("saison", "position", "E")],
-		label="tabefficacite_moyenne",
-		caption=iconv("Efficacité du didson (E) en fonction de la saison et de la position."),
-		digits=2
+    label="tabefficacite_moyenne",
+    caption=iconv("Efficacité du didson (E) en fonction de la saison et de la position."),
+    digits=2
 )
 print(xtaefficacite_moyenne, file=str_c(tabwdy,"tabefficacite_moyenne.tex"),
-		table.placement="htbp",
-		caption.placement = "top",
-		NA.string = "",
-		include.rownames=TRUE)	
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=TRUE)	
 options(encoding = "native.enc")
 
 ggplot(efficacite_moyenne) + 
-		geom_point(aes(x=saison,y=E,color=position)) +
-		geom_line(aes(x=saison,y=E,color=position, group=position))
+    geom_point(aes(x=saison,y=E,color=position)) +
+    geom_line(aes(x=saison,y=E,color=position, group=position))
 
 ##################################
 # Modélisation des efficacité par taille
@@ -3666,7 +3679,7 @@ centers <- tapply(dddp$psf_l_cm,dddp$taille_cm,mean)
 # Calcul des effectifs et des effectifs "supplémentaires" créés par la correction d'efficacité
 # je n'utilise par N et Ncor car là je n'ai plus le détail des tailles individuelles pour les histogrammes
 EFT <- N %>% group_by(saison, taille_cm) %>% 
-		summarize(coeff=sum(Ncor)/sum(N), .groups="drop") 
+    summarize(coeff=sum(Ncor)/sum(N), .groups="drop") 
 # calcul de la taille moyenne au sein de chaque classe de taille par année
 #TM <- dddp %>% group_by(saison,taille_cm) %>% summarize(center=mean(psf_l_cm))
 #EFT <- left_join(EFT,TM)
@@ -3679,11 +3692,11 @@ EFT <- N %>% group_by(saison, taille_cm) %>%
 # structure en taille corrigée
 #######################
 C <- dddp %>% 
-		select(psf_l_cm,  saison) %>%
-		split( ~ saison) %>%
-		#map( ~ max(x=.x$psf_l_cm))
-		map(~hist(x=.x$psf_l_cm,plot=FALSE,breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130))) %>%
-		map_dfr(c("counts"))
+    select(psf_l_cm,  saison) %>%
+    split( ~ saison) %>%
+    #map( ~ max(x=.x$psf_l_cm))
+    map(~hist(x=.x$psf_l_cm,plot=FALSE,breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130))) %>%
+    map_dfr(c("counts"))
 C$taille <- c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120) # un de moins
 C<-C %>% pivot_longer(cols=!taille, names_to="saison",values_to="N")
 C$taille_cm <- cut(C$taille,c(0,45,60,80,150))
@@ -3697,11 +3710,11 @@ C2$type <- factor(C2$type, levels=c("Ncor","N"))
 
 pdf(str_c(imgwdy,"structure_taille.pdf"),width=5, height=5)
 ggplot(C2) + 
-		geom_col(aes(x=taille,y=N, fill=type)) +
-		facet_wrap(~saison) + 
-		scale_fill_manual(values=c(bleu_EV,turquoise_EV)) +
-		labs(x="Classe de taille",
-				y="Effectifs observés et corrigés de l'efficacité")
+    geom_col(aes(x=taille,y=N, fill=type)) +
+    facet_wrap(~saison) + 
+    scale_fill_manual(values=c(bleu_EV,turquoise_EV)) +
+    labs(x="Classe de taille",
+        y="Effectifs observés et corrigés de l'efficacité")
 dev.off()
 # travail sur les tailles à moins de 7 m de distance
 resolution<-(c(2,5,7,9,11,13)/2)/96		
@@ -3722,20 +3735,20 @@ dddp[is.na(dddp$psf_q),"psf_q"]<-3
 dddp[dddp$psf_q==1 & !is.na(dddp$psf_q),]
 # Volets
 l.l <- list(set_varnames = c(psf_q="Qualite",
-				distance_m="Classe de distance"))
+        distance_m="Classe de distance"))
 
 png(file=str_c(imgwdy,"qualite_distance_volet_all.png"),width = 15, height = 8, units = 'in', res = 300)
 vcd::mosaic(psf_q~taille_cm+distance_m,data=dddp,subset=dddp$position=="volet",
-		split_vertical=c(TRUE,TRUE,FALSE),
-		labeling_args = l.l)
+    split_vertical=c(TRUE,TRUE,FALSE),
+    labeling_args = l.l)
 vvv$nqualiteallvolet <- sum(dddp$position=="volet")
 dev.off()
 
 # Vannes
 png(file=str_c(imgwdy,"qualite_distance_vanne_all.png"),width = 15, height = 8, units = 'in', res = 300)
 vcd::mosaic(psf_q~taille_cm+distance_m,data=dddp,subset=dddp$position=="vanne",
-		split_vertical=c(TRUE,TRUE,FALSE),
-		labeling_args = l.l)
+    split_vertical=c(TRUE,TRUE,FALSE),
+    labeling_args = l.l)
 vvv$nqualiteallvanne <- sum(dddp$position=="vanne")
 dev.off()
 
@@ -3745,18 +3758,18 @@ dev.off()
 dddp1<-dddp
 levels(dddp1$distance_m) <- c(3,6,8,10,12,14)
 l.l <- list(set_varnames = c(psf_q="Qualite",
-				distance_m="Centre de classe de distance (m)"))
+        distance_m="Centre de classe de distance (m)"))
 
 for (s in 1:length(unique(dddp$saison))){
-	saison1 <- unique(dddp1$saison)[s]
-	png(filename=str_c(imgwdy,"qualite_distance",saison,".png"),width = 8, height = 8, units = 'in', res = 300)
-	dddp1s <- dddp1[dddp1$saison==saison1,]
-	if (saison1==saison) vvv$nqualite <- nrow(dddp1s)
-	vcd::mosaic(psf_q~taille_cm+distance_m|position,data=dddp1s,
-			split_vertical=c(FALSE,TRUE,TRUE,FALSE),
-			labeling_args = l.l,
-			main = str_c("qualite ",saison, " N=",nrow(dddp1s)))
-	dev.off()	
+  saison1 <- unique(dddp1$saison)[s]
+  png(filename=str_c(imgwdy,"qualite_distance",saison,".png"),width = 8, height = 8, units = 'in', res = 300)
+  dddp1s <- dddp1[dddp1$saison==saison1,]
+  if (saison1==saison) vvv$nqualite <- nrow(dddp1s)
+  vcd::mosaic(psf_q~taille_cm+distance_m|position,data=dddp1s,
+      split_vertical=c(FALSE,TRUE,TRUE,FALSE),
+      labeling_args = l.l,
+      main = str_c("qualite ",saison, " N=",nrow(dddp1s)))
+  dev.off()	
 }
 
 save(vvv,file=str_c(datawdy,"vvv.Rdata"))
@@ -3869,34 +3882,34 @@ dddee$date <- as.POSIXct(dddee$date)
 dddee<-dddee[(dddee$Hfin-dddee$Hdeb)>0,]
 pdf(file=str_c(imgwdy,"horaires_all.pdf"),width=7,height=7)
 g<-ggplot(dddee)+
-		geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=Hdeb))+
-		scale_fill_gradient2("heure",low = bleu_EV, mid = "#D4D4FA", high ="#380071" ,midpoint=12,space = "Lab")+
-		geom_path(aes(x=date,y=lever_soleil_h),colour="yellow",data=dddee,alpha=0.6,size=2)+
-		geom_path(aes(x=date,y=coucher_soleil_h),colour="yellow",data=dddee,alpha=0.6,size=2)+
-		geom_path(aes(x=date,y=lever_twilight),colour=orange_EV,data=dddee,alpha=0.8,size=1,lty=2)+
-		geom_path(aes(x=date,y=coucher_twilight),colour=orange_EV,data=dddee,alpha=0.8,size=1,lty=2)+
-		scale_y_continuous(breaks=seq(1, 24, 2), minor_breaks = seq(1, 24, 0.5))+
-		ylab("Heure")+theme(panel.background = element_rect(fill="black"),
-				panel.grid.major = element_line(colour = "grey50"),
-				panel.grid.minor = element_line(colour = "grey20"),
-				axis.text = element_text(colour ="black"))
+    geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=Hdeb))+
+    scale_fill_gradient2("heure",low = bleu_EV, mid = "#D4D4FA", high ="#380071" ,midpoint=12,space = "Lab")+
+    geom_path(aes(x=date,y=lever_soleil_h),colour="yellow",data=dddee,alpha=0.6,size=2)+
+    geom_path(aes(x=date,y=coucher_soleil_h),colour="yellow",data=dddee,alpha=0.6,size=2)+
+    geom_path(aes(x=date,y=lever_twilight),colour=orange_EV,data=dddee,alpha=0.8,size=1,lty=2)+
+    geom_path(aes(x=date,y=coucher_twilight),colour=orange_EV,data=dddee,alpha=0.8,size=1,lty=2)+
+    scale_y_continuous(breaks=seq(1, 24, 2), minor_breaks = seq(1, 24, 0.5))+
+    ylab("Heure")+theme(panel.background = element_rect(fill="black"),
+        panel.grid.major = element_line(colour = "grey50"),
+        panel.grid.minor = element_line(colour = "grey20"),
+        axis.text = element_text(colour ="black"))
 print(g)
 dev.off()
 
 pdf(file=str_c(imgwdy,"horaires.pdf"),width=7,height=7)
 g <- dddee %>% filter(dsf_season==saison)%>%
-		ggplot()+
-		geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=Hdeb))+
-		scale_fill_gradient2("heure",low = bleu_EV, mid = "#D4D4FA", high ="#380071" ,midpoint=12,space = "Lab")+
-		geom_path(aes(x=date,y=lever_soleil_h),colour="yellow", alpha=0.6, size=2)+
-		geom_path(aes(x=date,y=coucher_soleil_h),colour="yellow", alpha=0.6, size=2)+
-		geom_path(aes(x=date,y=lever_twilight),colour=orange_EV, alpha=0.8, size=1,lty=2)+
-		geom_path(aes(x=date,y=coucher_twilight),colour=orange_EV, alpha=0.8, size=1,lty=2)+
-		scale_y_continuous(breaks=seq(1, 24, 2), minor_breaks = seq(1, 24, 0.5))+
-		ylab("Heure")+theme(panel.background = element_rect(fill="black"),
-				panel.grid.major = element_line(colour = "grey50"),
-				panel.grid.minor = element_line(colour = "grey20"),
-				axis.text = element_text(colour ="black"))
+    ggplot()+
+    geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=Hdeb))+
+    scale_fill_gradient2("heure",low = bleu_EV, mid = "#D4D4FA", high ="#380071" ,midpoint=12,space = "Lab")+
+    geom_path(aes(x=date,y=lever_soleil_h),colour="yellow", alpha=0.6, size=2)+
+    geom_path(aes(x=date,y=coucher_soleil_h),colour="yellow", alpha=0.6, size=2)+
+    geom_path(aes(x=date,y=lever_twilight),colour=orange_EV, alpha=0.8, size=1,lty=2)+
+    geom_path(aes(x=date,y=coucher_twilight),colour=orange_EV, alpha=0.8, size=1,lty=2)+
+    scale_y_continuous(breaks=seq(1, 24, 2), minor_breaks = seq(1, 24, 0.5))+
+    ylab("Heure")+theme(panel.background = element_rect(fill="black"),
+        panel.grid.major = element_line(colour = "grey50"),
+        panel.grid.minor = element_line(colour = "grey20"),
+        axis.text = element_text(colour ="black"))
 print(g)
 dev.off()
 
@@ -3915,21 +3928,21 @@ njoursuivi <- length(unique(ddde$date)) # 119
 # f = fulldays 
 fulldays<-as.POSIXct(strptime(str_c(fulldays," 00:00:00"),format="%Y-%m-%d %H:%M:%S"))
 dddeef <- dddee[dddee$date%in%fulldays,c("date",
-				"dsf_timeinit",
-				"dsf_position",
-				"lever_soleil_h",
-				"coucher_soleil_h",
-				"Hdeb",
-				"Hfin",
-				"drr_eelplus",
-				"drr_eelminus",
-				"vanne4",
-				"volet4",
-				"nuit",
-				"neel",
-				"hour","count")]
+        "dsf_timeinit",
+        "dsf_position",
+        "lever_soleil_h",
+        "coucher_soleil_h",
+        "Hdeb",
+        "Hfin",
+        "drr_eelplus",
+        "drr_eelminus",
+        "vanne4",
+        "volet4",
+        "nuit",
+        "neel",
+        "hour","count")]
 nhf <- data.frame(h=names(tapply(dddeef$neel,dddeef$Hdeb,sum,na.rm=TRUE)),
-		n=tapply(dddeef$neel,dddeef$Hdeb,sum,na.rm=TRUE))
+    n=tapply(dddeef$neel,dddeef$Hdeb,sum,na.rm=TRUE))
 nhf$h <- as.numeric(as.character(nhf$h))
 #d3ej corresponds to <=9 and >17 so the day no watched values correspond to
 
@@ -3942,8 +3955,8 @@ nb_suivi_h <- 48*nb_suivi_h/sum(nb_suivi_h) # 24 au total
 # on s'attend a avoir moins d'anguilles les heures sans suivi. Ici on calcule
 # le nombre moyen d'anguilles par suivi.
 dat_h <- data.frame("hour"=as.numeric(names(tapply(dddeef$neel,dddeef$Hdeb,sum,na.rm=TRUE))),
-		"ncor"=tapply(dddeef$neel,dddeef$Hdeb,sum,na.rm=TRUE)/
-				nb_suivi_h)
+    "ncor"=tapply(dddeef$neel,dddeef$Hdeb,sum,na.rm=TRUE)/
+        nb_suivi_h)
 # migration de 9h inclus à 17 h
 muobs <- round(100*sum(dat_h[dat_h$hour>9&dat_h$hour<=17,"ncor"])/sum(dat_h$ncor),1)
 mu  <-  muobs # cette année on utilise la valeur observée
@@ -3955,12 +3968,12 @@ dddeef$nuit[dddeef$nuit=="FALSE"] <- "levé"
 #§§§§§§§§COMMENTE POUR GAGNER DU TEMPS §§§§§§§§
 png(file=str_c(imgwdy,"heure_jourcomplet.png"), width=12,height=12, units = 'cm', res = 300)
 g <- ggplot(dddeef, aes(x = hourm, fill = nuit)) + 
-		geom_histogram(aes(y=neel),breaks = seq(0,24), width = 0.6, colour = NA,stat="identity") +
-		coord_polar(start=3*pi/4) +
-		theme_minimal() + 
-		scale_fill_manual("Soleil",values=c("couché"=bleu_EV,"levé"=orange_EV)) +
-		ylab("Nombre") + 
-		scale_x_continuous("", limits=c(0,24), breaks = seq(0, 23), labels = c(seq(9, 23),seq(0,8)))
+    geom_histogram(aes(y=neel),breaks = seq(0,24), width = 0.6, colour = NA,stat="identity") +
+    coord_polar(start=3*pi/4) +
+    theme_minimal() + 
+    scale_fill_manual("Soleil",values=c("couché"=bleu_EV,"levé"=orange_EV)) +
+    ylab("Nombre") + 
+    scale_x_continuous("", limits=c(0,24), breaks = seq(0, 23), labels = c(seq(9, 23),seq(0,8)))
 print(g)
 dev.off()
 #Fonctionnement jour nuit du barrage
@@ -3969,17 +3982,17 @@ dddeef$ouverture_barrage <- "ferme"
 dddeef$ouverture_barrage[dddeef$volet4] <- "volet (surface)"
 dddeef$ouverture_barrage[dddeef$vanne4] <- "vanne (fond)"
 dddeef %>% filter(!is.na(ouverture_barrage)) %>%
-		group_by(hour,nuit,ouverture_barrage) %>% summarize(count=sum(count)) %>% 
-		ggplot(aes(x = hour, fill = nuit)) + 
-		geom_histogram(aes(y=count),breaks = seq(0,24), width = 1, colour = "grey20",stat="identity") +
-		coord_polar(start = 0) +
-		theme_minimal() + 
-		scale_fill_manual("Nuit",values=c("couché"=bleu_EV,"levé"=orange_EV)) +
-		ylab("Nombre") + 
-		ggtitle("Fonctionnement barrage") + 
-		scale_x_continuous("",  breaks = seq(0, 23), labels = seq(0, 
-						23))+
-		facet_wrap(~ouverture_barrage)
+    group_by(hour,nuit,ouverture_barrage) %>% summarize(count=sum(count)) %>% 
+    ggplot(aes(x = hour, fill = nuit)) + 
+    geom_histogram(aes(y=count),breaks = seq(0,24), width = 1, colour = "grey20",stat="identity") +
+    coord_polar(start = 0) +
+    theme_minimal() + 
+    scale_fill_manual("Nuit",values=c("couché"=bleu_EV,"levé"=orange_EV)) +
+    ylab("Nombre") + 
+    ggtitle("Fonctionnement barrage") + 
+    scale_x_continuous("",  breaks = seq(0, 23), labels = seq(0, 
+            23))+
+    facet_wrap(~ouverture_barrage)
 dev.off()
 #########################################################
 # Sur toute la série mais entre 8 h00 et 18 h00
@@ -4004,12 +4017,12 @@ dddpf <- dddp[dddp$date%in%as.Date(fulldays),]
 
 dddpf$hour <- hour(dddpf$dsf_timeinit)
 dddpf$hourc <- circular(dddpf$hour%%24, # convert to 24 hrs
-		units="hours", template="clock24")
+    units="hours", template="clock24")
 bw <- 10*bw.nrd0(dddpf$hourc) 
 dens <- density.circular(dddpf$hourc, bw = bw)  # bw must be given
 pdf(file=str_c(imgwdy,"circular_full_days.pdf"),width=8,height=6)
 plot(dens, plot.type = "line", join = TRUE, main = iconv("Probability de présence d'anguille en fonction de l'heure","UTF8"), 
-		xlab = "Heure", ylab = "", yaxt = "n")
+    xlab = "Heure", ylab = "", yaxt = "n")
 dddee$hm <- as.numeric(strftime(dddee$dsf_timeinit,"%H"))+as.numeric(strftime(dddee$dsf_timeinit,"%M"))/60
 
 rug(jitter(dddpf$hour,amount=0.05),ticksize=0.03,lwd=0.1)
@@ -4020,12 +4033,12 @@ dev.off()
 dddp$hour <- hour(dddp$dsf_timeinit)
 d3pj <- dddp[dddp$hour>17|dddp$hour<=9,] 
 d3pj$hourc <- circular(d3pj$hour%%24, # convert to 24 hrs
-		units="hours", template="clock24")
+    units="hours", template="clock24")
 bw <- 10*bw.nrd0(d3pj$hourc) 
 dens <- density.circular(d3pj$hourc, bw = bw)  # bw must be given
 pdf(file=str_c(imgwdy,"circular_9-17.pdf"),width=8,height=6)
 plot(dens, plot.type = "line", join = TRUE, main = iconv("Probability de présence d'anguille en fonction de l'heure","UTF8"), 
-		xlab = "Heure", ylab = "", yaxt = "n")
+    xlab = "Heure", ylab = "", yaxt = "n")
 rug(jitter(d3pj$hour,amount=0.05),ticksize=0.03,lwd=0.1)
 dev.off()
 #########################################################
@@ -4040,19 +4053,19 @@ nhours <- dddeef%>%dplyr::select(hour)%>%distinct()%>%nrow()
 # proportion des suivis effectués par rapport à l'ensemble, calculés par heure 
 # (si tous les suivis sont également répartis on obtient 1/24 donc on multiplie par 24
 dat_h_fulldays  <-  dddeef %>% 
-		dplyr::select(count,hour,neel)%>%
-		group_by(hour)%>%
-		dplyr::summarize(nb_suivi_h=dplyr::n(),n=sum(neel,na.rm=TRUE))%>%
-		ungroup()%>%
-		mutate(nb_suivi_h=24*nb_suivi_h/sum(nb_suivi_h))%>%
-		mutate(ncor=n/nb_suivi_h)%>%
-		select(-nb_suivi_h)
+    dplyr::select(count,hour,neel)%>%
+    group_by(hour)%>%
+    dplyr::summarize(nb_suivi_h=dplyr::n(),n=sum(neel,na.rm=TRUE))%>%
+    ungroup()%>%
+    mutate(nb_suivi_h=24*nb_suivi_h/sum(nb_suivi_h))%>%
+    mutate(ncor=n/nb_suivi_h)%>%
+    select(-nb_suivi_h)
 
 dat_h_all <- d3e2j %>% 
-		dplyr::select(count,hour,neel)%>%
-		dplyr::group_by(hour)%>%
-		summarize(nday=sum(neel,na.rm=TRUE))%>%
-		ungroup()
+    dplyr::select(count,hour,neel)%>%
+    dplyr::group_by(hour)%>%
+    summarize(nday=sum(neel,na.rm=TRUE))%>%
+    ungroup()
 
 dat_h <- full_join(dat_h_fulldays, dat_h_all)
 
@@ -4067,26 +4080,26 @@ dat_h<-dat_h[,-1]
 #barplot(dat$ncor)
 options(encoding = "UTF-8")
 xdat_h<-xtable(dat_h,
-		label="repartition_horaire",
-		caption=c(str_c("Répartition horaire des anguilles détectées au didson, 
-								nuit = suivi ",njoursuivi," jours toute la saison entre 18h 00 et 9h00 ,
-								24 h=répartition pour les ",length(fulldays)," jours de suivi complet,
-								24 h cor= idem mais valeurs corrigées des ouvertures de vannes."),"Répartition
-						horaire des anguilles détectées au didson."),
-		digits=0
+    label="repartition_horaire",
+    caption=c(str_c("Répartition horaire des anguilles détectées au didson, 
+                nuit = suivi ",njoursuivi," jours toute la saison entre 18h 00 et 9h00 ,
+                24 h=répartition pour les ",length(fulldays)," jours de suivi complet,
+                24 h cor= idem mais valeurs corrigées des ouvertures de vannes."),"Répartition
+            horaire des anguilles détectées au didson."),
+    digits=0
 )
 print(xdat_h,file=str_c(tabwdy,"repartition_horaire.tex"),
-		table.placement="htbp",
-		caption.placement = "top",
-		NA.string = "",
-		include.rownames=TRUE)
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=TRUE)
 options(encoding = "native.enc")
 
 @
 <<horairespb, echo=FALSE, eval=TRUE,results=hide>>=
 ### Horaires avec fichiers à pb
 d3ej$ouverturebarrage<-d3ej$vanne1|d3ej$vanne2|d3ej$vanne3|d3ej$vanne4|d3ej$vanne5|
-		d3ej$volet1|d3ej$volet2|d3ej$volet3|d3ej$volet4|d3ej$volet5
+    d3ej$volet1|d3ej$volet2|d3ej$volet3|d3ej$volet4|d3ej$volet5
 # flsall = fls 0 
 #0;"OK"
 #1;"Acquisition"
@@ -4103,18 +4116,18 @@ d3ej$flsall[is.na(d3ej$flsall)] <- 6
 #open_in_excel(d3ej)
 first_year <- 2013
 for (i in 1:length(unique(d3ej$dsf_season))){
-	saison1 <- unique(d3ej$dsf_season)[i]
-	if (i ==1) the_year <- first_year else the_year=the_year+1
-	png(file=str_c(imgwd,the_year,"/horairespb.png"),width = 15, height = 15, units = 'cm', res = 300)
-	g <- ggplot(d3ej[d3ej$dsf_season==saison1,])+
-			geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=factor(flsall)))+#"yellow"
-			scale_fill_manual("qualité",values=c("0"=turquoise_EV,"1"=jaune_EV,"2"="limegreen","3"=orange_EV,"4"=rouille,"5"="grey"))+ # ajouter orange derrière yellow si pb qualité
-			ylab("Heure")+theme(panel.background = element_rect(fill="black"),
-					panel.grid.major = element_line(colour = "grey50"),
-					panel.grid.minor = element_line(colour = "grey20"),
-					axis.text = element_text(colour ="black"))
-	print(g)
-	dev.off()
+  saison1 <- unique(d3ej$dsf_season)[i]
+  if (i ==1) the_year <- first_year else the_year=the_year+1
+  png(file=str_c(imgwd,the_year,"/horairespb.png"),width = 15, height = 15, units = 'cm', res = 300)
+  g <- ggplot(d3ej[d3ej$dsf_season==saison1,])+
+      geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=factor(flsall)))+#"yellow"
+      scale_fill_manual("qualité",values=c("0"=turquoise_EV,"1"=jaune_EV,"2"="limegreen","3"=orange_EV,"4"=rouille,"5"="grey"))+ # ajouter orange derrière yellow si pb qualité
+      ylab("Heure")+theme(panel.background = element_rect(fill="black"),
+          panel.grid.major = element_line(colour = "grey50"),
+          panel.grid.minor = element_line(colour = "grey20"),
+          axis.text = element_text(colour ="black"))
+  print(g)
+  dev.off()
 }
 @
 
@@ -4206,51 +4219,51 @@ sum(ta)#1739
 chisqta<-chisq.test(ta,simulate.p.value = TRUE)# 0.0001
 
 long.labels <- list(set_varnames = c(psf_motion="Migration horizontale",
-				psf_move="Migration verticale"))
+        psf_move="Migration verticale"))
 pdf(file=str_c(imgwdy,"comportement.pdf"),width=4,height=4)
 mosaic(psf_move~psf_motion,shade=TRUE,gp = shading_Friendly,data=dddp,labeling_args = long.labels) 
 #mosaic(psf_move~psf_motion,shade=TRUE,gp = shading_Friendly,data=dddp[dddp$mois=="04",],labeling_args = long.labels) 
 dev.off()
 options(encoding = "UTF-8")
 xta <- xtable(ta,
-		label="tab_comportement",
-		caption=c(
-				"Effectifs de comportements observés en surface et en vanne,
-						A migration en arrière, R reste sur place, M migration active vers l'aval,
-						<--> traversée complète,
-						In entrée par le dessus ou le dessous,
-						Out sortie par le dessus ou le dessous"
-				,"Comportement des anguilles au droit du sonar")
+    label="tab_comportement",
+    caption=c(
+        "Effectifs de comportements observés en surface et en vanne,
+            A migration en arrière, R reste sur place, M migration active vers l'aval,
+            <--> traversée complète,
+            In entrée par le dessus ou le dessous,
+            Out sortie par le dessus ou le dessous"
+        ,"Comportement des anguilles au droit du sonar")
 )
 print(xta, file=str_c(tabwdy,"comportement.tex"),
-		table.placement="htbp",
-		caption.placement = "top",
-		NA.string = "",
-		include.rownames=TRUE)
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=TRUE)
 options(encoding = "native.enc")
 ta0 <- table(dddp$psf_move,dddp$position)
 ta1<-ta0/matrix(rep(
-				colSums(table(dddp$psf_move,dddp$position)),nrow(ta0)),nrow=nrow(ta0),byrow=TRUE)
+        colSums(table(dddp$psf_move,dddp$position)),nrow(ta0)),nrow=nrow(ta0),byrow=TRUE)
 Nvanne <- colSums(table(dddp$psf_move,dddp$position))[1]
 Nvolet <- colSums(table(dddp$psf_move,dddp$position))[2]
 ta1 <- round(100*ta1)
 colnames(ta1) <- c("fond","surface")
 options(encoding = "UTF-8")
 xta1 <- xtable(ta1,
-		label="tab_traversee",
-		digits=0,
-		caption=c(
-				str_c("Pourcentage d'anguilles effectuant la traversée du faisceau, <--> traversée complète,
-								In entrée par le dessus ou le dessous,
-								Out sortie par le dessus ou le dessous,
-								N vanne=",Nvanne,", N volet=",Nvolet,"."),
-				"Traversée du faisceau en surface et au fond")
+    label="tab_traversee",
+    digits=0,
+    caption=c(
+        str_c("Pourcentage d'anguilles effectuant la traversée du faisceau, <--> traversée complète,
+                In entrée par le dessus ou le dessous,
+                Out sortie par le dessus ou le dessous,
+                N vanne=",Nvanne,", N volet=",Nvolet,"."),
+        "Traversée du faisceau en surface et au fond")
 )
 print(xta1,file=str_c(tabwdy,"traversee.tex"),
-		table.placement="htbp",
-		caption.placement = "top",
-		NA.string = "",
-		include.rownames=TRUE)
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=TRUE)
 options(encoding = "native.enc")
 graphics.off()
 
@@ -4319,15 +4332,15 @@ datvil$predhighIC<-pred$fit[,3]
 pdf(file=str_c(imgwd,"taille_poids.pdf"))
 g<-ggplot(big_anguille[!big_anguille$a_exclure_poids&!big_anguille$a_exclure_taille,])
 g<-g+geom_ribbon(aes(x=lo_taille,ymin=predlowIC,ymax=predhighIC),fill="limegreen",alpha=0.5)+
-		geom_point(aes(x=lo_taille,y=lo_poids),col="darkgreen")+
-		#geom_line(aes(x=lo_taille,y=prednls),col="blue")+ # NLS
-		#geom_line(aes(x=lo_taille,y=prednlslowIC),col="skyblue",tly=2)+ # NLS
-		#geom_line(aes(x=lo_taille,y=prednlshighIC),col="skyblue",lty=2)+ # NLS
-		geom_line(aes(x=lo_taille,y=predlm),col="green")+
-		geom_point(aes(x=taille,y=poids),col="magenta",data=datvil)+
-		geom_line(aes(x=taille,y=predlm),col="#FE0CD6",data=datvil)+
-		geom_ribbon(aes(x=taille,ymin=predlowIC,ymax=predhighIC),fill="#E5BF4B",col="#A6035C",alpha=0.5,data=datvil)+
-		xlab("taille (mm)")+ylab("poids (g)")
+    geom_point(aes(x=lo_taille,y=lo_poids),col="darkgreen")+
+    #geom_line(aes(x=lo_taille,y=prednls),col="blue")+ # NLS
+    #geom_line(aes(x=lo_taille,y=prednlslowIC),col="skyblue",tly=2)+ # NLS
+    #geom_line(aes(x=lo_taille,y=prednlshighIC),col="skyblue",lty=2)+ # NLS
+    geom_line(aes(x=lo_taille,y=predlm),col="green")+
+    geom_point(aes(x=taille,y=poids),col="magenta",data=datvil)+
+    geom_line(aes(x=taille,y=predlm),col="#FE0CD6",data=datvil)+
+    geom_ribbon(aes(x=taille,ymin=predlowIC,ymax=predhighIC),fill="#E5BF4B",col="#A6035C",alpha=0.5,data=datvil)+
+    xlab("taille (mm)")+ylab("poids (g)")
 print(g)
 dev.off()
 
@@ -4353,20 +4366,20 @@ taille <- dddp$psf_l_cm[dddp$saison==saison]
 hist(tailleinf7,breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130))
 intervalsrightinf7<-hist(round(tailleinf7))$breaks[2:length(hist(round(tailleinf7))$breaks)]
 tailledfinf7<-data.frame(rightb=intervalsrightinf7,
-		N=hist(round(tailleinf7))$counts,
-		taille=hist(round(tailleinf7))$mids
+    N=hist(round(tailleinf7))$counts,
+    taille=hist(round(tailleinf7))$mids
 )
 intervalsright<-hist(round(taille))$breaks[2:length(hist(round(taille))$breaks)]
 tailledf<-data.frame(rightb=intervalsright,
-		N=hist(round(taille))$counts,
-		taille=hist(round(taille))$mids
+    N=hist(round(taille))$counts,
+    taille=hist(round(taille))$mids
 )
 tailledfpar<-data.frame("pi"=c(0.15,0.85),#proportion
-		"mu"=c(37,60),# moyennes,
-		"sigma"=c(5,10))# SD
+    "mu"=c(37,60),# moyennes,
+    "sigma"=c(5,10))# SD
 # fixmu vecteur pour indiquer quelles moyennes sont forcées
 mixtailledfinf7 <- mix(tailledfinf7,tailledfpar,constr =
-				mixconstr(consigma = "SFX",conmu="MFX", fixsigma=c(FALSE,FALSE),fixmu=c(TRUE,FALSE)),emsteps = 3)
+        mixconstr(consigma = "SFX",conmu="MFX", fixsigma=c(FALSE,FALSE),fixmu=c(TRUE,FALSE)),emsteps = 3)
 #mixtailledf<-mix(tailledfinf7,tailledfpar,constr =
 #				mixconstr(consigma = "NONE",conmu="NONE"),emsteps = 3)
 summary(mixtailledfinf7)
@@ -4515,15 +4528,15 @@ d3ejokex3<-d3ej[d3ej$dsf_id%in%dsfindexOKex3,] #sum(d3ej$dsf_id%in%dsfindexOKex3
 # à l'ouverture de la vanne, ouverture très faible, dans la fonction de calcul
 # dans d3ej
 if (sum(is.infinite(d3ejok$N4))>0){
-	warning(str_c("il y a ",sum(is.infinite(d3ejok$N4))," de valeurs NaN pour N4"))
-	d3ejok[is.infinite(d3ejok$N4),"N4"]<-NA 
-	
+  warning(str_c("il y a ",sum(is.infinite(d3ejok$N4))," de valeurs NaN pour N4"))
+  d3ejok[is.infinite(d3ejok$N4),"N4"]<-NA 
+  
 }
 # d3ejok[is.na(d3ejok$N),c("Nprimo4","pdebit4","psurface","position")]
 if (sum(is.infinite(d3ej$N))>0){
-	warning(str_c("il y a ",sum(is.infinite(d3ej$N))," de valeurs NaN pour N"))
-	d3ejok[is.infinite(d3ejok$N),"N"]<-NA 
-	d3ej[is.infinite(d3ej$N),"N"]<-NA 
+  warning(str_c("il y a ",sum(is.infinite(d3ej$N))," de valeurs NaN pour N"))
+  d3ejok[is.infinite(d3ejok$N),"N"]<-NA 
+  d3ej[is.infinite(d3ej$N),"N"]<-NA 
 }
 ##################
 # ci dessous ne sert pas vraiment, on préfère passer par d3ejok et d3ejko
@@ -4595,7 +4608,7 @@ muinv <- (100-mu)/100
 
 # Anguilles à la montée
 pminus=data.frame(cbind(tapply(d3ej$drr_eelminus,d3ej$mois,sum,na.rm=TRUE),
-				tapply(rowSums(d3ej[,c("drr_eelplus","drr_eelminus")]),na.rm=TRUE,d3ej$mois,sum)))
+        tapply(rowSums(d3ej[,c("drr_eelplus","drr_eelminus")]),na.rm=TRUE,d3ej$mois,sum)))
 pminus<-pminus[-1,]
 pminus=rbind(pminus,colSums(pminus))
 pminus$percminus<-pminus[,1]/pminus[,2]
@@ -4749,25 +4762,25 @@ Dj <- d3edj
 # Traitement des dates -------------------------------
 
 D0 <- D0 %>% mutate(
-		year = year(date),
-		month = month(date), # mois existe mais c'est un ordered factor
-		H = strftime(dsf_timeinit,format="%H"),
-		H = as.factor(H),
-		W = strftime(dsf_timeinit,format="%W"),
-		W = as.factor(W),
-		duree = dsf_timeend - dsf_timeinit,
-		hourm = as.numeric(as.character(H)),
-		day = as.numeric(strftime(dsf_timeinit,format="%j")),
-		position = as.factor(position),
-		indexOK = (dsf_fls_id == 0 | dsf_fls_id == 3) & ex == 1, # pas de problème de filestatus bloquant et didson bien positionné (regarde au bon endroit)  
-		indexOKex3 = dsf_fls_id == 0 & ex == 3  # le didson est mal positionné
+    year = year(date),
+    month = month(date), # mois existe mais c'est un ordered factor
+    H = strftime(dsf_timeinit,format="%H"),
+    H = as.factor(H),
+    W = strftime(dsf_timeinit,format="%W"),
+    W = as.factor(W),
+    duree = dsf_timeend - dsf_timeinit,
+    hourm = as.numeric(as.character(H)),
+    day = as.numeric(strftime(dsf_timeinit,format="%j")),
+    position = as.factor(position),
+    indexOK = (dsf_fls_id == 0 | dsf_fls_id == 3) & ex == 1, # pas de problème de filestatus bloquant et didson bien positionné (regarde au bon endroit)  
+    indexOKex3 = dsf_fls_id == 0 & ex == 3  # le didson est mal positionné
 )
 
 
 Dj <- Dj %>% mutate(
-		year = year(enj_date),
-		month = month(enj_date),
-		day = as.numeric(strftime(enj_date,format="%j")))
+    year = year(enj_date),
+    month = month(enj_date),
+    day = as.numeric(strftime(enj_date,format="%j")))
 
 #D0$saison <- NA
 #D0$saison[D0$month< 6] <-  str_c(D0$year-1,"-",D0$year)[D0$month< 6]
@@ -4791,10 +4804,10 @@ Dj$ndays <- Dj$day - min(Dj$day)+1
 # Jointure avec les efficacites -------------------------
 
 D1 <- left_join(D0,
-		efficacite_moyenne %>%
-				mutate(position=recode(position,"vanne"="f","volet"="s")) %>%
-				rename(dsf_position=position, dsf_season=saison),
-		by=c("dsf_position","dsf_season"))
+    efficacite_moyenne %>%
+        mutate(position=recode(position,"vanne"="f","volet"="s")) %>%
+        rename(dsf_position=position, dsf_season=saison),
+    by=c("dsf_position","dsf_season"))
 D1 <- D1[order(D1$dsf_timeinit),]
 
 
@@ -4802,13 +4815,13 @@ D1 <- D1[order(D1$dsf_timeinit),]
 
 # nombre observés au droit du didson corrigés de l'efficacité
 D2 <- D1 %>% 
-		mutate (
-				rho = 30/as.numeric(duree),			
-				Nprimo4 = rowSums(.[c("drr_eelplus","drr_eelminus")],na.rm=TRUE),
-				No4 = Nprimo4*rho/E,
-				N4 = No4/psurface,
-				N = N4/pvol4
-		)
+    mutate (
+        rho = 30/as.numeric(duree),			
+        Nprimo4 = rowSums(.[c("drr_eelplus","drr_eelminus")],na.rm=TRUE),
+        No4 = Nprimo4*rho/E,
+        N4 = No4/psurface,
+        N = N4/pvol4
+    )
 D2$N[D2$vol4==0] <- 0
 D2$N4[D2$vol4==0] <- 0
 #open_in_excel(D2)
@@ -4851,18 +4864,18 @@ D2$ex3 <- as.numeric(D2$ex==3 |D2$ex==0 & D2$volbarrage30>0)
 
 
 D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season)%>%
-		dplyr::group_by(ndays,dsf_season)%>%
-		dplyr::summarize(nex3=sum(ex3),
-				pos_s=sum(dsf_position=="s")/dplyr::n(),
-				pos_f=sum(dsf_position=="f")/dplyr::n(),
-				.groups="drop")
+    dplyr::group_by(ndays,dsf_season)%>%
+    dplyr::summarize(nex3=sum(ex3),
+        pos_s=sum(dsf_position=="s")/dplyr::n(),
+        pos_f=sum(dsf_position=="f")/dplyr::n(),
+        .groups="drop")
 
 
 # D3j groupe par jour et par position bonne ou mauvaise
 D3j <- D2 %>% 
-		dplyr::select(dsf_season,ndays,N,indexOK,ex3,volbarrage30)%>%
-		dplyr::group_by(dsf_season,ndays,ex3)%>%
-		dplyr::summarize(N=sum(N),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
+    dplyr::select(dsf_season,ndays,N,indexOK,ex3,volbarrage30)%>%
+    dplyr::group_by(dsf_season,ndays,ex3)%>%
+    dplyr::summarize(N=sum(N),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
 D3j0 <- dplyr::filter(D3j,ex3==0) %>% select(-ex3) # bien positionné
 D3j1 <- dplyr::filter(D3j,ex3==1) %>% select(-ex3)# mal positionné
 
@@ -4870,7 +4883,7 @@ D3j1 <- dplyr::filter(D3j,ex3==1) %>% select(-ex3)# mal positionné
 # positionnés en parallèle
 # par jour
 D4j <- full_join(D3j1,D3j0,by=c("ndays","dsf_season"),suffix = c(".1", ".0")) %>%
-		arrange(dsf_season,ndays)
+    arrange(dsf_season,ndays)
 
 #colnames(D4j)
 
@@ -4905,8 +4918,8 @@ D5j$N <- D5j$N.0 + D5j$N.1
 
 D5j$deb_qtotalj[is.na(D5j$deb_qtotalj)]<-0
 D6j <- D5j %>%
-		mutate(delta_1d=deb_qtotalj-lag(deb_qtotalj)
-		)
+    mutate(delta_1d=deb_qtotalj-lag(deb_qtotalj)
+    )
 
 cumsum. <- function(data) cumsum(data$deb_qtotalj)
 # delta_3d et delta_7d compiled by Nils
@@ -4914,10 +4927,10 @@ delta_3d. <- function(data) zoo::rollapply(data$delta_1d, 3, sum, partial=TRUE) 
 delta_7d. <- function(data) zoo::rollapply(data$delta_1d, 7, sum, partial=TRUE)
 # delta 3 et delta 7 ont des longueurs differentes
 D7j <- D6j %>% group_by(dsf_season) %>% nest() %>%
-		mutate(cumflow=map(data,cumsum.),
-				delta_3d=map(data,delta_3d.),
-				delta_7d=map(data,delta_7d.)) %>%				
-		unnest(cols = c(data, cumflow,delta_3d,delta_7d)) %>% ungroup() 
+    mutate(cumflow=map(data,cumsum.),
+        delta_3d=map(data,delta_3d.),
+        delta_7d=map(data,delta_7d.)) %>%				
+    unnest(cols = c(data, cumflow,delta_3d,delta_7d)) %>% ungroup() 
 D7j$dsf_season <- as.factor(D7j$dsf_season)
 D7j$month <- as.factor(D7j$month)
 
@@ -4927,7 +4940,7 @@ D7j$month <- as.factor(D7j$month)
 
 require(mgcv)
 pdev<-function(mod){
-	(mod$null.deviance-mod$deviance)/mod$null.deviance
+  (mod$null.deviance-mod$deviance)/mod$null.deviance
 }
 
 summary(g0 <- mgcv::gam(N~1,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
@@ -4959,11 +4972,11 @@ gam.check(g8)
 concurvity(g9)
 options(encoding = "UTF-8")
 tg8<- itsadug::gamtabs(g8, 
-		caption="Modèle de prédiction des effectifs",
-		label="tableau_modele_miss")
+    caption="Modèle de prédiction des effectifs",
+    label="tableau_modele_miss")
 cat(tg8,
-		file=str_c(tabwdy,"tableau_modele_miss.tex"),
-		sep="\n")
+    file=str_c(tabwdy,"tableau_modele_miss.tex"),
+    sep="\n")
 options(encoding = "native.enc")
 
 ######################################
@@ -4979,14 +4992,14 @@ D7j[p1,"N.2"] <- predict(g9,newdata=D7j[p1,],type="response")
 
 png(filename=str_c(imgwdy,"N_interannuel.png"),width = 8, height = 8, units = 'in', res = 300)
 D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
-		mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
-		group_by(dsf_season,type) %>% 
-		summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
-		ggplot() +
-		geom_col(aes(x=dsf_season,y=N,fill=type),position = "stack") +
-		xlab("saison") +
-		scale_fill_manual(values=c(jaune_EV,orange_EV,turquoise_EV),
-				labels = c("N(+)", "N(x)", "N(.)"))
+    mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
+    group_by(dsf_season,type) %>% 
+    summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
+    ggplot() +
+    geom_col(aes(x=dsf_season,y=N,fill=type),position = "stack") +
+    xlab("saison") +
+    scale_fill_manual(values=c(jaune_EV,orange_EV,turquoise_EV),
+        labels = c("N(+)", "N(x)", "N(.)"))
 dev.off()
 
 
@@ -5018,10 +5031,10 @@ d3ejf <- d3ejf[order(d3ejf$dsf_timeinit),] # toutes les lignes
 # en comptant le nomre de positions fond surface
 # periodes jour
 d3edj2 <- dplyr::select(d3ejf,ndays,N,flsall,dsf_position)%>%
-		dplyr::group_by(ndays)%>%
-		dplyr::summarize(nfls0=sum(flsall%in%c(0,3)),
-				pos_s=sum(dsf_position=="s")/dplyr::n(),
-				pos_f=sum(dsf_position=="f")/dplyr::n())
+    dplyr::group_by(ndays)%>%
+    dplyr::summarize(nfls0=sum(flsall%in%c(0,3)),
+        pos_s=sum(dsf_position=="s")/dplyr::n(),
+        pos_f=sum(dsf_position=="f")/dplyr::n())
 
 
 
@@ -5040,8 +5053,8 @@ d3ejf$flsall2[d3ejf$flsall2%in%c(1,2,4)] <- 1
 
 # d3edj3 groupe par jour et par position bonne ou mauvaise
 d3edj3<-dplyr::select(d3ejf,ndays,N,indexOK,flsall2,volbarrage30)%>%
-		dplyr::group_by(ndays,flsall2)%>%
-		dplyr::summarize(N=sum(N,na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30))
+    dplyr::group_by(ndays,flsall2)%>%
+    dplyr::summarize(N=sum(N,na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30))
 d3edj31 <- dplyr::filter(d3edj3,flsall2==1) # mal positionné
 d3edj30 <- dplyr::filter(d3edj3,flsall2==0) # bien positionné
 
@@ -5220,10 +5233,10 @@ d3edj[p1,"N.2"] <- predict(g0,newdata=d3edj[p1,],type="response")
 
 load(file=str_c(datawd,"D2D7j.Rdata"))
 D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
-		mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
-		group_by(dsf_season,type) %>% 
-		summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
-		pivot_wider(names_from=type, values_from=N)
+    mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
+    group_by(dsf_season,type) %>% 
+    summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
+    pivot_wider(names_from=type, values_from=N)
 
 
 
@@ -5235,58 +5248,58 @@ vvv$number.odot <-
 # Quelques extrapolations en divisant par zéro, correspond
 # à l'ouverture de la vanne, ouverture très faible, dans la fonction de calcul
 # dans Dok
-		
-		if (sum(is.infinite(Dok$N4))>0){
-			warning(str_c("il y a ",sum(is.infinite(Dok$N4))," de valeurs NaN pour N4"))
-			Dok[is.infinite(Dok$N4),"N4"]<-NA 
-		}
+    
+    if (sum(is.infinite(Dok$N4))>0){
+      warning(str_c("il y a ",sum(is.infinite(Dok$N4))," de valeurs NaN pour N4"))
+      Dok[is.infinite(Dok$N4),"N4"]<-NA 
+    }
 
 if (sum(is.infinite(Dok$N))>0){
-	warning(str_c("il y a ",sum(is.infinite(Dok$N))," de valeurs NaN pour N"))
-	Dok[is.infinite(Dok$N),"N"]<-NA 
+  warning(str_c("il y a ",sum(is.infinite(Dok$N))," de valeurs NaN pour N"))
+  Dok[is.infinite(Dok$N),"N"]<-NA 
 }
 
 res.0 <- Dok %>% group_by(dsf_season) %>% 
-		summarize(
-				# Detections dans le champ de détection avant correction de l'efficacité
-				Nprimo4ok = sum(Nprimo4,na.rm=TRUE),
-				# Dévalaison réelle dans le champ de détection du didson sur la vanne 4
-				# c'est à dire corrigee des problemes d'efficacite de détection
-				No4ok = sum(No4,na.rm=TRUE),
-				# Devalaison N4 conditions ok. Dévalaison sur l'ensemble de la vanne 4
-				N4ok = sum(N4,na.rm=TRUE),
-				# Devalaison par pas de temps, dans les condiditions ou le didson permet le
-				# suivi de la migration (ok)
-				Nok = sum(N,na.rm=TRUE)/muinv,
-				.groups="drop"
-		)%>% mutate(position="$\\sum\\odot$")%>% select("Saison"=dsf_season,
-				"type"=position,
-				"$N'_{o4}$"=Nprimo4ok,
-				"$N_{o4}$"=No4ok,
-				"$N_{4}$"=N4ok,	
-				"$N$"=Nok) 
+    summarize(
+        # Detections dans le champ de détection avant correction de l'efficacité
+        Nprimo4ok = sum(Nprimo4,na.rm=TRUE),
+        # Dévalaison réelle dans le champ de détection du didson sur la vanne 4
+        # c'est à dire corrigee des problemes d'efficacite de détection
+        No4ok = sum(No4,na.rm=TRUE),
+        # Devalaison N4 conditions ok. Dévalaison sur l'ensemble de la vanne 4
+        N4ok = sum(N4,na.rm=TRUE),
+        # Devalaison par pas de temps, dans les condiditions ou le didson permet le
+        # suivi de la migration (ok)
+        Nok = sum(N,na.rm=TRUE)/muinv,
+        .groups="drop"
+    )%>% mutate(position="$\\sum\\odot$")%>% select("Saison"=dsf_season,
+        "type"=position,
+        "$N'_{o4}$"=Nprimo4ok,
+        "$N_{o4}$"=No4ok,
+        "$N_{4}$"=N4ok,	
+        "$N$"=Nok) 
 
 res.0_pos <- Dok %>% group_by(dsf_season, position) %>% 
-		summarize(
-				# Detections dans le champ de détection avant correction de l'efficacité
-				Nprimo4ok = sum(Nprimo4,na.rm=TRUE),
-				# Dévalaison réelle dans le champ de détection du didson sur la vanne 4
-				# c'est à dire corrigee des problemes d'efficacite de détection
-				No4ok = sum(No4,na.rm=TRUE),
-				# Devalaison N4 conditions ok. Dévalaison sur l'ensemble de la vanne 4
-				N4ok = sum(N4,na.rm=TRUE),
-				# Devalaison par pas de temps, dans les condiditions ou le didson permet le
-				# suivi de la migration (ok)
-				Nok = sum(N,na.rm=TRUE)/muinv,
-				.groups="drop"
-		)	%>% 
-		mutate("type"=str_c(position,"$\\odot$")) %>% 
-		select("Saison"=dsf_season,
-				type,
-				"$N'_{o4}$"=Nprimo4ok,
-				"$N_{o4}$"=No4ok,
-				"$N_{4}$"=N4ok,	
-				"$N$"=Nok) 
+    summarize(
+        # Detections dans le champ de détection avant correction de l'efficacité
+        Nprimo4ok = sum(Nprimo4,na.rm=TRUE),
+        # Dévalaison réelle dans le champ de détection du didson sur la vanne 4
+        # c'est à dire corrigee des problemes d'efficacite de détection
+        No4ok = sum(No4,na.rm=TRUE),
+        # Devalaison N4 conditions ok. Dévalaison sur l'ensemble de la vanne 4
+        N4ok = sum(N4,na.rm=TRUE),
+        # Devalaison par pas de temps, dans les condiditions ou le didson permet le
+        # suivi de la migration (ok)
+        Nok = sum(N,na.rm=TRUE)/muinv,
+        .groups="drop"
+    )	%>% 
+    mutate("type"=str_c(position,"$\\odot$")) %>% 
+    select("Saison"=dsf_season,
+        type,
+        "$N'_{o4}$"=Nprimo4ok,
+        "$N_{o4}$"=No4ok,
+        "$N_{4}$"=N4ok,	
+        "$N$"=Nok) 
 
 
 #TODO verifier que les chiffres de D2 sont ceux de D7 pour N.0
@@ -5295,50 +5308,50 @@ tapply(Dok$N, Dok$dsf_season,sum, na.rm=TRUE)
 
 
 res.1 <-  D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
-		group_by(dsf_season,type) %>% 
-		summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop")%>%
-		filter(type=="N.1") %>%
-		select("Saison"=dsf_season,	N) %>%
-		rename('$N$'=N) %>%
-		mutate(type="$\\otimes$(?)","$N'_{o4}$"=NA,"$N_{o4}$"=NA,"$N_{4}$"=NA) 
+    group_by(dsf_season,type) %>% 
+    summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop")%>%
+    filter(type=="N.1") %>%
+    select("Saison"=dsf_season,	N) %>%
+    rename('$N$'=N) %>%
+    mutate(type="$\\otimes$(?)","$N'_{o4}$"=NA,"$N_{o4}$"=NA,"$N_{4}$"=NA) 
 
 res.2 <-  D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
-		group_by(dsf_season,type) %>% 
-		summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop") %>%
-		filter(type=="N.2") %>%
-		select("Saison"=dsf_season,	N) %>%
-		rename('$N$'=N) %>%
-		mutate(type="$\\oplus$(?)","$N'_{o4}$"=NA,"$N_{o4}$"=NA,"$N_{4}$"=NA) 		
+    group_by(dsf_season,type) %>% 
+    summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop") %>%
+    filter(type=="N.2") %>%
+    select("Saison"=dsf_season,	N) %>%
+    rename('$N$'=N) %>%
+    mutate(type="$\\oplus$(?)","$N'_{o4}$"=NA,"$N_{o4}$"=NA,"$N_{4}$"=NA) 		
 # tous
 res.t <-  D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
-		group_by(dsf_season) %>% 
-		summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop") %>% 
-		select("Saison"=dsf_season,	N) %>%
-		rename('$N$'=N) %>%
-		mutate(type="$\\sum\\odot\\otimes\\oplus$(?)","$N'_{o4}$"=NA,"$N_{o4}$"=NA,"$N_{4}$"=NA) 			
+    group_by(dsf_season) %>% 
+    summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop") %>% 
+    select("Saison"=dsf_season,	N) %>%
+    rename('$N$'=N) %>%
+    mutate(type="$\\sum\\odot\\otimes\\oplus$(?)","$N'_{o4}$"=NA,"$N_{o4}$"=NA,"$N_{4}$"=NA) 			
 
 
 res <- bind_rows(res.0,
-		res.0_pos,		
-		res.1,
-		res.2,
-		res.t) 
+    res.0_pos,		
+    res.1,
+    res.2,
+    res.t) 
 res <- res %>%
-		mutate(ma. = match(res$type,c("s$\\odot$","f3$\\odot$","f5$\\odot$","sl$\\odot$","$\\sum\\odot$",
-								"$\\otimes$(?)","$\\oplus$(?)","$\\sum\\odot\\otimes\\oplus$(?)"))) %>%
-		arrange(Saison, ma.) %>%
-		mutate(ma.=1:n()) # re arranging, as I will drop seasons
+    mutate(ma. = match(res$type,c("s$\\odot$","f3$\\odot$","f5$\\odot$","sl$\\odot$","$\\sum\\odot$",
+                "$\\otimes$(?)","$\\oplus$(?)","$\\sum\\odot\\otimes\\oplus$(?)"))) %>%
+    arrange(Saison, ma.) %>%
+    mutate(ma.=1:n()) # re arranging, as I will drop seasons
 
 
 
 # group rows for longtable
 final <- bind_rows(
-				res %>% filter(type=="s$\\odot$") %>% mutate("Saison"=paste0("\\multirow{7}{*}{",Saison,"}")),
-				res %>% filter(type!="s$\\odot$") %>% mutate("Saison"="")
-		)	%>%
-		arrange(ma.)%>%
-		select(-ma.)%>%
-		mutate_if(is.numeric,round)
+        res %>% filter(type=="s$\\odot$") %>% mutate("Saison"=paste0("\\multirow{7}{*}{",Saison,"}")),
+        res %>% filter(type!="s$\\odot$") %>% mutate("Saison"="")
+    )	%>%
+    arrange(ma.)%>%
+    select(-ma.)%>%
+    mutate_if(is.numeric,round)
 
 
 
@@ -5347,47 +5360,47 @@ final <- bind_rows(
 # Attendion ajouter un 6 à n.rgroups
 options(encoding = "UTF-8")
 toto <- latex(final,
-		center='centering',
-		table=F,
-		rowname=NULL,
-		booktab=T,
-		numeric.dollar=F,
-		title="",
-		where="htbp",
-		#colnamesTexCmd="bfseries", 
-		col.just=c("l",
-				"l",
-				"S[table-format = 5.0]",
-				"S[table-format = 5.0]",
-				"S[table-format = 5.0]",
-				"S[table-format = 5.0]"),
-		label="tabfinal",
-		caption="Extrapolation des effectifs, 
-				$N'_{o4}$ effectifs comptés au droit du sonar,
-				$N_{o4}$=effectifs corrigés de l'efficacité du didson,
-				$N_{4}$=effectifs estimés au droit de la vanne,
-				$N$= effectifs estimés sur l'ensemble du barrage,
-				$\\otimes$ = effectifs comptés au didson alors que celui-ci est mal positionné par rapport à l'écoulement, 
-				$\\odot$= période de suivi complet sans problème de qualité,
-				$\\otimes$=période de suivi extrapolée à partir des densités moyennes du jour,
-				problème d'enregistrement ou de qualité ou mauvais positionnement du didson, en marron(4) sur la figure \\ref{fig_horairespb} et orange sur la figure \\ref{fig_position}.
-				$\\oplus$=périodes sans suivi, les points d'interrogation indiquent des extrapolations incertaines,
-				$\\sum$= Somme.
-				Les positions $s$, $f3$, $f5$, $sl$ indiquent : $s$ position du didson en surface, $f3$ fond aquisition 3-13 m, $f5$ fond acquisition 5-15,
-				$sl$ didson regardant vers la surface ou le fond pour tenter de déterminer la position verticale des anguilles. ",
-		caption.lot=str_c("Extrapolation des effectifs."),		
-		file=str_c(tabwdy,"tabfinal.tex"),
-		# arguments pour longtable :
-		longtable = TRUE,
-		n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7),
-		continued = "\\dots suite \\dots",
-		collabel.just = c("l",
-				"l",
-				"S[table-format = 5.0]",
-				"S[table-format = 5.0]",
-				"S[table-format = 5.0]",
-				"S[table-format = 5.0]"),
-		lines.page = 33,
+    center='centering',
+    table=F,
+    rowname=NULL,
+    booktab=T,
+    numeric.dollar=F,
+    title="",
+    where="htbp",
+    #colnamesTexCmd="bfseries", 
+    col.just=c("l",
+        "l",
+        "S[table-format = 5.0]",
+        "S[table-format = 5.0]",
+        "S[table-format = 5.0]",
+        "S[table-format = 5.0]"),
+    label="tabfinal",
+    caption="Extrapolation des effectifs, 
+        $N'_{o4}$ effectifs comptés au droit du sonar,
+        $N_{o4}$=effectifs corrigés de l'efficacité du didson,
+        $N_{4}$=effectifs estimés au droit de la vanne,
+        $N$= effectifs estimés sur l'ensemble du barrage,
+        $\\otimes$ = effectifs comptés au didson alors que celui-ci est mal positionné par rapport à l'écoulement, 
+        $\\odot$= période de suivi complet sans problème de qualité,
+        $\\otimes$=période de suivi extrapolée à partir des densités moyennes du jour,
+        problème d'enregistrement ou de qualité ou mauvais positionnement du didson, en marron(4) sur la figure \\ref{fig_horairespb} et orange sur la figure \\ref{fig_position}.
+        $\\oplus$=périodes sans suivi, les points d'interrogation indiquent des extrapolations incertaines,
+        $\\sum$= Somme.
+        Les positions $s$, $f3$, $f5$, $sl$ indiquent : $s$ position du didson en surface, $f3$ fond aquisition 3-13 m, $f5$ fond acquisition 5-15,
+        $sl$ didson regardant vers la surface ou le fond pour tenter de déterminer la position verticale des anguilles. ",
+    caption.lot=str_c("Extrapolation des effectifs."),		
+    file=str_c(tabwdy,"tabfinal.tex"),
+    # arguments pour longtable :
+    longtable = TRUE,
+    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7),
+    continued = "\\dots suite \\dots",
+    collabel.just = c("l",
+        "l",
+        "S[table-format = 5.0]",
+        "S[table-format = 5.0]",
+        "S[table-format = 5.0]",
+        "S[table-format = 5.0]"),
+    lines.page = 33,
 #multicol = FALSE#,
 #insert.bottom = "\\dots page suivante \\dots"
 )
@@ -5435,11 +5448,11 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 
 
 dj <- D7j  %>% 
-		select("dsf_season","enj_date","N.0","N.1","N.2","deb_qtotalj")  %>%
-		rename("odot"="N.0","otimes"="N.1", "oplus"="N.2","Q"="deb_qtotalj", "date"="enj_date") %>%		
-		melt(id.vars=c("dsf_season","date","Q"),
-				variable.name="type",
-				value.name="N")
+    select("dsf_season","enj_date","N.0","N.1","N.2","deb_qtotalj")  %>%
+    rename("odot"="N.0","otimes"="N.1", "oplus"="N.2","Q"="deb_qtotalj", "date"="enj_date") %>%		
+    melt(id.vars=c("dsf_season","date","Q"),
+        variable.name="type",
+        value.name="N")
 
 
 
@@ -5447,81 +5460,81 @@ dj$type <- factor(dj$type, levels=rev(levels(dj$type)))
 
 pdf(file=str_c(imgwdy,"fig_effectif.pdf"),width=7,height=7)
 dj %>% 
-		filter(dsf_season == saison) %>% 
-		ggplot( aes(x=date, y=N, fill=type)) +
-		ylab(expression(N~"&"~10*debit~m^3*s^-1)) +
-		xlab(str_c("date (saison ", CY-1,"-",CY,")")) +
-		geom_bar(position="stack", stat="identity") +
-		scale_fill_manual("Effectif",values=c(turquoise_EV,
-						orange_EV,jaune_EV),
-				breaks=c("odot","otimes","oplus"),
-				labels = c("N(.)", "N(x)", "N(+)")) +
-		geom_line(aes(x=date,y=Q*10),lwd=1.2,col=bleu_EV) +	
-		theme_bw()
+    filter(dsf_season == saison) %>% 
+    ggplot( aes(x=date, y=N, fill=type)) +
+    ylab(expression(N~"&"~10*debit~m^3*s^-1)) +
+    xlab(str_c("date (saison ", CY-1,"-",CY,")")) +
+    geom_bar(position="stack", stat="identity") +
+    scale_fill_manual("Effectif",values=c(turquoise_EV,
+            orange_EV,jaune_EV),
+        breaks=c("odot","otimes","oplus"),
+        labels = c("N(.)", "N(x)", "N(+)")) +
+    geom_line(aes(x=date,y=Q*10),lwd=1.2,col=bleu_EV) +	
+    theme_bw()
 dev.off()
 save(dj,file=str_c(datawdy,"dj.Rdata"))
 
 
 effmois <- dj %>% mutate(mois = lubridate::month(dj$date, label = TRUE, abbr = TRUE, locale= Sys.getlocale("LC_TIME"))) %>%
-		group_by (dsf_season, mois ,type ) %>% 
-		summarize(effectif=sum(N, na.rm=TRUE)) %>%
-		pivot_wider(names_from=c("type"),names_prefix ="N_",values_from="effectif") %>%
-		rename("Saison"="dsf_season", "$N\\odot$"=N_odot, "$N\\otimes$"=N_otimes,"$N\\oplus$"=N_oplus)
+    group_by (dsf_season, mois ,type ) %>% 
+    summarize(effectif=sum(N, na.rm=TRUE)) %>%
+    pivot_wider(names_from=c("type"),names_prefix ="N_",values_from="effectif") %>%
+    rename("Saison"="dsf_season", "$N\\odot$"=N_odot, "$N\\otimes$"=N_otimes,"$N\\oplus$"=N_oplus)
 
 effmois  <- effmois %>%
-		ungroup() %>%
-		mutate(ma. = match(as.numeric(effmois$mois),c(9,10,11,12,1,2,3,4))) %>%
-		arrange(Saison, ma.) %>%
-		mutate(ma.=1:n()) # re arranging, as I will drop seasons
+    ungroup() %>%
+    mutate(ma. = match(as.numeric(effmois$mois),c(9,10,11,12,1,2,3,4))) %>%
+    arrange(Saison, ma.) %>%
+    mutate(ma.=1:n()) # re arranging, as I will drop seasons
 
 
 
 # group rows for longtable
 effmois <- bind_rows(
-				effmois %>% filter(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" &  Saison %in% c("2017-2018","2018-2019")) %>% 
-						mutate("Saison"=Saison),
-				effmois %>% filter(!(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" &  Saison %in% c("2017-2018","2018-2019"))) %>%
-						mutate("Saison"="")
-		)	%>%
-		arrange(ma.)%>%
-		select(-ma.)%>%
-		mutate_if(is.numeric,round)
+        effmois %>% filter(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" &  Saison %in% c("2017-2018","2018-2019")) %>% 
+            mutate("Saison"=Saison),
+        effmois %>% filter(!(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" &  Saison %in% c("2017-2018","2018-2019"))) %>%
+            mutate("Saison"="")
+    )	%>%
+    arrange(ma.)%>%
+    select(-ma.)%>%
+    mutate_if(is.numeric,round)
 
 options(encoding = "UTF-8")
 xtaeffmois<-xtable(effmois,
-		label="table_effectif_mois",
-		digits=0,
-		caption=c("Effectif mensuel d'anguilles argentées estimé sur la Vilaine.",
-				"Effectif mensuel")
+    label="table_effectif_mois",
+    digits=0,
+    caption=c("Effectif mensuel d'anguilles argentées estimé sur la Vilaine.",
+        "Effectif mensuel")
 )
 addtorow          <- list()
 addtorow$pos      <- list()
 addtorow$pos[[1]] <- c(0)
 addtorow$command  <- c(paste(
-				"\\hline \n",
-				"\\endhead \n",
-				"\\hline \n",
-				"{\\footnotesize ... suite page suivante...} \n",
-				"\\endfoot \n",
-				"\\endlastfoot \n",
-				sep=""))
+        "\\hline \n",
+        "\\endhead \n",
+        "\\hline \n",
+        "{\\footnotesize ... suite page suivante...} \n",
+        "\\endfoot \n",
+        "\\endlastfoot \n",
+        sep=""))
 
 
 print(xtaeffmois,file=str_c(tabwdy,"table_effectif_mois.tex"),
-		caption.placement = "top",
-		tabular.environment = 'longtable',
-		floating = FALSE,
-		NA.string = "",
-		include.rownames = FALSE,
-		add.to.row =  addtorow,     # this is where you actually make the substitution
-		hline.after = c(-1),          # because addtorow will substitute the default hline for the first row
-		sanitize.colnames.function = function(X)X,
-		sanitize.text.function = function(X)X
+    caption.placement = "top",
+    tabular.environment = 'longtable',
+    floating = FALSE,
+    NA.string = "",
+    include.rownames = FALSE,
+    add.to.row =  addtorow,     # this is where you actually make the substitution
+    hline.after = c(-1),          # because addtorow will substitute the default hline for the first row
+    sanitize.colnames.function = function(X)X,
+    sanitize.text.function = function(X)X
 )
 options(encoding = "native.enc")
 dj2 <- D7j  %>% 
-		select("dsf_season","enj_date","N.0","N.1","N.2","N","deb_qtotalj","pos_f","pos_s")  %>%
-		filter(dsf_season==saison)
+    select("dsf_season","enj_date","N.0","N.1","N.2","N","deb_qtotalj","pos_f","pos_s")  %>%
+    filter(dsf_season==saison)
 png(file=str_c(imgwdy,"fig_effectif_pb.png"), width = 29.7, height = 21, units = 'cm', res = 300)
 opar <- par(c(5, 4, 4, 4) + 0.1)
 plot(dj2$enj_date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,10000))
@@ -5530,42 +5543,42 @@ date <- d3ej$dsf_timeinit[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf
 fls_id <- d3ej$dsf_fls_id[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
 # df avec datefin datedebut, les lignes vont être enlevées
 pb <- data.frame("datedebut"=date, 
-		"datefin"=date+ as.difftime(30,units = "mins"), 
-		"fls_id"=fls_id		
+    "datefin"=date+ as.difftime(30,units = "mins"), 
+    "fls_id"=fls_id		
 )
 pb$delta <- difftime(pb$datefin,pb$datedebut,units ="days")
 nr <- nrow(pb)
 i = 1
 if (nr>0){	
-	while (i < nr){
-		i = i+1
-		# on enlève les lignes séquentielles soit avec la meme date fin que date debut ligne suivante
-		# soit avec la durée entre matin et soir as.difftime(0.67,units="days") obligé de passer par une
-		# egalité proche (abs(A-B)<1e-10 sinon problèmes de non egalité
-		# dans la boucle while on recalcule delta et on enlève la ligne i
-		# le test détecte aussi si on change de fls_id		
-		if (pb$datedebut[i]==pb$datefin[i-1] & pb$fls_id[i]==pb$fls_id[i-1] | 
-				abs(as.numeric(round(pb$delta[i-1],2)-floor(pb$delta[i-1])-as.difftime(0.67,units="days")))<1e-10 & pb$fls_id[i]==pb$fls_id[i-1]){
-			pb$datefin[i-1] <- pb$datefin[i]
-			pb <- pb[-i,]
-			i=i-1
-			pb$delta <- difftime(pb$datefin,pb$datedebut,units ="days")
-		}
-		nr=nrow(pb)
-	}	
-	# on passe en dates car l'abscisse est en dates
-	pb$dateinit<-as.Date(pb$datedebut,tz=Sys.timezone())
-	pb$datefinit<-as.Date(pb$datefin,tz=Sys.timezone())
+  while (i < nr){
+    i = i+1
+    # on enlève les lignes séquentielles soit avec la meme date fin que date debut ligne suivante
+    # soit avec la durée entre matin et soir as.difftime(0.67,units="days") obligé de passer par une
+    # egalité proche (abs(A-B)<1e-10 sinon problèmes de non egalité
+    # dans la boucle while on recalcule delta et on enlève la ligne i
+    # le test détecte aussi si on change de fls_id		
+    if (pb$datedebut[i]==pb$datefin[i-1] & pb$fls_id[i]==pb$fls_id[i-1] | 
+        abs(as.numeric(round(pb$delta[i-1],2)-floor(pb$delta[i-1])-as.difftime(0.67,units="days")))<1e-10 & pb$fls_id[i]==pb$fls_id[i-1]){
+      pb$datefin[i-1] <- pb$datefin[i]
+      pb <- pb[-i,]
+      i=i-1
+      pb$delta <- difftime(pb$datefin,pb$datedebut,units ="days")
+    }
+    nr=nrow(pb)
+  }	
+  # on passe en dates car l'abscisse est en dates
+  pb$dateinit<-as.Date(pb$datedebut,tz=Sys.timezone())
+  pb$datefinit<-as.Date(pb$datefin,tz=Sys.timezone())
 }
 fn <- function(X) switch(as.character(X), 
-			"1" = makeTransparent(jaune_EV,50),
-			"2" = makeTransparent(limegreen,50),
-			"3" = makeTransparent(orange_EV,50))
+      "1" = makeTransparent(jaune_EV,50),
+      "2" = makeTransparent(limegreen,50),
+      "3" = makeTransparent(orange_EV,50))
 pb$col <- mapply(fn,pb$fls_id)
 fn1 <- function(X) switch(as.character(X),  
-			"1"=jaune_EV,
-			"2"= limegreen,
-			"3"=orange_EV)
+      "1"=jaune_EV,
+      "2"= limegreen,
+      "3"=orange_EV)
 pb$border <- mapply(fn1,pb$fls_id)
 
 rect(xleft=pb$dateinit,ybottom=0,xright=pb$datefinit,ytop=5000,col=pb$col,border=pb$border)
