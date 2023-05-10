@@ -523,15 +523,32 @@ makeTransparent<-function(someColor, alpha=100)
 #' hvan hauteur de la vanne
 #' print faut il donner les valeurs de l'angle ou de l'intercept (en fonction de l'un et l'autre)
 #' graph faut il produire un graphique ?
-#' divide si une valeur autre que NA est donnée, faut il produire des polygones tous les découpages, divide nombre en mètres, peut-être un vecteur, correspond aux distances pas aux limites
+#' divide si une valeur autre que NA est donnée, vecteur de distance en m le long de l'axe du faisceau, 
+#' divide nombre en mètres, correspond aux distances pas aux limites
 #' vectdist vecteur des distances d'observations au didson (correspond à des anguilles)
 #' vectdir direction des anguilles
 #' distnoise bruit sur la droite perpendiculaire
 #' fond=-7.72;profdid=-6.92;alphadegres=14;dist=6;betadegres=NA;d1=2.5;d2=d1+10;hpas=2;print=FALSE;graph=FALSE;divide=NA;hvan=NA
 #'  Attention la surface de la zone de migration est surestimée de 0.2 pour des raisons graphiques, le calcul n'est pas repris dans le script....
 #'==========================================================
-drawdi<-function(fond=-7.72, profdid=-6.92, alphadegres=14, dist=6, betadegres=NA, d1=2.5,d2=d1+10, hvan=NA, hpas=2,
-    print=FALSE, graph=FALSE, divide=NA, volet=FALSE, chargevolet=NA, retrait=0.2, vectdist=NA, vectdir=NA,
+drawdi<-function(
+    fond=-7.72, 
+    profdid=-6.92, 
+    alphadegres=14, 
+    dist=6, 
+    betadegres=NA, 
+    d1=2.5,
+    d2=d1+10, 
+    hvan=NA, 
+    hpas=2,
+    print=FALSE,
+    graph=FALSE, 
+    divide=NA, 
+    volet=FALSE, 
+    chargevolet=NA, 
+    retrait=0.2, 
+    vectdist=NA, 
+    vectdir=NA,
     couleur=rainbow(length(detection_frames),alpha=0.3)){
   hautvolet<-1.38
   if (is.na(chargevolet)) chargevolet<-0.3
@@ -578,19 +595,21 @@ drawdi<-function(fond=-7.72, profdid=-6.92, alphadegres=14, dist=6, betadegres=N
   if (volet) poly2<-	cbind(c(18,18,retrait,retrait),c(hautvolet+chargevolet-hpas,hautvolet+chargevolet,hautvolet+chargevolet,hautvolet+chargevolet-hpas))
   migration_frame <- as(poly2, "gpc.poly")	
   # CALCUL D'UN DECOUPAGE DE POLYGONES
+  # si divide différent de NA on calcule les detection_frame pour chaque distance 
   if (!is.na(divide[1])){
     detection_frames <- list()
-    if (max(divide)>=(d2-d1)) stop("il n'est pas possible de diviser d2-d1=",d2-d1,"en portions de ",divide," m, suggestion mettre divide=NA" )
+    if (sum(divide) > (d2-d1)) 
+      stop(sprintf("d2-d1= %s   > sum(divide) %s ",d2-d1,sum(divide)))
     dist <- d1
     i <- 1
     dividev <- divide[1]
     while (dist<d2-dividev){	
-      if (length(divide)>1)
-        dividev<-divide[i] else dividev<(divide[1])
-      detection_frames[[i]]<-list()
-      detection_frames[[i]][["range"]]<-str_c(dist,"-",dist+dividev)
-      detection_frames[[i]][["poly"]]<-calculate_poly(dist,dist+dividev)
-      dist=dist+dividev
+      if (length(divide)>1)  dividev <- divide[i] 
+      detection_frames[[i]] <- list()
+      detection_frames[[i]][["range"]] <- str_c(dist,"-",dist+dividev)
+      detection_frames[[i]][["poly"]] <- calculate_poly(dist,dist+dividev)
+      # loop
+      dist <- dist+dividev
       i=i+1
     }
     # pour le dernier
@@ -603,8 +622,8 @@ drawdi<-function(fond=-7.72, profdid=-6.92, alphadegres=14, dist=6, betadegres=N
     detection_frames_intersect_area <- sapply(detection_frames,
         function(X) round(gpclib::area.poly(gpclib::intersect(X$poly,migration_frame)),2))
   } else {
-    detection_frames_range<-NA	
-    detection_frames_intersect_area<-NA
+    detection_frames_range<- NA	
+    detection_frames_intersect_area <- NA
   }
   
   # GRAPHIQUE
@@ -1009,11 +1028,11 @@ base <- c("didson",host,5432,user,password)
 req <- new("RequeteDB")
 # test de la connection en interne ou en externe EPTB-Vilaine
 cat("depouillement\n") #-------------------------------------------------
-    req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, ",
-        "dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id",
-        " where dsf_timeinit>'",debut,
-        "' and dsf_timeinit<'",fin,"')",
-        " select mois,justify_hours(sum(temps_lecture)) from depouillement group by mois order by  mois")
+req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, ",
+    "dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id",
+    " where dsf_timeinit>'",debut,
+    "' and dsf_timeinit<'",fin,"')",
+    " select mois,justify_hours(sum(temps_lecture)) from depouillement group by mois order by  mois")
 depouillement <- query(req, base)
 depouillement <- getquery(depouillement)
 save(depouillement,file=str_c(datawdy,"depouillement.Rdata"))
@@ -1028,8 +1047,8 @@ req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('mon
 sumdepouillement <- query(req, base) %>% getquery()
 save(sumdepouillement,file=str_c(datawdy,"sumdepouillement.Rdata"))
 cat("d3edj\n") #------------------------------------------ # ddde_dj dj=données journalières
-    req@sql <- str_c("select * from did.v_dddedj where enj_date>'",toutdebut,
-        "' and enj_date<'",datefin,"'")
+req@sql <- str_c("select * from did.v_dddedj where enj_date>'",toutdebut,
+    "' and enj_date<'",datefin,"'")
 d3edj <- query(req, base) %>% getquery()
 save(d3edj,file=str_c(datawdy,"d3edj.all.Rdata"))
 #cat("vdlload\n")
@@ -1044,11 +1063,11 @@ save(d3edj,file=str_c(datawdy,"d3edj.all.Rdata"))
 #				ORDER BY v_didsonlectures.round_time")
 #save(vdlload,file=str_c(datawdy,"vdlload.Rdata"))
 cat("dddp\n") #-----------------------------------------------------------
-    
-    req@sql <- str_c("select * from did.v_dddp 
-            where dsf_timeinit>'",toutdebut,
-        "' and dsf_timeinit<'",fin,
-        "'") # dsf_dsr_drr_psf
+
+req@sql <- str_c("select * from did.v_dddp 
+        where dsf_timeinit>'",toutdebut,
+    "' and dsf_timeinit<'",fin,
+    "'") # dsf_dsr_drr_psf
 dddp <- query(req, base) %>% getquery()
 # xtabs(count~dsf_distancestart+dsf_incl+dsf_position,data=dddp)
 dddp$mois<-strftime(dddp$dsf_timeinit,'%m')
@@ -1064,37 +1083,37 @@ stopifnot(all(dddp$psf_radius_m>2))
 save(dddp,file=str_c(datawdy,"dddp.all.Rdata"))
 # ATTENTION si mise à jour lancer d3ejperiodes pour reconstituer les périodes !!!!
 cat("tps \n") #----------------------------------------------------------------------
-    req@sql <- str_c("select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
-            dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
-            where dsf_timeinit>'",debut,
-        "' and dsf_timeinit<'",fin,
-        "'")
+req@sql <- str_c("select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+        dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
+        where dsf_timeinit>'",debut,
+    "' and dsf_timeinit<'",fin,
+    "'")
 tps <- query(req, base) %>% getquery()
 tps$temps_lecture <- as.numeric(as.difftime(tps$temps_lecture,units = "mins"))
 save(tps, file=str_c(datawdy,"tps.Rdata"))
-cat("dd (didsonfile + didsonread) \n") ----------------------------------------------------------------------
+cat("dd (didsonfile + didsonread) \n")# ----------------------------------------------------------------------
 # dd c'est juste didsonfiles et didsonread
-    req@sql <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
-            join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-            where dsr_csotismin and dsf_timeinit>'",debut,
-        "' and dsf_timeinit<'",fin,
-        "'") # dsf_dsr_drr_psf    
+req@sql <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
+        join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+        where dsr_csotismin and dsf_timeinit>'",debut,
+    "' and dsf_timeinit<'",fin,
+    "'") # dsf_dsr_drr_psf    
 dd <- query(req, base) %>% getquery() 
 save(dd, file=str_c(datawdy,"dd.Rdata"))
 
 #données journalières
 cat("enj (daily data) \n")# ----------------------------------------------------------------------
-    req@sql <- str_c("select * from did.t_envjour_enj
-            where enj_date>'",datedebut,
-        "' and enj_date<'",datefin,"'")
+req@sql <- str_c("select * from did.t_envjour_enj
+        where enj_date>'",datedebut,
+    "' and enj_date<'",datefin,"'")
 enj <- query(req, base) %>% getquery()
 if(nrow(enj)==0) stop("Il faut faire tourner le script calcul_debit_chargement_cond_env.R pour charger les données environnementales")
 save(enj,file=str_c(datawdy,"enj.Rdata"))
 #plot(enj$enj_date,enj$enj_turb,type="l")
 cat("environmental data \n") #----------------------------------------------------------------------
 req@sql <- str_c("select * from did.t_env_env 
-            where env_time>'",debut,
-        "' and env_time<'",fin,"' order by env_time" )
+        where env_time>'",debut,
+    "' and env_time<'",fin,"' order by env_time" )
 env <- query(req, base) %>% getquery()
 #plot(env$env_time,env$env_tempaval,ylim=c(0,25))
 #points(env$env_time,env$env_tempamont,col="red")
@@ -1102,10 +1121,10 @@ env <- query(req, base) %>% getquery()
 # d3ej sera la selection de celui-ci pour le jour 
 save(env,file=str_c(datawdy,"env.Rdata"))
 cat("ddde didsonfile, didsonread, didsonreadresult env\n")# ----------------------------------------------------------------------
-    req@sql <- str_c("select * from did.v_ddde
-            where dsf_timeinit>'",toutdebut,
-        "' and dsf_timeinit<'",fin,
-        "'")
+req@sql <- str_c("select * from did.v_ddde
+        where dsf_timeinit>'",toutdebut,
+    "' and dsf_timeinit<'",fin,
+    "'")
 ddde <- query(req, base) %>% getquery()
 
 ddde$count=1
@@ -1135,15 +1154,15 @@ write.table(ddde,file=str_c(datawdy,"ddde.csv"),sep=";",row.names=FALSE)
 #		dbname=getOption("eda2.0_RHT"),
 #		host=getOption("sqldf.RPostgreSQL.hostname")) # 31.16
 cat("lpm  \n") #----------------------------------------------------------------------
-    reqnblpm <- str_c("select count(*), psf_dir from did.t_didsonfiles_dsf  dsf 	
-            join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-            join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
-            join did.t_poissonfile_psf on psf_drr_id=drr_id
-            where psf_species='2014'
-            and dsr_csotismin
-            and dsf_timeinit>'",debut,
-        "' and dsf_timeinit<'",fin,
-        "' group by psf_dir " )
+reqnblpm <- str_c("select count(*), psf_dir from did.t_didsonfiles_dsf  dsf 	
+        join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+        join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
+        join did.t_poissonfile_psf on psf_drr_id=drr_id
+        where psf_species='2014'
+        and dsr_csotismin
+        and dsf_timeinit>'",debut,
+    "' and dsf_timeinit<'",fin,
+    "' group by psf_dir " )
 req@sql <- reqnblpm
 nblpm <- query(req, base) %>% getquery()
 
@@ -1160,7 +1179,7 @@ req@sql <- reqlpm
 lpm <- query(req, base) %>% getquery()
 lpm$date<-as.Date(lpm$dsf_timeinit,tz=Sys.timezone())
 save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
-# FIN CHUNK sqldf
+# FIN CHUNK database
 @
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
 <<d3ej, echo=FALSE, eval=FALSE,results=hide >>=
@@ -1168,62 +1187,70 @@ save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 load(file = str_c(datawdy, "ddde.all.Rdata"))
 load(file = str_c(datawdy, "dddp.all.Rdata"))
 
-tapply(rowSums(ddde[, c("drr_eelplus", "drr_eelminus")],na.rm = TRUE), ddde$dsf_season, sum, na.rm=TRUE)  
+tapply(rowSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE), ddde$dsf_season, sum, na.rm =
+        TRUE)
 # 2566      1990      1964   3810>3809    2020     1425       1739      1434
 # nouveau calcul 202
-# 2012-2013 2013-2014 2014-2015 2015-2016 2016-2017 2017-2018 2018-2019 2019-2020 
-# 2617      1999      1937      3808      2020      1425      1736      1434 
+# 2012-2013 2013-2014 2014-2015 2015-2016 2016-2017 2017-2018 2018-2019 2019-2020
+# 2617      1999      1937      3808      2020      1425      1736      1434
 
 nrow(dddp)  # 1734
 hour <- as.numeric(strftime(ddde$round_time, format = "%H"))
 stopifnot(length(which(duplicated(ddde$dsf_id))) == 0)
 stopifnot(nrow(dddp) == sum(colSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE)))
 # ddde[which(duplicated(ddde$dsf_id)),]
-d3ej <- subset(ddde, (hour > 17 | hour <= 9) & !is.na(ddde$date))  # ddde de jour
+d3ej <-
+    subset(ddde, (hour > 17 |
+              hour <= 9) & !is.na(ddde$date))  # ddde de jour
 
 # CALCUL DES DEBITS ------------------------------------------
-d3ej$volbarrage30 <- rowSums(d3ej[, grep("env_volv", colnames(d3ej))])
+d3ej$volbarrage30 <-
+    rowSums(d3ej[, grep("env_volv", colnames(d3ej))])
 # je recalcule le volume du barrage sur la base volets et vannes (mon calcul)
 # on met pas na.rm exprès pour voir si il y a encore des pb
 # dans certains cas e.g. 2013-11-08_00:30:00  je n'ai pas de calcul de débits sur les volets (tous les env_vol_volet sont NA)
 # d3ej[d3ej$date=="2013-11-08",] OK pb règlé
 # View(d3ej[is.na(d3ej$volbarrage30),])
 # entre le 09-10-2012 et le 14-10-2012 il y a des valeurs manquantes ?
-d3ej$env_volvanne4_30[is.na(d3ej$env_volvanne4_30)]<-0
-d3ej$env_volvolet1_30[is.na(d3ej$env_volvolet1_30)]<-0
-d3ej$env_volvolet2_30[is.na(d3ej$env_volvolet2_30)]<-0
-d3ej$env_volvolet3_30[is.na(d3ej$env_volvolet3_30)]<-0
-d3ej$env_volvolet4_30[is.na(d3ej$env_volvolet4_30)]<-0
-d3ej$env_volvolet5_30[is.na(d3ej$env_volvolet5_30)]<-0
-d3ej$volbarrage30 <- rowSums(d3ej[, grep("env_volv", colnames(d3ej))])
+d3ej$env_volvanne4_30[is.na(d3ej$env_volvanne4_30)] <- 0
+d3ej$env_volvolet1_30[is.na(d3ej$env_volvolet1_30)] <- 0
+d3ej$env_volvolet2_30[is.na(d3ej$env_volvolet2_30)] <- 0
+d3ej$env_volvolet3_30[is.na(d3ej$env_volvolet3_30)] <- 0
+d3ej$env_volvolet4_30[is.na(d3ej$env_volvolet4_30)] <- 0
+d3ej$env_volvolet5_30[is.na(d3ej$env_volvolet5_30)] <- 0
+d3ej$volbarrage30 <-
+    rowSums(d3ej[, grep("env_volv", colnames(d3ej))])
 stopifnot(!all(is.na(d3ej$volbarrage30))) # il ne faut plus de valeurs manquantes
-d3ej$pvanne4 <- d3ej$env_volvanne4_30/ d3ej$volbarrage30
+d3ej$pvanne4 <- d3ej$env_volvanne4_30 / d3ej$volbarrage30
 # debit de la vanne 4 sur l'ensemble des écoulements
 # je mets NA rm car si env
 d3ej$pvanne4[d3ej$env_volvanne4_30 == 0] <- 0
-stopifnot(sum(is.na(d3ej$pvanne4))==0)
-d3ej$pvolet4 <-  d3ej$env_volvolet4_30/d3ej$volbarrage30
-d3ej$pvolet4[d3ej$env_volvolet4_30==0] <- 0  
-stopifnot(sum(is.na(d3ej$pvolet4))==0)
+stopifnot(sum(is.na(d3ej$pvanne4)) == 0)
+d3ej$pvolet4 <-  d3ej$env_volvolet4_30 / d3ej$volbarrage30
+d3ej$pvolet4[d3ej$env_volvolet4_30 == 0] <- 0
+stopifnot(sum(is.na(d3ej$pvolet4)) == 0)
 d3ej$vol4 <- d3ej$env_volvolet4_30 + d3ej$env_volvanne4_30
-d3ej$pvol4 <- d3ej$vol4/d3ej$volbarrage30
-d3ej$pvol4[d3ej$vol4==0] <- 0
-stopifnot(sum(is.na(d3ej$pvol4))==0)
+d3ej$pvol4 <- d3ej$vol4 / d3ej$volbarrage30
+d3ej$pvol4[d3ej$vol4 == 0] <- 0
+stopifnot(sum(is.na(d3ej$pvol4)) == 0)
 #d3ej$pvol4[is.na(d3ej$pvol4)] <- 0 il peut arriver que je n'ai pas de débits.... je dois propager ces problèmes
-d3ej$env_Qtotal30 <- d3ej$volbarrage30/1800
+d3ej$env_Qtotal30 <- d3ej$volbarrage30 / 1800
 
 # CALCUL DU FONCTIONNEMENT DE LA VANNE 4  -------------------------------------
 # sur une période de 30 minutes il peut y avoir du fonctionnement au fond et en surface
 d3ej$optvanne4 <- NA
-suppressWarnings(d3ej$optvanne4 <- str_c(as.character(d3ej$vanne4), "-", as.character(d3ej$volet4)))  # le tiret n'est pas répété on veut pas d'erreur pour autant
+suppressWarnings(d3ej$optvanne4 <-
+        str_c(as.character(d3ej$vanne4), "-", as.character(d3ej$volet4)))  
 d3ej$optvanne4 <- as.factor(d3ej$optvanne4)
-stopifnot(length(unique(d3ej$optvanne4))==4)
-levels(d3ej$optvanne4) <- c("0", "s", "f", "sf") # replace "FALSE-FALSE" "FALSE-TRUE"  "TRUE-FALSE"  "TRUE-TRUE"  
+stopifnot(length(unique(d3ej$optvanne4)) == 4)
+levels(d3ej$optvanne4) <-
+    c("0", "s", "f", "sf") # replace "FALSE-FALSE" "FALSE-TRUE"  "TRUE-FALSE"  "TRUE-TRUE"
 
 # RECODAGE DU POSITIONNEMENT DU didson
 d3ej$dsf_position[d3ej$dsf_position == "vanne"] <- "f"
 d3ej$dsf_position[d3ej$dsf_position == "volet"] <- "s"
-d3ej$dsf_position[is.na(d3ej$dsf_position)] <- "n"  # le didson est enlevé durant cette période
+d3ej$dsf_position[is.na(d3ej$dsf_position)] <-
+    "n"  # le didson est enlevé durant cette période
 # plus loin évite les problèmes de réindexation, on utilise ça pour retirer les
 # périodes pour lesquelles la fonction drawdi calcule les surfaces, mettre un NA
 # ici conduit à faire planter le calcul de cette fonction donc on garde 'n', et
@@ -1234,18 +1261,22 @@ d3ej$dsf_position <- as.factor(d3ej$dsf_position)
 
 
 # Surface T
-d3ej[d3ej$dsf_position == "s" & d3ej$dsf_incl <= 10 & d3ej$dsf_incl >= -10, "position"] <- "s"
+d3ej[d3ej$dsf_position == "s" &
+        d3ej$dsf_incl <= 10 & d3ej$dsf_incl >= -10, "position"] <- "s"
 # penché
 d3ej[d3ej$dsf_incl > 10 | d3ej$dsf_incl < -10, "position"] <- "sl"
 # FOND 5 m Tous ces enregistrements commencent à la distance de 5 m
-d3ej[d3ej$dsf_position == "f" & d3ej$dsf_distancestart >= 5, "position"] <- "f5"
+d3ej[d3ej$dsf_position == "f" &
+        d3ej$dsf_distancestart >= 5, "position"] <- "f5"
 # FOND 3.75
-d3ej[d3ej$dsf_position == "f" & d3ej$dsf_distancestart < 5, "position"] <- "f3"
+d3ej[d3ej$dsf_position == "f" &
+        d3ej$dsf_distancestart < 5, "position"] <- "f3"
 # pas de didson dans l'eau
 d3ej[d3ej$dsf_position == "n", "position"] <- "n"
 
 #d3ej[is.na(d3ej$position),c("dsf_season","dsf_incl","dsf_position","dsf_distancestart")]
-if (any(is.na(d3ej$position))) stop("position should no be NA")
+if (any(is.na(d3ej$position)))
+  stop("position should no be NA")
 #calcul pour tous
 
 # Conditions d'extrapolation (ex) -----------------------------------------
@@ -1259,93 +1290,130 @@ if (any(is.na(d3ej$position))) stop("position should no be NA")
 # fond fond +  périodes de trantions (d3ej$optvanne4="fs")
 # surface surface + périodes de transition
 # didson penché loin du didson : vanne et didson sl en surface regarde en bas, volet et didson au fond sl regarde en haut
-#  3 => Lecture en mauvaise position, écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture 
+#  3 => Lecture en mauvaise position, écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture
 
 
 d3ej$ex <- NA #extrapolation
 # Fonctionnement OK
-d3ej$dsf_incl[d3ej$dsf_incl==0] <- 0.5 # sinon plante
-d3ej$ex[d3ej$optvanne4%in%c("s","sf")&d3ej$dsf_position=="s"| # surface surface
-        d3ej$optvanne4%in%c("s","sf")&d3ej$dsf_position=="f"&d3ej$dsf_incl>300&d3ej$position=="sl"| # surface et didson au fond regarde en haut
-        d3ej$optvanne4%in%c("f","sf")&d3ej$dsf_position=="f"| # fond et fond 
-        d3ej$optvanne4%in%c("f","sf")&d3ej$dsf_position=="s"&d3ej$position=="sl"&d3ej$dsf_incl<0]<-1 # fond et didson en surface regarde en bas
-d3ej$ex[d3ej$optvanne4%in%c("s")&d3ej$dsf_position=="f"&d3ej$position!="sl"|
-        d3ej$optvanne4%in%c("f")&d3ej$dsf_position=="s"&d3ej$position!="sl"] <- 3
+d3ej$dsf_incl[d3ej$dsf_incl == 0] <- 0.5 # sinon plante
+d3ej$ex[d3ej$optvanne4 %in% c("s", "sf") &
+        d3ej$dsf_position == "s" | # surface surface
+        d3ej$optvanne4 %in% c("s", "sf") &
+        d3ej$dsf_position == "f" &
+        d3ej$dsf_incl > 300 &
+        d3ej$position == "sl" | # surface et didson au fond regarde en haut
+        d3ej$optvanne4 %in% c("f", "sf") &
+        d3ej$dsf_position == "f" | # fond et fond
+        d3ej$optvanne4 %in% c("f", "sf") &
+        d3ej$dsf_position == "s" &
+        d3ej$position == "sl" &
+        d3ej$dsf_incl < 0] <- 1 # fond et didson en surface regarde en bas
+d3ej$ex[d3ej$optvanne4 %in% c("s") &
+        d3ej$dsf_position == "f" & d3ej$position != "sl" |
+        d3ej$optvanne4 %in% c("f") &
+        d3ej$dsf_position == "s" & d3ej$position != "sl"] <- 3
 d3ej$ex[is.na(d3ej$dsr_id)] <- 2
-d3ej$ex[d3ej$position=="n"] <- 4 # le 2 est effacé par les pb techniques
-d3ej$ex[d3ej$dsf_fls_id%in%c(1,2)] <- 4
-d3ej$ex[d3ej$optvanne4=="0"] <- 0
+d3ej$ex[d3ej$position == "n"] <-
+    4 # le 2 est effacé par les pb techniques
+d3ej$ex[d3ej$dsf_fls_id %in% c(1, 2)] <- 4
+d3ej$ex[d3ej$optvanne4 == "0"] <- 0
 
-d3ej_perc_pos <- 
+d3ej_perc_pos <-
     inner_join(
-        d3ej %>% group_by(dsf_season, ex)%>%summarize(Nex=n()),
-        d3ej %>% group_by(dsf_season)%>%summarize(N=n())
-    ) %>% 
-    mutate(perc = Nex/N)
+        d3ej %>% group_by(dsf_season, ex) %>% dplyr::summarize(Nex = n()),
+        d3ej %>% group_by(dsf_season) %>% dplyr::summarize(N = n())
+    ) %>%
+    mutate(perc = Nex / N)
 
 d3ej$lecture <- !is.na(d3ej$dsr_id)
 # pour verif d3ej[is.na(d3ej$ex),c("dsf_position","dsf_incl","optvanne4")]
-save(d3ej_perc_pos, file=str_c(datawdy,"d3ej_perc_pos.Rdata"))
+save(d3ej_perc_pos, file = str_c(datawdy, "d3ej_perc_pos.Rdata"))
 
 #CALCULS DE RATIO DE SURFACE ----------------------------
 
 
-volet <- d3ej$dsf_position=="s"&d3ej$volet4 #1167 #sum(volet,na.rm=TRUE)
-vanne <- d3ej$dsf_position=="f"&d3ej$vanne4 #1374 # sum(vanne,na.rm=TRUE)
+volet <-
+    d3ej$dsf_position == "s" & d3ej$volet4 #1167 #sum(volet,na.rm=TRUE)
+vanne <-
+    d3ej$dsf_position == "f" & d3ej$vanne4 #1374 # sum(vanne,na.rm=TRUE)
 #plot(d3ej$dsf_position,as.factor(d3ej$vanne4))
-vanne_et_penche <- d3ej$dsf_position=="s" & d3ej$position=="sl" & d3ej$dsf_incl<0&d3ej$vanne4 
-volet_et_penche <- d3ej$dsf_position=="f" & d3ej$position=="sl" & d3ej$dsf_incl>10&d3ej$volet4 
-vanne[vanne_et_penche]<-TRUE
-volet[volet_et_penche]<-TRUE
-hpas <- rep(NA,nrow(d3ej))
-d3ej$chargevolet <- d3ej$niveauvilaine30-1.38
+vanne_et_penche <-
+    d3ej$dsf_position == "s" &
+    d3ej$position == "sl" & d3ej$dsf_incl < 0 & d3ej$vanne4
+volet_et_penche <-
+    d3ej$dsf_position == "f" &
+    d3ej$position == "sl" & d3ej$dsf_incl > 10 & d3ej$volet4
+vanne[vanne_et_penche] <- TRUE
+volet[volet_et_penche] <- TRUE
+hpas <- rep(NA, nrow(d3ej))
+d3ej$chargevolet <- d3ej$niveauvilaine30 - 1.38
 # La hauteur de passage (pas l'altitude...) est au moins égale à une hauteur de 2m
 # mais correspond sinon à 6 * la charge des volets sauf si 6 * la charge des volets dépasse le fond
 # auquel cas ça devient l'ensemble de la colonne d'eau
-hpas[volet] <- pmax(2,d3ej$niveauvilaine30[volet]-pmax(-7.72,d3ej$niveauvilaine30[volet]-PARM[2]*d3ej$chargevolet[volet]))
+hpas[volet] <-
+    pmax(
+        2,
+        d3ej$niveauvilaine30[volet] - pmax(-7.72, d3ej$niveauvilaine30[volet] -
+                PARM[2] * d3ej$chargevolet[volet])
+    )
 # La hauteur de passage sur la Vanne correspond à l'ensemble de la hauteur d'eau moins 2 m en surface
-hpas[vanne] <- d3ej$niveauvilaine30[vanne]+7.72-PARM[3]  
+hpas[vanne] <- d3ej$niveauvilaine30[vanne] + 7.72 - PARM[3]
 d3ej$hpas <- hpas
 
 
 # petit arrondi pour valeurs de 4.58 au lieu de 5
 
-d3ej$dsf_distancestart[d3ej$dsf_distancestart==4.58] <-5
+d3ej$dsf_distancestart[d3ej$dsf_distancestart == 4.58] <- 5
 
 # calcul des polygones en fonction de la distance de départ du didson
-
-divide=matrix(NA,nrow=nrow(d3ej),ncol=5)
-divide[d3ej$dsf_distancestart<5,1:4] <- cbind(
-    (5-d3ej$dsf_distancestart)[d3ej$dsf_distancestart<5], 
-    2,2,2)
-divide[d3ej$dsf_distancestart<5,5] <- 10-rowSums(divide[d3ej$dsf_distancestart<5,],na.rm=TRUE)
-divide[d3ej$dsf_distancestart==5,] <- rep(2,5)
+# divide nombre en mètres, peut-être un vecteur, correspond aux distances pas aux limites
+# par defaut divide=NA
+divide = matrix(NA, nrow = nrow(d3ej), ncol = 5)
+divide[d3ej$dsf_distancestart < 5, 1:4] <- cbind((3 - d3ej$dsf_distancestart)[d3ej$dsf_distancestart <
+            5],
+    2, 2, 2)
+divide[d3ej$dsf_distancestart < 5, 5] <-
+    10 - rowSums(divide[d3ej$dsf_distancestart < 5, ], na.rm = TRUE)
+divide[d3ej$dsf_distancestart == 5, ] <- rep(2, 5)
 divide <- split(divide, c(row(divide))) # coercing to list
 
+
 #----------------------------------------------------------------------
-# Dans le script de l'année précédente il y avait un seuil
+# Dans certains scripts (pour certaines années avec déformation de lentille) j'ai pris un seuil
 # pour lequel je condidérais qu'il n'y avait plus de détection
-# là  je ne prends en compte que l'efficacité donc je remets distancestart+ 10
+# là je ne prends en compte que l'efficacité donc je remets distancestart+ 10
+# Ci dessous la fonction boucle avec les m apply sur chaque élement des vecteurs pour calculer
+# la surface des polygones de détection la zone possible de migration et la surface de chaque polygone
+# Qui peut être réduite si il y a intersection avec le fond.
 #------------------------------------------------------------------------
 #date_seuil_pb_lentille <- dmy(13122018)
-system.time(d <- mapply(drawdi,
-        fond=-7.72,
-        profdid=d3ej$dsf_depth,
-        alphadegres=14,
-        dist=NA,		
-        betadegres=d3ej$dsf_incl,
-        d1=d3ej$dsf_distancestart,
-        d2=  d3ej$dsf_distancestart+10,   
-        hpas=hpas,
-        hvan=0, # on s'en fout
-        graph=FALSE,
-        divide=divide,
-        volet=volet,
+system.time(
+    d <- mapply(
+        drawdi,
+        fond = -7.72,
+        profdid = d3ej$dsf_depth,
+        alphadegres = 14,
+        dist = NA,
+        betadegres = d3ej$dsf_incl,
+        d1 = d3ej$dsf_distancestart,
+        d2 =  d3ej$dsf_distancestart + 10,
+        hpas = hpas,
+        hvan = 0,
+        # on s'en fout
+        graph = FALSE,
+        divide = divide,
+        volet = volet,
         #vectdist=c(2,5,7,9,11),
-        chargevolet=d3ej$chargevolet, SIMPLIFY =FALSE))
+        chargevolet = d3ej$chargevolet,
+        SIMPLIFY = FALSE
+    )
+)
 # ATTENTION IL PEUT Y AVOIR UN PB AVEC INTERSECT SI LA METHODE EST CHARGEE PAR UN AUTRE PACKAGE
-save(d,file=str_c(datawdy,"d.Rdata")) # load(file=str_c(datawdy,"d.Rdata"))
-d3ej$area_intersect<-unlist(lapply(d,function(X) X$area_intersect))
+# utilisateur     système      écoulé 
+#     114.09        2.67      118.40 
+save(d, file = str_c(datawdy, "d.Rdata")) # load(file=str_c(datawdy,"d.Rdata"))
+d3ej$area_intersect <- unlist(lapply(d, function(X)
+          X$area_intersect))
 
 # d3ej %>% filter(area_intersect>0 & area_intersect<max(d3ej$area_intersect,na.rm=TRUE))%>%
 #		 ggplot() + geom_density(aes(x=area_intersect, fill=dsf_season), alpha=0.6)+
@@ -1354,17 +1422,23 @@ d3ej$area_intersect<-unlist(lapply(d,function(X) X$area_intersect))
 
 d3ej$area_intersect[d3ej$dsf_position == "n"] <- NA
 # Pour ne pas extrapoler débilement sur de toutes petites surfaces
-d3ej$area_intersect <- pmax(d3ej$area_intersect,10, na.rm=TRUE)
+d3ej$area_intersect <- pmax(d3ej$area_intersect, 10, na.rm = TRUE)
 
 
-d3ej$area_detframe <- unlist(lapply(d, function(X) sum(X$det_frames_int_area)))
+d3ej$area_detframe <-
+    unlist(lapply(d, function(X)
+              sum(X$det_frames_int_area)))
 d3ej$area_detframe[d3ej$dsf_position == "n"] <- NA
-d3ej$area_migration_frame <- unlist(lapply(d, function(X) sum(X$area_migration_frame)))
+d3ej$area_migration_frame <-
+    unlist(lapply(d, function(X)
+              sum(X$area_migration_frame)))
 d3ej$area_migration_frame[d3ej$dsf_position == "n"] <- NA
-d3ej[d3ej$vanne4, "area_migration_frame"] <- (d3ej$niveauvilaine30[d3ej$vanne4] + 
+d3ej[d3ej$vanne4, "area_migration_frame"] <-
+    (d3ej$niveauvilaine30[d3ej$vanne4] +
       7.72 - PARM[3]) * 18
-d3ej$psurface <- d3ej$area_intersect/d3ej[, "area_migration_frame"]
-d3ej$psurface[d3ej$psurface == 0] <- NA  # pour ne pas diviser par zéro
+d3ej$psurface <- d3ej$area_intersect / d3ej[, "area_migration_frame"]
+d3ej$psurface[d3ej$psurface == 0] <-
+    NA  # pour ne pas diviser par zéro
 
 # plot(d3ej$psurface) # entre 0 et 0.5 OK
 # ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=psurface,col=position))
@@ -1372,43 +1446,62 @@ d3ej$psurface[d3ej$psurface == 0] <- NA  # pour ne pas diviser par zéro
 # ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=area_migration_frame,col=factor(dsf_fls_id)))
 # plot(d3ej$area_migration_frame)
 
-save(d3ej,file=str_c(datawdy,"d3ej.all.Rdata"))
-rm(hpas,vanne,volet)
+save(d3ej, file = str_c(datawdy, "d3ej.all.Rdata"))
+rm(hpas, vanne, volet)
 @
-% METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<d3ejperiodes, echo=FALSE, eval=FALSE, results=hide >>=
+    
+  % METTRE EVAL TRUE / FALSE POUR CALCULER / ACCELERER
+  
+<< d3ejperiodes, echo = FALSE, eval = FALSE, results = hide   >>=
 ###########################################
 # FONCTION UTILISANT DES CRITERES DE CHOIX POUR TRACER LE GRAPHIQUE
 # ET GARDER DANS VVV UN RESUME DE LA PERIODE DE PASSAGE
 ############################################
-d3ejs <- d3ej[d3ej$dsf_timeinit>=debut & d3ej$dsf_timeinit<=fin,]
-res <- d3ejs %>% 
-    group_by(dsf_incl,	dsf_depth,optvanne4) %>% 
-    summarize(start=min(dsf_timeinit, na.rm=TRUE), end=max(dsf_timeinit, na.rm=TRUE), nbperiode=n()) %>% 
-    filter (!is.na(dsf_depth) & optvanne4!="sf", nbperiode>10) %>%
-    arrange(start)	
-print(res, n=Inf,width=Inf)
-ppp<-list()
+d3ejs <- d3ej[d3ej$dsf_timeinit >= debut & d3ej$dsf_timeinit <= fin, ]
+res <- d3ejs %>%
+    group_by(dsf_incl,	dsf_depth, optvanne4) %>%
+    summarize(
+        start = min(dsf_timeinit, na.rm = TRUE),
+        end = max(dsf_timeinit, na.rm = TRUE),
+        nbperiode = n()
+    ) %>%
+    filter (!is.na(dsf_depth) & optvanne4 != "sf", nbperiode > 10) %>%
+    arrange(start)
+print(res, n = Inf, width = Inf)
+ppp <- list()
 #print= "sortieecran" # pour ne pas voir les graphes, peut importe ce qui est écrit ici
-print="png"
+print = "png"
 
-for (j in 1:nrow(res)){
-  ppp<-drawdicriter(profdid=res$dsf_depth[j], 
-      incl=res$dsf_incl[j], 
-      Phi=res$optvanne4[j],
-      distancestart=NA,
-      timestamp=c(res$start[j],res$end[j]),
-      nomperiode=str_c("periode",j,
-          "_phi",res$optvanne4[j],
-          "_did", ifelse(res$dsf_depth[j]>-1,"s","f"),"_",
-          res$dsf_incl[j]),
-      print=print,
-      couleur=c(makeTransparent(jaune_EV,90),"#00FF664D", makeTransparent(bleu_EV,70),makeTransparent(turquoise_EV,90),
-          makeTransparent(orange_EV, 90))) 
+for (j in 1:nrow(res)) {
+  ppp <- drawdicriter(
+      profdid = res$dsf_depth[j],
+      incl = res$dsf_incl[j],
+      Phi = res$optvanne4[j],
+      distancestart = NA,
+      timestamp = c(res$start[j], res$end[j]),
+      nomperiode = str_c(
+          "periode",
+          j,
+          "_phi",
+          res$optvanne4[j],
+          "_did",
+          ifelse(res$dsf_depth[j] > -1, "s", "f"),
+          "_",
+          res$dsf_incl[j]
+      ),
+      print = print,
+      couleur = c(
+          makeTransparent(jaune_EV, 90),
+          "#00FF664D",
+          makeTransparent(bleu_EV, 70),
+          makeTransparent(turquoise_EV, 90),
+          makeTransparent(orange_EV, 90)
+      )
+  )
 }
-# les periodes sont écrites par la fonction dans dddp$periode, 
+# les periodes sont écrites par la fonction dans dddp$periode,
 # sur la nouvelle version dddp contient toutes les années, mais les données mises à jour sont écrites sur l'année en cours
-# je les écris en base dans t_didsonfiles.dsf_periode 
+# je les écris en base dans t_didsonfiles.dsf_periode
 
 #TODO 2021 RUNONCE (commenté pour ne pas écrire en base)
 #xxxx<- dddp[!is.na(dddp$periode),c("dsf_id","periode")]
@@ -1416,8 +1509,8 @@ for (j in 1:nrow(res)){
 
 
 
-save(ppp,file=str_c(datawdy,"ppp.Rdata"))
-save(dddp,file=str_c(datawdy,"dddp.Rdata"))
+save(ppp, file = str_c(datawdy, "ppp.Rdata"))
+save(dddp, file = str_c(datawdy, "dddp.Rdata"))
 @
 
 
@@ -1497,7 +1590,6 @@ ddde <- horaires(ddde)
 d3ej <- horaires(d3ej)
 # changement 2019 17 h à 16h
 fulldays <- unique(ddde[ddde$Hdeb >= 10 & ddde$Hdeb <= 16, "date"])  # jours complets
-# voir http://www.leshorairesdusoleil.com/ical.aspx
 # préparer un fichier csv pour l'année en cours en extrayant les bonnes dates, et en collant deux années.
 # j'ai déjà copié 2022 et 2023 ds data/2022+, renommer les fichiers en lever_soleil.csv en lever_coucher.csv
 # ci dessous deux formats historiques différents que je compile en un seul ficher
@@ -2216,8 +2308,10 @@ d'anguilles argentées (source OFB et EPTB-Vilaine).
 \section{Résultats}
 \subsection{Suivi}
 \subsubsection{Fonctionnement du barrage}
+
+
 <<fonctionnementvanne, echo=FALSE, eval=TRUE,results=hide>>=
-png(file=str_c(imgwdy,"fonctionnementvanne.png"),,width = 8, height = 8, units = 'in', res = 300)
+png(file=str_c(imgwdy,"fonctionnementvanne.png"),width = 8, height = 8, units = 'in', res = 300)
 def.par <- par(no.readonly = TRUE)
 par(mar = c(2,3,1,1))
 d3ej$hv=d3ej$hvanne4-7.72

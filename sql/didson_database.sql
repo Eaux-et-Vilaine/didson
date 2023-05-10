@@ -350,6 +350,7 @@ ALTER TABLE did.t_envjour_enj ADD CONSTRAINT c_uk_enj_date UNIQUE(enj_date);
 
 select * from did.debitjour;
 select * from did.t_envjour_enj ORDER BY enj_date;
+select * from did.t_envjour_enj ORDER BY enj_date desc;
 INSERT INTO did.t_envjour_enj(enj_date,enj_turb,deb_qtotalj)  
 SELECT date, turbidite, debit_moyen_recalcule  FROM did.debitjour
 WHERE date > (SELECT max(enj_date) FROM did.t_envjour_enj); 
