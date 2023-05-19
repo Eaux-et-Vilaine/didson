@@ -269,7 +269,7 @@ round-precision = 0 % precision des arrondis
 %% your report.
 
 %% Makes a path to your graphics' folder.
-\graphicspath{{../../../pdata/didson/rapport/image/}}
+\graphicspath{{../image/}}
 
 \newcommand{\tab}{\hspace*{2em}}
 \newcommand{\DD}{D\&D}
@@ -459,15 +459,15 @@ saison <- str_c((CY-1),"-",CY)
 debut <- str_c(CY-1,"-09-01 00:00:00")
 fin <- str_c(CY,"-05-01 00:00:00")
 toutdebut <- str_c(2012,"-09-01 00:00:00")
-datedebut<-str_c(CY-1,"-09-01")
-datefin<-str_c(CY,"-05-01")
+datedebut <- str_c(CY-1,"-09-01")
+datefin <- str_c(CY,"-05-01")
 graphics.off()
 setwd("C:/workspace/didson/report")
 datawd<-"C:/workspace/didson/data/" 
 datawdy<-str_c(datawd,CY,"/")
 imgwd<-"C:/workspace/didson/image/"
 imgwdy<-str_c(imgwd,CY,"/")
-tabwdy<-str_c("C:/workspace/didson/table",CY,"/")
+tabwdy<-str_c("C:/workspace/didson/table/",CY,"/")
 
 #load_library('RODBC') # odbc connector
 load_library('stacomirtools') # connection tools
@@ -1046,10 +1046,13 @@ req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('mon
         select justify_hours(sum(temps_lecture)) from depouillement ")
 sumdepouillement <- query(req, base) %>% getquery()
 save(sumdepouillement,file=str_c(datawdy,"sumdepouillement.Rdata"))
+
 cat("d3edj\n") #------------------------------------------ # ddde_dj dj=données journalières
 req@sql <- str_c("select * from did.v_dddedj where enj_date>'",toutdebut,
     "' and enj_date<'",datefin,"'")
 d3edj <- query(req, base) %>% getquery()
+#req@sql <- str_c("select * from did.v_dddedj where enj_date='","2022-03-28","'")
+#query(req, base) %>% getquery()
 save(d3edj,file=str_c(datawdy,"d3edj.all.Rdata"))
 #cat("vdlload\n")
 #vdlload<-sqldf("SELECT v_didsonlectures.dsf_id_csot, v_didsonlectures.dsf_filename, v_didsonlectures.dsf_timeinit,
@@ -1092,6 +1095,16 @@ tps <- query(req, base) %>% getquery()
 tps$temps_lecture <- as.numeric(as.difftime(tps$temps_lecture,units = "mins"))
 save(tps, file=str_c(datawdy,"tps.Rdata"))
 cat("dd (didsonfile + didsonread) \n")# ----------------------------------------------------------------------
+# dd c'est juste didsonfiles et didsonread
+req@sql <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
+        join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+        where dsr_csotismin and dsf_timeinit>'",toutdebut,
+    "' and dsf_timeinit<'",fin,
+    "'") # dsf_dsr_drr_psf    
+dd <- query(req, base) %>% getquery() 
+save(dd, file=str_c(datawdy,"dd.Rdata"))
+
+cat("ddall (didsonfile + didsonread) toutes les saisons \n")# ----------------------------------------------------------------------
 # dd c'est juste didsonfiles et didsonread
 req@sql <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
         join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
@@ -1668,7 +1681,7 @@ dérivants (Figure \ref{positionnementdidson}).
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2017/arzal_aval}
+\includegraphics[width=0.5\textwidth]{arzal_aval}
 \caption[Vue aval du volet]{Vue montrant un écoulement sur le volet 4 à
 partir de l'aval du barrage.}
 \label{arzal_aval}
@@ -1704,7 +1717,7 @@ didson V5.27.48 de la société Soundmetrics.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.3\textwidth]{2022/didson.png}
+\includegraphics[width=0.3\textwidth]{didson.png}
 \caption[Le didson en 2017]{Le didson en 2017.
 }
 \label{didson2017}
@@ -1731,7 +1744,7 @@ des câbles permet le déplacement vertical du didson à l'aide un chariot (Figu
 %------------------------------------------
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2019/automate2.png}
+\includegraphics[width=0.5\textwidth]{automate2.png}
 \caption[automatisation]{A Armoire électrique de commande du treuil,
 déportée sur la pile, B treuil avec codeur incrémental, C chariot de levage et
 de positionnement du didson (pour la sécurité). }
@@ -1741,7 +1754,7 @@ de positionnement du didson (pour la sécurité). }
 %------------------------------------------
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2019/automate3.png}
+\includegraphics[width=0.5\textwidth]{automate3.png}
 \caption[automatisation]{Automatisation de la position verticale du didson. 1
 chariot sur poutre HEB, 2 rail, 3 coffret électrique comprenant les éléments de
 contrôle de l'automate, 4 câble du didson (alimentation et signal) renforcé par une gaine, 5 guide
@@ -1754,7 +1767,7 @@ tension du câble. }
 %------------------------------------------
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2019/ihm2.png}
+\includegraphics[width=0.5\textwidth]{ihm2.png}
 \caption[automatisation]{Ecrans de contrôle et de programmation de la position
 du didson}
 \label{ihm}
@@ -1836,7 +1849,7 @@ En 2021--2022 TODO
 %------------------------------------------
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2019/didsonA}
+\includegraphics[width=0.5\textwidth]{didsonA}
 \caption[schéma didson -7° 5-15m]{Schéma montrant la position du didson et
 la fenêtre d'échantillonnage couverte par l'appareil lorsque celui-ci est placé
 1 m sous la surface (-7°) pour détecter les anguilles migrant sur le volet.
@@ -1848,7 +1861,7 @@ d'échantillonnage en fonction de la distance.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2019/didsonD1}
+\includegraphics[width=0.5\textwidth]{didsonD1}
 \caption[schéma didson 0° 5-15m]{Fond 0° 5-15m, didson placé à 5.5 m de
 profondeur lorsqu'il alterne entre des positions au fond et en surface à l 'aide
 du positionnement géré par l'automate. Le didson échantillonne 
@@ -1859,7 +1872,7 @@ de la fenêtre de passage supposée.
 \end{figure}
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2019/didsonD2}
+\includegraphics[width=0.5\textwidth]{didsonD2}
 \caption[schéma didson -7° 5-15m]{Fond -7° 5-15m, Didson placé à 4.5 m de
 profondeur avec un angle de -7°. Par rapport à la position en
 Figure \ref{didsonD1} le didson est remonté. L'angle de -7° permet d'éviter les
@@ -2195,19 +2208,19 @@ N'_{o4}(t,k)=& N_{o4}(t,k) \times \bar{E(k)} \times \rho(k)
         \centering
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics{2016/anguille_114}
+                \includegraphics{anguille_114}
                 \caption{Anguille de 114 cm.}
        \end{subfigure}%         
        \quad
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics{2016/anguille_detail}
+                \includegraphics{anguille_detail}
                 \caption{Détail anguille 83 cm.}
        \end{subfigure}%         
        \quad
       \begin{subfigure}{0.4\textwidth}
                 \centering
-                \includegraphics{2016/anguilles}
+                \includegraphics{anguilles}
                 \caption{Deux anguilles}
                 \label{ang0}
         \end{subfigure}%    
@@ -2314,11 +2327,11 @@ d'anguilles argentées (source OFB et EPTB-Vilaine).
 png(file=str_c(imgwdy,"fonctionnementvanne.png"),width = 8, height = 8, units = 'in', res = 300)
 def.par <- par(no.readonly = TRUE)
 par(mar = c(2,3,1,1))
+thisseason <- d3ej$dsf_season==saison
 d3ej$hv=d3ej$hvanne4-7.72
 d3ej$hvo<-4.63
 d3ej$hvo[d3ej$volet4]<-+2
-d3ej$dsc<--2*(d3ej$volbarrage30)/max((d3ej$volbarrage30),na.rm=TRUE)+8
-thisseason <- d3ej$dsf_season==saison
+d3ej$dsc[thisseason] <--2*d3ej$volbarrage30[thisseason]/max(d3ej$volbarrage30[thisseason],na.rm=TRUE)+8
 plot(d3ej$round_time[thisseason],d3ej$dsc[thisseason],type="b",col="grey",cex=0.3,ylim=c(-8,+8),xlab="",ylab="")
 mtext(side = 2, "Niveau vanne ou volet (m)", line = 2)
 points(d3ej$round_time[thisseason],d3ej$hv[thisseason],pch=16,cex=0.8,col=bleu_EV)
@@ -2342,70 +2355,84 @@ d3ej<-d3ej[,-match(c("hv","hvo","dsc"),colnames(d3ej))]
 # Graphique des débits et turbidités
 #######################
 # make a copy of current settings
-cor(d3edj$debitvilainej,d3edj$enj_turb) #
-cor(d3edj$debitvilainej,d3edj$enj_turb,use="complete.obs") # 0.87
-png(file=str_c(imgwdy,"debitturbidite.png"),,width = 8, height = 8, units = 'in', res = 300)
-#d3edj<-d3edj[!is.na(d3edj$enj_turb),]
-yat <- pretty(c(0, 800)) # loc des labels
-yat2<-yat/4
-# ajoute de la place à gauche
-par(oma=c(0,2,0,0))
-#calcul des problèmes d'acquistion
-# d3ej[,c("dsf_timeinit","dsf_fls_id")]
-pb<-d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==3&!is.na(d3ej$dsf_fls_id[thisseason])]
-if (length(pb>0)){
-  pb<-data.frame("date"=pb,"delta"=NA)
-  pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-  pb$delta[1]<-30
-  w<-which(pb$delta>690)
-  dateinit<-c(pb[1,"date"],pb[w,"date"])
-  dateinit<-as.Date(dateinit,tz=Sys.timezone())
-  datefin<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-  datefin<-as.Date(datefin,tz=Sys.timezone())
-} else {dateinit=NULL;datefin=NULL}
-#pb<-d3ej$dsf_timeinit[d3ej$dsf_fls_id==2&!is.na(d3ej$dsf_fls_id)]
-#if (length(pb>0)){
-#	pb<-data.frame("date"=pb,"delta"=NA)
-#	pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-#	pb$delta[1]<-30
-#	w<-which(pb$delta>690)
-#	dateinit2<-c(pb[1,"date"],pb[w,"date"])
-#	dateinit2<-as.Date(dateinit2,tz=Sys.timezone())
-#	datefin2<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-#	datefin2<-as.Date(datefin2,tz=Sys.timezone())
-#}else {dateinit2=NULL;datefin2=NULL}
-############################
-pb<-d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==1]
-if (length(pb>0)){
-  pb<-data.frame("date"=pb,"delta"=NA)
-  pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-  pb$delta[1]<-30
-  w<-which(pb$delta>690)
-  dateinit3<-c(pb[1,"date"],pb[w,"date"])
-  dateinit3<-as.Date(dateinit3,tz=Sys.timezone())
-  datefin3<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-  datefin3<-as.Date(datefin3,tz=Sys.timezone())
-} else {dateinit3=NULL;datefin3=NULL}
+
+
+
+cor(d3edj$debitvilainej,d3edj$enj_turb) # NA
+cor(d3edj$debitvilainej,d3edj$enj_turb, use="complete.obs") # 0.87
+
+#' fonction de graphique des débits et turbidités et des pb de fonctionnement
+#' @param ylim2   limite du graph
+#' @param  ytop  loc max des labels sur l'axe
+plotdebitturbidite <- function(ylim = 1000, ytop=800){
+  thisseason <- d3edj$enj_date>=datedebut
+  yat <- pretty(c(0, ytop)) # loc des labels
+  yat2<-yat/4
+  # ajoute de la place à gauche
+  par(oma=c(0,2,0,0))
+  #calcul des problèmes d'acquistion
+   # d3ej[,c("dsf_timeinit","dsf_fls_id")]
+  pb <- d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==3&!is.na(d3ej$dsf_fls_id[thisseason])]
+  if (length(pb>0)){
+    pb<-data.frame("date"=pb,"delta"=NA)
+    pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
+    pb$delta[1]<-30
+    w<-which(pb$delta>690)
+    dateinit<-c(pb[1,"date"],pb[w,"date"])
+    dateinit<-as.Date(dateinit,tz=Sys.timezone())
+    datefin<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
+    datefin<-as.Date(datefin,tz=Sys.timezone())
+  } else {dateinit=NULL;datefin=NULL}
+  #pb<-d3ej$dsf_timeinit[d3ej$dsf_fls_id==2&!is.na(d3ej$dsf_fls_id)]
+  #if (length(pb>0)){
+  #	pb<-data.frame("date"=pb,"delta"=NA)
+  #	pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
+  #	pb$delta[1]<-30
+  #	w<-which(pb$delta>690)
+  #	dateinit2<-c(pb[1,"date"],pb[w,"date"])
+  #	dateinit2<-as.Date(dateinit2,tz=Sys.timezone())
+  #	datefin2<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
+  #	datefin2<-as.Date(datefin2,tz=Sys.timezone())
+  #}else {dateinit2=NULL;datefin2=NULL}
+    ############################
+  pb<-d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==1]
+  if (length(pb>0)){
+    pb<-data.frame("date"=pb,"delta"=NA)
+    pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
+    pb$delta[1]<-30
+    w<-which(pb$delta>690)
+    dateinit3<-c(pb[1,"date"],pb[w,"date"])
+    dateinit3<-as.Date(dateinit3,tz=Sys.timezone())
+    datefin3<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
+    datefin3<-as.Date(datefin3,tz=Sys.timezone())
+  } else {dateinit3=NULL;datefin3=NULL}
 # plot, mais pas les axes 
-thisseason <- d3edj$enj_date>=datedebut
-plot(d3edj$enj_date[thisseason],d3edj$deb_qtotalj[thisseason],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,1000))
-if (!is.null(dateinit3)){
-  rect(xleft=dateinit3,ybottom=102,xright=datefin3,ytop=800,col=jaune_EV,border=jaune_EV,density=6)
-}
-if (!is.null(dateinit)){
-  rect(xleft=dateinit,ybottom=102,xright=datefin,ytop=800,col=orange_EV,border=rouille)
+
+  plot(d3edj$enj_date[thisseason],d3edj$deb_qtotalj[thisseason],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,ylim))
+  if (!is.null(dateinit3)){
+    rect(xleft=dateinit3,ybottom=102,xright=datefin3,ytop=ytop,col=jaune_EV,border=jaune_EV,density=6)
+  }
+  if (!is.null(dateinit)){
+    rect(xleft=dateinit,ybottom=102,xright=datefin,ytop=ytop,col=orange_EV,border=rouille)
+  }
+  
+  #rect(xleft=date_seuil_pb_lentille,ybottom=102,xright=as.Date(max(d3ej$dsf_timeinit)),ytop=1000,col=makeTransparent("yellow",70),border="orange")
+  # si le premier elt du polygone est sup 100 et tout seul ça plante
+
+  polygon(c(min(d3edj$enj_date[thisseason])-1,d3edj$enj_date[thisseason],max(d3edj$enj_date[thisseason])+1),c(100,pmax(100,d3edj$deb_qtotalj[thisseason]),100),col="grey",border=NA)
+  # petit ajustement 2018-2019 pour que le gris finisse à 100
+  #polygon(d3edj$enj_date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
+  points(d3edj$enj_date[thisseason][thisseason],d3edj$debitvilainej[thisseason],col=turquoise_EV,type="l")
+  points(d3edj$enj_date[thisseason],d3edj$enj_turb[thisseason]*4,col="black",type="l",lty=2)
+  axis(2, col=turquoise_EV, at=yat, labels=yat,col.axis=turquoise_EV)
+  axis(side=2, at=yat, labels=yat2, col=rouille, line=2,col.axis=rouille)
+  mtext(side=2, line=4, "Débit journalier m3/s et turbidité (NTU)")
+  #abline(h=100,lty=2)
 }
 
-#rect(xleft=date_seuil_pb_lentille,ybottom=102,xright=as.Date(max(d3ej$dsf_timeinit)),ytop=1000,col=makeTransparent("yellow",70),border="orange")
-polygon(c(d3edj$enj_date[thisseason],max(d3edj$enj_date[thisseason])+1),c(pmax(100,d3edj$deb_qtotalj[thisseason]),100),col="grey",border=NA)
-# petit ajustement 2018-2019 pour que le gris finisse à 100
-#polygon(d3edj$enj_date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
-points(d3edj$enj_date[thisseason][thisseason],d3edj$debitvilainej[thisseason],col=turquoise_EV,type="l")
-points(d3edj$enj_date[thisseason],d3edj$enj_turb[thisseason]*4,col="black",type="l",lty=2)
-axis(2, col=turquoise_EV, at=yat, labels=yat,col.axis=turquoise_EV)
-axis(side=2, at=yat, labels=yat2, col=rouille, line=2,col.axis=rouille)
-mtext(side=2, line=4, "Débit journalier m3/s et turbidité (NTU)")
-#abline(h=100,lty=2)
+png(file=str_c(imgwdy,"debitturbidite.png"),,width = 8, height = 8, units = 'in', res = 300)
+#d3edj<-d3edj[!is.na(d3edj$enj_turb),]
+plotdebitturbidite(ylim= 400, ytop= 350)
 dev.off()
 @
 
@@ -2498,7 +2525,10 @@ ggplot(tps)+geom_boxplot(aes(x=mois,y=temps_lecture,fill=dsr_reader))+
 
 dev.off()		
 #tapply(tps$temps_lecture,tps$mois,mean,na.rm=TRUE)
-tabfls <- as.data.frame.matrix(table(d3ej$dsf_fls_id[d3ej$dsf_season==saison],d3ej$position[d3ej$dsf_season==saison]))[,c(1,3,2)]
+# fls = filestatus en fonction de la position
+tabfls <- table(d3ej$dsf_fls_id[d3ej$dsf_season==saison],d3ej$position[d3ej$dsf_season==saison])
+if ("n" %in%colnames(tabfls)) col <- c(1,3,2) else col <- (c(1,2))
+tabfls <- as.data.frame.matrix(tabfls)[,col]
 #colnames(tabfls)<-c("f","s","n")
 options(encoding = "UTF-8")
 xtafls<-xtable::xtable(tabfls,
@@ -2516,7 +2546,7 @@ print(xtafls,file=str_c(tabwdy,"tabfls.tex"),
 
 tabflsall <- as.data.frame.matrix(table(d3ej$dsf_fls_id,d3ej$position))
 #colnames(tabfls)<-c("f","s","n")
-xtafls<-xtable::xtable(tabflsall,
+xtafls <- xtable::xtable(tabflsall,
     label="tabfls",
     caption="Fonctionnement du didson en fonction de l'ouverture de la vanne
         et de la position pour l'ensemble des saisons de suivi, $s$= appareil en surface, $f3$ $f5$= appareil en vannes, $n$ appareil en panne,
@@ -2540,14 +2570,14 @@ jours par semaine, la durée totale de dépouillement n'est que de l'ordre de
 Ce temps plus limité est lié en partie à l'enlèvement du didson de l'eau en
 février.
 
-\input{../../../pdata/didson/rapport/table/2021/depouillement.tex}
+\input{../table/2022/depouillement.tex}
 On retrouve des temps de dépouillement dépassant 30 minutes lors des pics de
 migration, la mesure des anguilles restant chronophage (Figure \ref{tpspoint}).  
 \begin{figure}[htbp]
         \centering
         \begin{subfigure}{0.4\textwidth}
                 \centering
-                \includegraphics{2021/tpspoint}
+                \includegraphics{2022/tpspoint}
                 \caption[Temps de dépouillement par fichier de 30
                 minutes]{Temps de dépouillement en \Sexpr{saison}.}
                 \label{tpspoint}
@@ -2555,7 +2585,7 @@ migration, la mesure des anguilles restant chronophage (Figure \ref{tpspoint}).
        \quad
       \begin{subfigure}{0.4\textwidth}
                 \centering
-                \includegraphics{2021/tpsboxplot}
+                \includegraphics{2022/tpsboxplot}
                 \caption[Temps de dépouillement par fichier de 30
                 minutes]{BoxPlot des temps de dépouillement en \Sexpr{saison}.}
                 \label{tpsboxplot}
@@ -2570,44 +2600,67 @@ traitement des fichiers textes comprenant les données poisson.
 
 <<muletsalevins, echo=FALSE, eval=FALSE,results=hide>>=
 
-hour<-as.numeric(strftime(dd$dsf_timeinit,format="%H"))
-mois<-strftime(dd$dsf_timeinit,format="%m")
-mois<-factor(mois,levels=c("10","11","12","01","02","03","04"))
-week<-as.numeric(strftime(dd$dsf_timeinit,format="%W"))
-hour<-as.numeric(strftime(dd$dsf_timeinit,format="%H"))
+hour <- as.numeric(strftime(dd$dsf_timeinit,format="%H"))
+mois <- strftime(dd$dsf_timeinit,format="%m")
+mois <- factor(mois,levels=c("10","11","12","01","02","03","04"))
+week <- as.numeric(strftime(dd$dsf_timeinit,format="%W"))
+hour <- as.numeric(strftime(dd$dsf_timeinit,format="%H"))
 #describe(dd)
 #plot(dd$dsf_timeinit,dd$dsr_muletscore)
 #plot(dd$dsf_timeinit,dd$dsr_fryscore)
 #plot(tapply(dd$dsr_fryscore,week,mean,na.rm=TRUE))
 #plot(0:23,tapply(dd$dsr_fryscore,hour,mean,na.rm=TRUE),xlab="hour",ylab="score moyen mulets",type="l")
-muletw<-tapply(dd$dsr_muletscore,week,mean,na.rm=TRUE)
-muletwn<-as.numeric(names(muletw))
-muletwn[as.numeric(names(muletw))<20]<-muletwn[as.numeric(names(muletw))<20]+max(muletwn)+1
-muletwn<-muletwn-min(muletwn)
-fryw<-tapply(dd$dsr_fryscore,week,mean,na.rm=TRUE)
-frywn<-as.numeric(names(fryw))
-frywn[as.numeric(names(fryw))<20]<-frywn[as.numeric(names(fryw))<20]+max(frywn)+1
-frywn<-frywn-min(frywn)
+muletw <- tapply(dd$dsr_muletscore,week,mean,na.rm=TRUE)
+muletwn <- as.numeric(names(muletw))
+muletwn[as.numeric(names(muletw))<20] <- muletwn[as.numeric(names(muletw))<20]+max(muletwn)+1
+muletwn <- muletwn-min(muletwn)
+fryw <- tapply(dd$dsr_fryscore,week,mean,na.rm=TRUE)
+frywn <- as.numeric(names(fryw))
+frywn[as.numeric(names(fryw))<20] <- frywn[as.numeric(names(fryw))<20]+max(frywn)+1
+frywn <- frywn-min(frywn)
 png(file=str_c(imgwdy,"mulet.png"))
 plot(muletwn,muletw,xaxt="n",type="h",ylab="score moyen de gêne",xlab="date",lwd=2,col=orange_EV)
 points(frywn+0.2,fryw,xaxt="n",type="h",lwd=2,col=turquoise_EV)
-ax<-seq.POSIXt(from=min(dd$dsf_timeinit),to=max(dd$dsf_timeinit),by="week")
-ax<-strftime(ax,format="%d-%m")
+ax <- seq.POSIXt(from=min(dd$dsf_timeinit),to=max(dd$dsf_timeinit),by="week")
+ax <- strftime(ax,format="%d-%m")
 axis(1,at=1:length(ax),labels=ax) # obligé de traffiquer ???
 dev.off()
 
+# graphique interannuel
+
+#dd$week <- as.factor(week)
+#lll <- levels(dd$week)
+#lll <- c(lll[as.numeric(lll)>20],lll[as.numeric(lll)<=20])
+#dd$week <- factor(dd$week, levels= lll)
+
+dd$mois <- mois
+dd$saison <- as.factor(dd$dsf_season)
+dd$heure<- as.factor(hour)
+png(file=str_c(imgwdy,"mulet2.png"))
+g  <- ggplot(dd) + geom_tile(aes(x=mois, y=heure, fill = dsr_muletscore)) +
+    facet_wrap(~saison) + scale_fill_gradient(
+        "score",
+        low = grisbleufonce,
+        high = turquoise_EV,
+        space = "Lab",
+        na.value = "grey50",
+        guide = "colourbar",
+        aesthetics = "fill"
+    ) + theme_bw()
+print(g)
+dev.off()
 @
 
 Deux facteurs principaux gênent la lecture des fichiers du didson, il s'agit de
 la présence d'alevins et de la présence de mulets. Les présences gênantes
 d'alevins et de mulets peuvent exister en début de saison en octobre et novembre, sans toutefois constituer un facteur limitant pour le comptage. Ils
 disparaissent en hiver avant de réapparaitre en mars (Figures \ref{mulet},
-\ref{al}).
+\ref{mulet2}, \ref{al}).
 
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2015/mulet}
+  \includegraphics[width=0.4\textwidth]{2022/mulet}
   \caption[présence de mulets lors des comptages]{Histogramme montrant la
   présence de mulets (\textcolor{orange_EV}{\rule[0.5mm]{0.5cm}{0.5mm}}) et 
   d'alevins (\textcolor{turquoise_EV}{\rule[0.5mm]{0.5cm}{0.5mm}}) dans les
@@ -2617,13 +2670,20 @@ disparaissent en hiver avant de réapparaitre en mars (Figures \ref{mulet},
 \end{figure}
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2015/alevin}
+  \includegraphics[width=0.4\textwidth]{2022/mulet2}
+  \caption[présence de mulets lors des comptages]{Importance de la présence
+  des mulets par mois par mois et en fonction de l'heure.}
+  \label{mulet2}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.4\textwidth]{alevin}
   \caption[Bancs d'alevins]{Banc d'alevins le 24 avril 2015.}
   \label{al}
 \end{figure}
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2015/alevin2}
+  \includegraphics[width=0.4\textwidth]{alevin2}
   \caption[Banc d'alevins]{Banc d'alevins le 26 avril 2015.}
   \label{al2}
 \end{figure}
@@ -2655,13 +2715,13 @@ en général concentrée en début et fin de nuit.
 \label{parqualite}
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2015/flash}
+  \includegraphics[width=0.4\textwidth]{flash}
   \caption[Interférence du didson]{Flash du didson}
   \label{flash}
 \end{figure}
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2014/echo_surface}
+  \includegraphics[width=0.4\textwidth]{echo_surface}
   \caption[Echo à la surface]{Echo du didson à la surface.}
   \label{echo}
 \end{figure}
@@ -2669,12 +2729,12 @@ en général concentrée en début et fin de nuit.
 L'ensemble des problèmes techniques sont résumés sur les Figures \ref{debitturbidite}, \ref{fig_horairespb} pour le
 détail par 30 minutes, et \ref{fig_effectif_pb} pour le graphique saisonnier.
 
-\input{../../../pdata/didson/rapport/table/2021/tabfls.tex}
-\input{../../../pdata/didson/rapport/table/2021/tabflsall.tex}
+\input{../table/2021/tabfls.tex}
+\input{../table/2021/tabflsall.tex}
 \subsubsection{Positionnement du didson}
 <<positionnement, echo=FALSE, eval=TRUE,results=hide>>=
 # pour extrapoler d3ej$ex>1
-d3ej2<-d3ej[d3ej$dsf_season==saison,]
+d3ej2 <- d3ej[d3ej$dsf_season==saison,]
 # JE passe sur un nouveau d3ej2 pour pas casser le dsf_position
 #mosaic(~dsf_position+optvanne4|mois,data=d3ej,
 #		split_vertical=c(TRUE,TRUE,FALSE),main="Mosaic plot showing occurence of didson position") ###Mosaic Plot for each sampling point
@@ -3497,7 +3557,7 @@ N$NC <- N$N/N$corrected
 # selection du max des Nombre corrigés de l'augmentation du rayon sur l'ensemble des 
 # distances de détection
 maxeff <- N %>% group_by(position, distancestart, saison,taille_cm) %>% dplyr::summarize(maxeff=max(NC, na.rm=TRUE),.groups="drop") 
-N <- left_join(N,maxeff,by=c("position","taille_cm","distancestart","saison"))
+N <- left_join(N,maxeff,by=c("position", "taille_cm", "distancestart", "saison"))
 
 ########################
 # QUALITE
@@ -3513,23 +3573,27 @@ Nq <- dddp |>
     mutate(q45=psf_q>3)%>%
     filter(!is.na(q45)) %>%
     group_by(taille_cm, position,q45,saison) %>% 
-    summarize(N=n(),.groups="drop")
+    dplyr::summarize(N=n(),.groups="drop")
 # on passe en format large pour avoir les deux colonnes côte à côte et calculer le ratio entre anguilles
 # de qualité >=4 (4,5) et celles <3 (2,3)
 Nq2 <- Nq %>% 
     pivot_wider(names_from="q45",names_prefix ="q45_",values_from="N") %>%
+    #dplyr::mutate(q45_FALSE = replace_na(q45_FALSE, 0)) |> # un NA en 2019-2020 (80,150) mais viré après
     mutate(ratio_qal=q45_TRUE/(q45_TRUE+q45_FALSE))
 
-# la référence est la classe de taille (80,150] #  0.6875000 0.6614173 0.7901235 0.8510638
+
+
+# la référence est la classe de taille (80,150] #  0.6875000 0.6614173 0.7901235 0.8510638 .8660714 0.9375000 0.8529412
+# 1.0000000
 ref_volet <- Nq2 %>%
-    filter(position=="volet" & taille_cm=="(80,150]" & !saison %in% c("2017-2018","2018-2019")) %>%
+    filter(position=="volet" & taille_cm=="(80,150]" & !saison %in% c("2017-2018","2018-2019","2019-2020")) %>%
     pull(ratio_qal) %>%
     mean()
 # on calcule le coefficient maximum d'efficacité (ratio_qal) par année, position, et classe de taille
 Nq3 <- Nq2 %>%
     mutate(ratio_qal_cor=pmin(ratio_qal/ref_volet,1)) %>%
-    select(taille_cm, position, ratio_qal_cor, saison)
-# print(Nq3,n=Inf)
+    dplyr::select(taille_cm, position, ratio_qal_cor, saison)
+# print(Nq3, n=Inf)
 Nq3[is.na(Nq3$ratio_qal_cor),"ratio_qal_cor"] <-1
 N <- left_join(N,Nq3,by = c("taille_cm", "position","saison"))
 
@@ -3635,7 +3699,7 @@ summary(gef4<-glm(efficacite~taille_cm+distance_m+position+saison2,data=N),famil
 summary(gef5<-glm(efficacite~distance_m*taille_cm,data=N),family="binomial",link="logit") 
 summary(gef6<-glm(efficacite~distance_m*taille_cm*saison2,data=N),family="binomial",link="logit") 
 summary(gef7<-glm(efficacite~distance_m*taille_cm*position,data=N),family="binomial",link="logit") # AIC -361 BREAK
-summary(gef8<-glm(efficacite~distance_m*taille_cm*position*saison2,data=N),family="binomial",link="logit")# BREAK
+#summary(gef8<-glm(efficacite~distance_m*taille_cm*position + saison2,data=N),family="binomial",link="logit")# BREAK
 summary(gef9<-glm(efficacite~distance_m*taille_cm +position,data=N),family="binomial",link="logit")
 summary(gef10<-glm(efficacite~distance_m*taille_cm+ saison2,data=N),family="binomial",link="logit") 
 # problèmes de degrés de liberté
@@ -3645,8 +3709,8 @@ summary(gef13<-glm(efficacite~distance_m*taille_cm*position+saison2,data=N),fami
 
 ff <- function(x){
   capture.output(formula(eval(parse(text =x))))}
-aic<- cbind(AIC(gef0,gef1,gef2,gef3,gef4,gef5,gef6,gef7,gef8,gef9,gef10,gef12,gef13),
-    map_chr(.x=c("gef0","gef1","gef2","gef3","gef4","gef5","gef6","gef7","gef8","gef9","gef10","gef12","gef13"),.f=ff))
+aic<- cbind(AIC(gef0,gef1,gef2,gef3,gef4,gef5,gef6,gef7,gef9,gef10,gef12,gef13),
+    map_chr(.x=c("gef0","gef1","gef2","gef3","gef4","gef5","gef6","gef7","gef9","gef10","gef12","gef13"),.f=ff))
 aic[order(aic$AIC),]
 (aovlmsel<-as.data.frame(anova(gef12,test="Chisq")))
 (pdev <- deviance(gef0)-deviance(gef12))/deviance(gef0) # le modèle explique 73 % de la déviance totale
@@ -3688,10 +3752,20 @@ Ncorres<-tapply(N$Ncor,N$position,sum) # nombre estimés corrigés de l'efficaci
 
 # pas d'interaction ave crPlots => je prends le modèle sans interactions
 png(file=str_c(imgwdy,"aovefficacite.png"),width=20,height=20, units = 'cm', res = 300)
-layout(matrix(c(1,2,3,0),2,2,byrow=TRUE))
+layout(matrix(c(1,2,3,4),2,2,byrow=TRUE))
 crPlots(gef4,terms=~taille_cm,xlab="",ylab="Taille",las=2)
 crPlots(gef4,terms=~distance_m,xlab="",ylab="Classe de distance au didson",las=2)
 crPlots(gef4,terms=~position,xlab="",ylab="Position du didson")
+crPlots(gef4,terms=~saison2,xlab="",ylab="Saison", xaxt = "n")
+axis(side = 1, at=1:length(unique(N$saison2)),  labels = FALSE)
+text(x = 1:(length(unique(N$saison2))),
+    y = par("usr")[3]-0.1,
+    labels = unique(N$saison2),
+    xpd = NA, # xpd argument to NA, which will let us draw text below the main plot by changing the way plotting is clipped (see the help page for par for more info on how xpd works)
+    ## Rotate the labels by 35 degrees.
+    srt = 35,
+    adj = 1,
+    cex = 1.2)
 dev.off()
 
 
@@ -3921,10 +3995,13 @@ taille.
   \centering
   \includegraphics[width=0.45\textwidth]{2022/aovefficacite}
   \caption[AOV efficacité]{Prédictions et résidus de la modélisation linéaire
-  de l'efficacité du didson, en fonction de la taille et de la distance au
-  didson, pour les deux positions du sonar en fin de saison. Attention il
-  existe en plus une interaction entre la taille et la distance, cet effet est
-  ignoré ici.}
+  de l'efficacité du didson, en fonction de la taille, de la distance au
+  didson, pour les deux positions du sonar (volet et vanne), et en fonction de
+  la saison (avec un classe particulière pour les premières années ou le didson a alterné 
+  son acquisition entre des distances de 2-12m et 5-15m).
+  Attention il existe en plus une interaction entre la taille, la distance et
+  la saison, cet effet est pris en compte dans le modèle mais ignoré dans la
+  représentation graphique.}
   \label{aovefficacite}
 \end{figure}
 %=====================================================================
@@ -4212,7 +4289,7 @@ first_year <- 2013
 for (i in 1:length(unique(d3ej$dsf_season))){
   saison1 <- unique(d3ej$dsf_season)[i]
   if (i ==1) the_year <- first_year else the_year=the_year+1
-  png(file=str_c(imgwd,the_year,"/horairespb.png"),width = 15, height = 15, units = 'cm', res = 300)
+  png(file=str_c(imgwdy,"horairespb.png"),width = 15, height = 15, units = 'cm', res = 300)
   g <- ggplot(d3ej[d3ej$dsf_season==saison1,])+
       geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=factor(flsall)))+#"yellow"
       scale_fill_manual("qualité",values=c("0"=turquoise_EV,"1"=jaune_EV,"2"="limegreen","3"=orange_EV,"4"=rouille,"5"="grey"))+ # ajouter orange derrière yellow si pb qualité
@@ -4234,7 +4311,7 @@ Le suivi des migrations a été effectué entre 17 h et 9 h (Figure
         \begin{subfigure}{0.4\textwidth}
                 \centering
                 \includegraphics[trim=0mm 15mm 0mm
-                15mm,clip]{2021/heure_jourcomplet.png}
+                15mm,clip]{2022/heure_jourcomplet.png}
                 \caption{Horaires de passages toutes saisons}
            \label{fig_heure_jourcomplet}
         \end{subfigure}
@@ -4280,7 +4357,7 @@ aux résultats Figure \ref{fig_circular_full_days} avec un pic de passage vers 2
 h Figure \ref{h_pass}, Tableau \ref{repartition_horaire}.
 
 
-\input{../../../pdata/didson/rapport/table/2022/repartition_horaire.tex}
+\input{../table/2022/repartition_horaire.tex}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\vspace{\dimexpr.8pt+\fboxsep\relax}
 %\noindent       
@@ -4372,8 +4449,8 @@ traversée complète
 (\textcolor{grisbleufonce}{\Sexpr{round(perctrav)}}\%) est faible ce qui indique une prospection verticale de la colonne d'eau par les anguilles. Comme pour les
  autres saisons, cette prospection est plus importante lorsque le didson
 est positionné en surface (Tableau \ref{tab_traversee}).
-\input{../../../pdata/didson/rapport/table/2022/comportement.tex}
-\input{../../../pdata/didson/rapport/table/2022/traversee.tex}
+\input{../table/2022/comportement.tex}
+\input{../table/2022/traversee.tex}
 
 %\begin{figure}[htbp]
 %  \centering
@@ -4389,7 +4466,8 @@ est positionné en surface (Tableau \ref{tab_traversee}).
 \subsubsection{Biomasses et sexe ratios}
 \label{parpoids}
 <<biomasse, echo=FALSE, eval=TRUE,results=hide>>=
-load("C:/workspace/pdata/devalpomi/ang_laurent/data/big_anguille.RData")
+#load("C:/workspace/pdata/devalpomi/ang_laurent/data/big_anguille.RData")
+load(str_c(datawd,"big_anguille.RData"))
 # NLS
 # La proc nls ne donne pas pour l'instant d'intervalle de confiance (pointwise) de la prédiction
 # Il faut recourir à du bootstrap.....
@@ -4423,7 +4501,7 @@ datvil$predlm<-pred$fit[,1]
 
 datvil$predlowIC<-pred$fit[,2]
 datvil$predhighIC<-pred$fit[,3]
-pdf(file=str_c(imgwd,"taille_poids.pdf"))
+pdf(file=str_c(imgwdy,"taille_poids.pdf"))
 g<-ggplot(big_anguille[!big_anguille$a_exclure_poids&!big_anguille$a_exclure_taille,])
 g<-g+geom_ribbon(aes(x=lo_taille,ymin=predlowIC,ymax=predhighIC),fill="limegreen",alpha=0.5)+
     geom_point(aes(x=lo_taille,y=lo_poids),col="darkgreen")+
@@ -4588,49 +4666,49 @@ d3ej <- d3ej[order(d3ej$dsf_timeinit),]
 d3ej$Nprimo4 <- rowSums(d3ej[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)
 
 # Ensemble des détections du fichier poisson
-(Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 16976
-(Nprim04allCY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1434
-sum(d3ej$Nprimo4) # plus faible car limité de jour #16626
+(Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 20898
+(Nprim04allCY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1937
+sum(d3ej$Nprimo4) # plus faible car limité de jour #19840
 
 duree <- d3ej$dsf_timeend-d3ej$dsf_timeinit
 duree[duree>30]<-duree[which(duree>30)+1] # je décale et je prends le temps du voisin
-d3ej$rho<-30/as.numeric(duree) 
+d3ej$rho <- 30/as.numeric(duree) 
 # 30 tout le temps car pas d'utilisation du rotateur
-d3ej$No4<-(d3ej$Nprimo4/d3ej$E)*d3ej$rho # rho vaut 1 sans le rotateur
+d3ej$No4 <- (d3ej$Nprimo4/d3ej$E)*d3ej$rho # rho vaut 1 sans le rotateur
 
 
 
-d3ej$N4<-d3ej$No4/d3ej$psurface
-d3ej$N<-d3ej$N4/d3ej$pvol4
-d3ej$H<-strftime(d3ej$dsf_timeinit,format="%H")
-d3ej$W<-strftime(d3ej$dsf_timeinit,format="%W")
-d3ej$W<-as.factor(d3ej$W)
-d3ej$H<-as.factor(d3ej$H)
-d3ej$hourm<-as.numeric(as.character(d3ej$H))
-d3ej$hourm[d3ej$hourm<=8]<-24+d3ej$hourm[d3ej$hourm<=8]
-d3ej$hourm<-d3ej$hourm-18 # 0 à 18h00
-d3ej$position<-as.factor(d3ej$position)
-#d3ej$ndays<-as.numeric(as.Date(d3ej$dsf_timeinit)-as.Date(min(d3ej$dsf_timeinit)))
-d3ej$day<-as.numeric(strftime(d3ej$dsf_timeinit,format="%j"))
-d3ej$day[d3ej$day<250]<-d3ej$day[d3ej$day<250]+365
-d3ej$ndays<-d3ej$day-min(d3ej$day)+1
+d3ej$N4 <- d3ej$No4/d3ej$psurface
+d3ej$N <- d3ej$N4/d3ej$pvol4
+d3ej$H <- strftime(d3ej$dsf_timeinit,format="%H")
+d3ej$W <- strftime(d3ej$dsf_timeinit,format="%W")
+d3ej$W <- as.factor(d3ej$W)
+d3ej$H <- as.factor(d3ej$H)
+d3ej$hourm <- as.numeric(as.character(d3ej$H))
+d3ej$hourm[d3ej$hourm<=8] <- 24+d3ej$hourm[d3ej$hourm<=8]
+d3ej$hourm <- d3ej$hourm-18 # 0 à 18h00
+d3ej$position <- as.factor(d3ej$position)
+#d3ej$ndays <- as.numeric(as.Date(d3ej$dsf_timeinit)-as.Date(min(d3ej$dsf_timeinit)))
+d3ej$day <- as.numeric(strftime(d3ej$dsf_timeinit,format="%j"))
+d3ej$day[d3ej$day<250] <- d3ej$day[d3ej$day<250]+365
+d3ej$ndays <- d3ej$day-min(d3ej$day)+1
 stopifnot(length(indexOK)==nrow(d3ej))
-percOK<-round(100* sum(indexOK)/length(indexOK))
-d3ejok<-d3ej[d3ej$dsf_id%in%dsfindexOK,] # 31 %
-d3ejokex3<-d3ej[d3ej$dsf_id%in%dsfindexOKex3,] #sum(d3ej$dsf_id%in%dsfindexOKex3) 18%
+percOK <- round(100* sum(indexOK)/length(indexOK))
+d3ejok <- d3ej[d3ej$dsf_id%in%dsfindexOK,] # 31 %
+d3ejokex3 <- d3ej[d3ej$dsf_id%in%dsfindexOKex3,] #sum(d3ej$dsf_id%in%dsfindexOKex3) 18%
 # Quelques extrapolations en divisant par zéro, correspond
 # à l'ouverture de la vanne, ouverture très faible, dans la fonction de calcul
 # dans d3ej
 if (sum(is.infinite(d3ejok$N4))>0){
   warning(str_c("il y a ",sum(is.infinite(d3ejok$N4))," de valeurs NaN pour N4"))
-  d3ejok[is.infinite(d3ejok$N4),"N4"]<-NA 
+  d3ejok[is.infinite(d3ejok$N4),"N4"] <- NA 
   
 }
 # d3ejok[is.na(d3ejok$N),c("Nprimo4","pdebit4","psurface","position")]
 if (sum(is.infinite(d3ej$N))>0){
   warning(str_c("il y a ",sum(is.infinite(d3ej$N))," de valeurs NaN pour N"))
-  d3ejok[is.infinite(d3ejok$N),"N"]<-NA 
-  d3ej[is.infinite(d3ej$N),"N"]<-NA 
+  d3ejok[is.infinite(d3ejok$N),"N"] <- NA 
+  d3ej[is.infinite(d3ej$N),"N"] <- NA 
 }
 ##################
 # ci dessous ne sert pas vraiment, on préfère passer par d3ejok et d3ejko
@@ -4984,8 +5062,8 @@ D4j <- full_join(D3j1,D3j0,by=c("ndays","dsf_season"),suffix = c(".1", ".0")) %>
 # Dans le fichier ci dessous .1 correspond aux arrêts de tout type
 # .0 correspond à une lecture dans de bonnes conditions.
 
-nrow(D4j) #1506
-nrow(Dj) # 1494
+nrow(D4j) # 1924
+nrow(Dj) #  1912
 D5j <- left_join(Dj,D4j,by=c("ndays", "dsf_season"))
 D5j <- left_join(D5j, D2j, by=c("ndays", "dsf_season")) # compte les périodes fls et fond sur surface
 
@@ -5057,13 +5135,15 @@ summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)
 AIC(g8) # delta NS
 summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(enj_turb)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g9) # delta NS
+summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5)+s(deb_qtotalj)+s(enj_turb)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+AIC(g10) # delta NS
 #Deviance explained = 60.6%
 pdf(file=str_c(imgwdy,"gam_predict.pdf"),width=7,height=7)
-plot(g8,pages=1,all.terms=TRUE,shade=TRUE,ylim=c(-20,20))
+plot(g8,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-20,20))
 dev.off()
-AIC(g1,g2,g3,g4,g5,g6,g7,g8,g9)
+AIC(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10)
 gam.check(g8)
-concurvity(g9)
+concurvity(g8)
 options(encoding = "UTF-8")
 tg8<- itsadug::gamtabs(g8, 
     caption="Modèle de prédiction des effectifs",
@@ -5075,13 +5155,13 @@ options(encoding = "native.enc")
 
 ######################################
 # predictions pour les jours manquants
-# utilisation d'un modèle gam sur qtotal + effet saisonnier ... bizarre...
+# utilisation d'un modèle gam moins performant mais plus sûr g10
 # avec un creux en janvier
 #####################################
 p1 <-    is.na(D7j$N)
 #d3edj[p1,"N.2"]
 D7j[p1,"N.2"] <- 0
-D7j[p1,"N.2"] <- predict(g9,newdata=D7j[p1,],type="response")
+D7j[p1,"N.2"] <- predict(g10,newdata=D7j[p1,],type="response")
 
 
 png(filename=str_c(imgwdy,"N_interannuel.png"),width = 8, height = 8, units = 'in', res = 300)
@@ -5486,7 +5566,7 @@ toto <- latex(final,
     file=str_c(tabwdy,"tabfinal.tex"),
     # arguments pour longtable :
     longtable = TRUE,
-    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7),
+    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7, 6),
     continued = "\\dots suite \\dots",
     collabel.just = c("l",
         "l",
@@ -5566,6 +5646,7 @@ dj %>%
     geom_line(aes(x=date,y=Q*10),lwd=1.2,col=bleu_EV) +	
     theme_bw()
 dev.off()
+
 save(dj,file=str_c(datawdy,"dj.Rdata"))
 
 
@@ -5629,8 +5710,10 @@ options(encoding = "native.enc")
 dj2 <- D7j  %>% 
     select("dsf_season","enj_date","N.0","N.1","N.2","N","deb_qtotalj","pos_f","pos_s")  %>%
     filter(dsf_season==saison)
+
+
 png(file=str_c(imgwdy,"fig_effectif_pb.png"), width = 29.7, height = 21, units = 'cm', res = 300)
-opar <- par(c(5, 4, 4, 4) + 0.1)
+opar <- par(mar=c(5, 4, 4, 4) + 0.1)
 plot(dj2$enj_date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,10000))
 # calcul des périodes consécutives pour dsf_fls_id
 date <- d3ej$dsf_timeinit[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
@@ -5666,28 +5749,28 @@ if (nr>0){
 }
 fn <- function(X) switch(as.character(X), 
       "1" = makeTransparent(jaune_EV,50),
-      "2" = makeTransparent(limegreen,50),
+      "2" = makeTransparent("limegreen",50),
       "3" = makeTransparent(orange_EV,50))
 pb$col <- mapply(fn,pb$fls_id)
 fn1 <- function(X) switch(as.character(X),  
       "1"=jaune_EV,
-      "2"= limegreen,
+      "2"= "limegreen",
       "3"=orange_EV)
 pb$border <- mapply(fn1,pb$fls_id)
 
-rect(xleft=pb$dateinit,ybottom=0,xright=pb$datefinit,ytop=5000,col=pb$col,border=pb$border)
-points(dj2$enj_date,dj2$N,col=bleu_EV,type="h",lwd=2)
-points(dj2$enj_date,dj2$N.0,col=turquoise_EV,type="h",lwd=2)
-points(dj2$enj_date,dj2$N.2,col=orange_EV,type="h",lwd=2)
-#axis(side=4,at=pretty(0:max(dj2$N,na.rm=TRUE)),label=as.character(pretty(0:max(dj2$N,na.rm=TRUE))/10))
-text(dj2$enj_date[1],2800,"Did. FOND",col=rouille,adj = c(0,0))
-points(dj2$enj_date[dj2$pos_f>0],rep(3000,sum(dj2$pos_f>0)),col=rouille,type="p",lwd=2,pch=15)
-text(dj2$enj_date[1],3700,"Did. SURF",col="gray",adj = c(0,0))
-points(dj2$enj_date[dj2$pos_s>0],rep(3500,sum(dj2$pos_s>0)),col="gray",type="p",lwd=2,pch=15)
+rect(xleft=pb$dateinit, ybottom=0, xright=pb$datefinit, ytop=5000, col=pb$col, border=pb$border)
+points(dj2$enj_date, dj2$N, col=bleu_EV, type="h", lwd=2)
+points(dj2$enj_date, dj2$N.0, col=turquoise_EV, type="h", lwd=2)
+points(dj2$enj_date, dj2$N.2, col=orange_EV, type="h", lwd=2)
+#axis(side=4, at=pretty(0:max(dj2$N, na.rm=TRUE)), label=as.character(pretty(0:max(dj2$N, na.rm=TRUE))/10))
+text(dj2$enj_date[1], 2800, "Did. FOND", col=rouille, adj = c(0, 0))
+points(dj2$enj_date[dj2$pos_f>0 & !is.na(dj2$pos_f)], rep(3000, sum(dj2$pos_f>0, na.rm=TRUE)), col=rouille, type="p", lwd=2, pch=15)
+text(dj2$enj_date[1], 3700, "Did. SURF", col="gray", adj = c(0, 0))
+points(dj2$enj_date[dj2$pos_s>0& !is.na(dj2$pos_f)], rep(3500, sum(dj2$pos_s>0, na.rm=TRUE)), col="gray", type="p", lwd=2, pch=15)
 
-axis(1, pos=0,labels=FALSE,lwd.ticks=0)
-points(d3edj$enj_date,d3edj$deb_qtotalj*10,type="l", col="blue")
-points(d3edj$enj_date,d3edj$debit4j*10,type="l",col="red")
+axis(1,  pos=0, labels=FALSE, lwd.ticks=0)
+points(d3edj$enj_date, d3edj$deb_qtotalj*10, type="l",  col="blue")
+points(d3edj$enj_date, d3edj$debit4j*10, type="l", col="red")
 dev.off()
 @
 
@@ -5966,7 +6049,7 @@ calcul (Tableau \ref{tabefficacite_moyenne}, Tableau
 meilleure que l'année dernière ou l'arrêt de la vanne 3 provoquait des
 turbulences devant le didson.
 
-\input{../../../pdata/didson/rapport/table/2022/tabefficacite_moyenne.tex}
+\input{../table/2022/tabefficacite_moyenne.tex}
 
 
 \begin{figure}[htbp]
@@ -6419,13 +6502,13 @@ observées pondérée par les effectifs en migration.
 \newpage{}
 \subsection{Tableaux}
 \onecolumn
-\input{../../../pdata/didson/rapport/table/2022/aovefficacite.tex}
+\input{../table/2022/aovefficacite.tex}
 \newpage{}
-\input{../../../pdata/didson/rapport/table/2022/tabfinal.tex}
+\input{../table/2022/tabfinal.tex}
 \newpage
-\input{../../../pdata/didson/rapport/table/2022/table_effectif_mois.tex}
+\input{../table/2022/table_effectif_mois.tex}
 \newpage
-\input{../../../pdata/didson/rapport/table/2022/tableau_modele_miss.tex}
+\input{../table/2022/tableau_modele_miss.tex}
 \normalsize
 \begin{landscape}
 \begin{figure}
