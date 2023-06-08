@@ -365,7 +365,7 @@ Date d'édition :\\}
 \color{orange_EV}
 \begin{center}
 \Large
-Mars 2022
+Juin 2023
 \end{center}
 \vspace{2cm}\\
 \end{minipage}
@@ -1006,10 +1006,9 @@ permettre d'extrapoler les comptages d'anguilles observées au didson, à
 l'ensemble du fleuve. Le rapport qui suit propose le recalcul de l'ensemble des
 migrations depuis le début du suivi, et fait en particulière la synthèse des
 résultats \Sexpr{saison}. Les résultats sont comparés aux résultats des saisons
-2012--2013, 2013--2014, 2014--2015 2015--2016, 2016--2017, 2017--2018,
-2018--2019 et 2019--2020)
+2012--2013 à 2020--2021)
 \citep{briand_suivi_2014,briand_suivi_2015,briand_suivi_2016,briand_suivi_2017, briand_suivi_2018,briand_suivi_2019,
-briand_suivi_2021}.
+briand_suivi_2021, briand_suivi_2022}.
 ]
 \section{Matériel et méthodes}
 
@@ -1829,22 +1828,25 @@ le début de la saison. Le suivi a été arrêté le 19/02 après que le câble 
 \ref{fig_effectif}). Cette situation intervient cependant après plusieurs pics
 de crue et il est probable que l'essentiel de la migration ait eu lieu.
 
-En 2020--2021 le didson est remis en place le 02/10 après répartion du câble.
-Jusqu'au 12/12 une succession de problèmes techniques sont réglés, plantage lié
-à l'humidité, arrêts électriques à répétition sur l'ouvrage, plantage de la
-mémoire vive du PC d'acquisition, problème de codeur et de fin de course sur le
+En 2020--2021 plusieurs problemes techniques ont lieu entre octobre et décembre, 
+plantages liés à l'humidité, arrêts électriques à répétition sur l'ouvrage,
+plantage de la mémoire vive du PC d'acquisition, problème de codeur et de fin de course sur le
 volet, difficultés à mettre en service l'automatisme de suivi vanne volets...
-Les arrêt de fin novembre correspondent de nouveau à des coupures électriques du barrage. 
-Le didson fonctionne globalement plutôt bien sur le reste de la saison. Il est
-enlevé de l'eau lors du deuxième pic de crue le 03/02, les effectifs observés
-sont faibles (et il ne s'agit pas d'un problème d'efficacité) et les risques d'avarie
-sont importants. Il ne sera remis en place que le 01/03 un peu après la fin de
-la crue. Dans tous les cas sur les derniers jours de février, une pièce
-défectueuses sur la centrale 4 empêche le fonctionnement en vannes, et les
-écoulement sur le pertuis 4 s'effectuent en volets alors que les deux vannes
-alentour, 3 et 5 fonctionnent en vannes. Les dépouillements s'arrêtent le 30/04.
+Le didson fonctionne globalement plutôt bien sur le reste de la saison, qui
+présente deux pics de crues importants en janvier et février avec des débits de
+l'ordre de 700 $m^3.s^{-1}$. Le DIDSON est enlevé de l'eau lors du deuxième pic de crue
+le 03/02. 
 
-En 2021--2022 TODO
+En 2021--2022 en tout début de saison, il y a des difficultés à utiliser
+l'automate du treuil du fait d'un problème de communication entre l'armoire
+électrique de la pile et l'automate. Ces problèmes n'ont pas d'incidence car
+l'appareil reste en surface. Par la suite l'utilisation de
+l'automate permettra d'alterner les positions vanne et volet. 
+Les problèmes d'acquisition sont liés à des problèmes électriques du
+barrage et sont en général de faible durée (Figure \ref{fig_effectif_pb})
+Un seul pic de crue est observé en janvier avec des débits de l'ordre de 300
+$m^3.s^{-1}$
+
 
 %------------------------------------------
 \begin{figure}[htbp]
@@ -1924,24 +1926,17 @@ débits. Les formules ont été recalculées à partir des débits de la station
 pont de Cran 30 km en amont du barrage. Les nouveaux débits sont donnés pour les volets et pour les vannes
 avec la prise en compte de plusieurs formules en fonction des
 conditions d'écoulement (orifice dénoyé, orifice noyé, écoulement libre)
-\citep{briand_note_2015}.
-
-Les débits de 2020-2021 ont été ré-ajustés pour les écoulements libres et un
-coefficient de 1.4 a été utilisé en place du coefficient de 3.34 pour palier aux
-dérives de capteurs de niveau du barrage \fottnote{correction temporaire, travail en cours sur les formules de débit,
-pour expliquer et corriger ce biais.} (Figure
-\ref{debits_ajustes}).
-
-TODO 2022
+\citep{briand_note_2015}. L'ensemble des fonctions de calcul de débit sont
+maintenant rassemblées au sein du package
+\href{https://github.com/Eaux-et-Vilaine/SIVA}{SIVA} (Figure \ref{debits_ajustes}).
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2022/debits_ajustes_zoom2022}
+\includegraphics[width=0.5\textwidth]{2022/debits_ajustes2022}
 \caption[Débits recalculés 2022]{Débits recalculés 2022.
 Comparaison des débits mesurés au niveau de la station de Rieux (Pont de Cran - station
 hydrométrique), des débits calculés par l'automate du barrage d'Arzal et des
-débits recalculés par la méthode de \citet{briand_note_2015}. La saison de suivi
-s'étend de XXXXX à XXXX.}
+débits recalculés par la méthode de \citet{briand_note_2015}.}
 \label{debits_ajustes}
 \end{figure}
 
@@ -1953,7 +1948,7 @@ nocturnes (Figure \ref{debitvoletjour}).
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2022/debitvoletjour2022}
+\includegraphics[width=0.5\textwidth]{2022/debitvolet2022}
 \caption[Débits volet 2022]{Comparaison des valeurs produites par
 l'automate du barrage et des valeurs obtenues après correction de la dérive des codeurs. Les formules de
 débits des volets ont été recalées mais donnent à peu de choses près les mêmes
@@ -2729,8 +2724,8 @@ en général concentrée en début et fin de nuit.
 L'ensemble des problèmes techniques sont résumés sur les Figures \ref{debitturbidite}, \ref{fig_horairespb} pour le
 détail par 30 minutes, et \ref{fig_effectif_pb} pour le graphique saisonnier.
 
-\input{../table/2021/tabfls.tex}
-\input{../table/2021/tabflsall.tex}
+\input{../table/2022/tabfls.tex}
+\input{../table/2022/tabflsall.tex}
 \subsubsection{Positionnement du didson}
 <<positionnement, echo=FALSE, eval=TRUE,results=hide>>=
 # pour extrapoler d3ej$ex>1

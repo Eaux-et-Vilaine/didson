@@ -421,7 +421,7 @@ png(file=str_c(imgwdy,"debits_ajustes",label,".png"),width=600,height=480)
 plot(Q3j$date,Q3j$debit_moyen_cran,type="l",col=rouille,ylab="Debit (m3/s)",xlab="Date",ylim=c(0,max(c(Qj$debit_moyen_recalcule,Q3j$debit_barQ),na.rm=TRUE)))
 points(Qj$date,Qj$debit_moyen_recalcule,type="l",col=grisbleu)
 points(Q3j$date,Q3j$debit_barQ,col="black",type="l",lty=2)
-legend("topleft",legend=iconv(c("Cran","Débit recalculé","Débit automate Barrage"),"UTF8"),col=c(rouille,"blue","black"),lty=c(1,1,2))
+legend("topleft",legend=c("Cran","Débit recalculé","Débit automate Barrage"),col=c(rouille,"blue","black"),lty=c(1,1,2))
 dev.off()
 
 
