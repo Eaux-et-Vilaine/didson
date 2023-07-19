@@ -343,6 +343,10 @@ dat$volet5[dat$volet5>3.8 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
 #dat$volet5[dat$volet5<4.030&dat$volet5>3.8&dat$horodate<1430756309&dat$horodate>1422671179]<-4.030
 #dat$volet4[as.Date(dat$horodate)==ymd("2013-11-08")]
 # dat[23708,"volet1"]<-4.03;dat[23708,"volet2"]<-4.03;dat[23708,"volet3"]<-4.03;dat[23708,"volet4"]<-4.03
+
+# change 2022, essais chaine
+dat[dat$day==294 ,"vanne2"] <- 0
+dat[dat$day==294 ,"debit_vanne2"] <- 0
 save(dat,file=str_c(datawdy,"dat.Rdata"))
 write.table(dat,file=str_c(datawdy,"dat.csv"),sep=";",row.names=FALSE)
 load(file=str_c(datawdy,"dat.Rdata"))
@@ -359,6 +363,7 @@ load(file=str_c(datawdy,"dat.Rdata"))
 # STEP 3 CALCUL DES DEBITS
 ################################
 # Calcul du débit journalier
+
 
 Q12345 <- debit_total(param, param0 = param, dat)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
@@ -538,6 +543,7 @@ tur$date <- as.Date(tur$horodate)
 debitjour=left_join(QV, tur[,c("date","turbidite")])
 #nrow(debitjour) # 239
 #debitjour est une table temporaire.
+# dbWriteTable(pooldidson, DBI::Id(schema= "did", table = "debitjour21102021"), debitjour[debitjour$date=='2021-10-21',])
 
 dbExecute(pooldidson,  "drop table if exists did.debitjour")
 dbWriteTable(pooldidson, DBI::Id(schema= "did", table = "debitjour"), debitjour)
@@ -659,7 +665,8 @@ colnames(t_env_env_temp) <- c(
     
 dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp"),t_env_env_temp, overwrite=TRUE) 
         
-
+#t_env_env_21102021 <- t_env_env_temp[strftime(t_env_env_temp$env_time, "%Y-%m-%d")=="2021-10-21",]
+# dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_21102021"),t_env_env_21102021, overwrite=TRUE) 
 ##########################################################
 # ===========>voir ligne 170 script  didson_database.sql
 # INTEGRATION DES DONNEES DE did.t_env_env_temp DANS t_env_env ;
