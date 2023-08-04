@@ -140,7 +140,7 @@ round-precision = 0 % precision des arrondis
             firstinits=true, % pas de prenoms
             %sorting=nyt, % name, year, title
             eprint=false]{biblatex} % option natbib to use cite and citep
-\addbibresource{didson2021.bib}
+\addbibresource{didson2022.bib}
 %\usepackage[round, comma, sort]{natbib}
 
 
@@ -1472,7 +1472,7 @@ rm(hpas, vanne, volet)
 d3ejs <- d3ej[d3ej$dsf_timeinit >= debut & d3ej$dsf_timeinit <= fin, ]
 res <- d3ejs %>%
     group_by(dsf_incl,	dsf_depth, optvanne4) %>%
-    summarize(
+    dplyr::summarize(
         start = min(dsf_timeinit, na.rm = TRUE),
         end = max(dsf_timeinit, na.rm = TRUE),
         nbperiode = n()
@@ -1940,19 +1940,14 @@ débits recalculés par la méthode de \citet{briand_note_2015}.}
 \label{debits_ajustes}
 \end{figure}
 
-L'analyse des dérives des codeurs du volet 3 conduit à corriger
-substantiellement les périodes avec et sans écoulement sur les volets en début de saison. En
-pratique, les ouvertures de septembre ne sont que des ouvertures diurnes et
-n'ont pas d'effet sur les suivis au didson qui se concentrent sur les périodes
-nocturnes (Figure \ref{debitvoletjour}).
+L'analyse des données de débit des volets montre que leur fonctionnement a été
+continu en 2021-2022 (Figure \ref{debitvoletjour}).
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.5\textwidth]{2022/debitvolet2022}
-\caption[Débits volet 2022]{Comparaison des valeurs produites par
-l'automate du barrage et des valeurs obtenues après correction de la dérive des codeurs. Les formules de
-débits des volets ont été recalées mais donnent à peu de choses près les mêmes
-débits avec des formules de débit différentes  \citep{briand_note_2015}.}
+\caption[Débits volet 2022]{Débits recalculés sur chaque volet après correction
+des dérives du codeur \citep{briand_note_2015}.}
 \label{debitvoletjour}
 \end{figure}
 
@@ -1975,8 +1970,8 @@ Les fichiers sont recueillis au niveau du local de la passe à intervalles régu
 au siège de l'EPTB Vilaine. Ils sont ensuite traités par le logiciel pour
 réduire le temps de dépouillement.
 Le traitement (CSOT) retire les éléments stables de l'image (échos constants) et ne retient que des
-poissons des objets, voire rien en période de fort débit et forte turbidité. Ce processus permet de
-réduire la taille des fichiers et de limiter le temps de dépouillement, mais il dépend aussi des conditions. Le passage d'un banc de mulets,
+poissons, des objets, voire rien en période de fort débit et forte turbidité. Ce
+processus permet de réduire la taille des fichiers et de limiter le temps de dépouillement, mais il dépend aussi des conditions. Le passage d'un banc de mulets,
 par exemple, pourra conduire à garder l'ensemble du fichier. 
 Les seuils de traitement appliqués sont identiques aux années précédentes, 2.8 dB en volet et 2.5 dB en vanne.
 A plusieurs reprises des
@@ -2173,7 +2168,9 @@ la distance et la position $\delta:k$ et entre la taille et la position $\tau:k$
 \label{eq_efficacite31}
 \begin{aligned}
 &\widehat{E(\delta,\tau,k)} = \\
-&min(1,b_0+b_1\tau+b_2\delta+b_3 k+b_4\delta:k+b_5\tau:k+b_6 saison)
+&min(1,\\
+&b_0+b_1\tau+b_2\delta+b_3 k+b_4\delta:k+b_5\tau:k+b_6 saison\\
+&)
 \end{aligned}
 \end{equation} 
 L'efficacité pour chaque position du didson k $\bar{E_k}$
@@ -2432,13 +2429,12 @@ dev.off()
 @
 
 Le barrage a connu quelques ouvertures nocturnes avant la mise en place du
-didson le 02 octobre (Figures \ref{debitturbidite} et
-\ref{fonctionnementvanne}). Les premiers pics de crue (débit supérieur à
-\SI{100}{\cubic\metre\per\second}) interviennent très tôt dans la saison.
-Comme la saison 2019--2020, la saison 2020--2021 est marquée un débit de grande
-crue \SI{700}{\cubic\metre\per\second}, la saison 2021--2022 XXXX. Les
-turbidités montent au-delà de \underline{50 NTU} au cours du premier pic de crue (Figure
-\ref{debitturbidite}).
+didson du 02 octobre au 05 octobre (Figures \ref{debitturbidite} et
+\ref{fonctionnementvanne}). Trois petites crues sont observées (débit supérieur à
+\SI{100}{\cubic\metre\per\second}) en mi-décembre, la première quinzaine de
+janvier (crue principale), puis fin février.  Les
+turbidités montent au-delà de \underline{50 NTU} au cours de la crue de janvier
+(Figure \ref{debitturbidite}).
 
 \begin{figure}[ht!]
   \centering
@@ -2452,7 +2448,7 @@ turbidités montent au-delà de \underline{50 NTU} au cours du premier pic de cr
   d'acquisition, %en jaune, \textcolor{yellow}{\rule[-0.5mm]{3mm}{2mm}}
   % problèmes d'écriture,
   en orange, \textcolor{orange_EV}{\rule[-0.5mm]{3mm}{2mm}} problèmes
- de qualité, 
+ de qualité (absents cette année), 
   voir aussi la figure
 \ref{fig_horairespb} dans la discussion pour le détail des horaires.}
   \label{debitturbidite}
@@ -2560,14 +2556,15 @@ Le dépouillement correspond à du temps de lecture de fichier (Figure
 données, l'inscription dans la base ou les vérifications. 
 En prenant comme base un temps de dépouillement de 6 heures par jour, 5
 jours par semaine, la durée totale de dépouillement n'est que de l'ordre de
-7 jours contre 15 jours pour la saison précédente (2019-2020), et un mois pour
-2018-2019 (Tableau \ref{tabletps}).
-Ce temps plus limité est lié en partie à l'enlèvement du didson de l'eau en
-février.
+4 jours contre 7 jours et 15 jours pour les saisons précédente
+(2019-2020 et 2020-2021), et un mois pour 2018-2019 (Tableau
+\ref{tabletps}). 
+
 
 \input{../table/2022/depouillement.tex}
-On retrouve des temps de dépouillement dépassant 30 minutes lors des pics de
-migration, la mesure des anguilles restant chronophage (Figure \ref{tpspoint}).  
+Cette année les temps de dépouillment sont de 20 minutes alors qu'ils
+pouvaient être de 30 minutes lors des pics de migration, la mesure des anguilles
+restant chronophage (Figure \ref{tpspoint}).
 \begin{figure}[htbp]
         \centering
         \begin{subfigure}{0.4\textwidth}
@@ -2648,7 +2645,8 @@ dev.off()
 
 Deux facteurs principaux gênent la lecture des fichiers du didson, il s'agit de
 la présence d'alevins et de la présence de mulets. Les présences gênantes
-d'alevins et de mulets peuvent exister en début de saison en octobre et novembre, sans toutefois constituer un facteur limitant pour le comptage. Ils
+d'alevins et de mulets peuvent exister en début de saison en octobre et novembre, 
+sans toutefois constituer un facteur limitant pour le comptage. Ils
 disparaissent en hiver avant de réapparaitre en mars (Figures \ref{mulet},
 \ref{mulet2}, \ref{al}).
 
