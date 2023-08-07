@@ -2736,7 +2736,7 @@ d3ej2$dsf_position[is.na(d3ej2$dsr_id)] <- "0"
 d3ej2$dsf_position[is.na(d3ej2$dsf_fls_id)] <- "00"
 d3ej2$dsf_position[d3ej2$dsf_fls_id==2] <- "00"
 d3ej2$dsf_position[d3ej2$dsf_fls_id==1] <- "00"
-
+d3ej2$dsf_position[d3ej2$ex==0] <- "0"
 d3ej2$dsf_position <- as.factor(d3ej2$dsf_position)
 tab <- table(d3ej2$optvanne4,d3ej2$dsf_position,d3ej2$mois)
 coloring <- matrix(NA,nrow=4,ncol=4)
@@ -2885,8 +2885,8 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
     \caption[Position du didson par rapport à la vanne 4]{Position du didson et de
     la vanne 4, taille des rectangles relative au nombre d'occurences d'un type
     de positionnement de vanne et d'un type de positionnement didson pour chaque mois.
-    En lignes, positionnement du didson, 0 = pas de lecture, s = surface
-    (Figure \ref{didsonsurface}), f=fond (Figure \ref{didsonD1}).
+    En lignes, positionnement du didson, 00 = pas de données, 0 = pas de
+    lecture, s = surface (Figure \ref{didsonsurface}), f=fond (Figure \ref{didsonD1}).
     En colonnes, ouverture de la vanne, 0= pas d'ouverture, s=surface, f=fond,
     sf= surface et fond (l'ouverture change au cours des 30 minutes). 
     
@@ -2940,16 +2940,16 @@ round-precision = 1]{\Sexpr{vvv$perc$"4"}}\% du
       temps (zones \textbf{\textcolor{Gray}{grises}}).
  \end{itemize}
 \end{itemize}
-Cette année, les problèmes de fonctionnement du didson en octobre et novembre
-sont visibles (en orange, Figure \ref{position10}). L'absence d'automate a
-entraîné certaines périodes où le didson était mal positionné (en marron). En
-février, le didson a été retiré de l'eau et donc n'a pas fonctionné (en orange
-Figure \ref{position02}), mais pour l'essentiel, les problèmes sur la centrale 4
-ont entrainé l'absence de manoeuvre et la vanne et les volets sont restés fermés (en noir, 
-Figure \ref{position02}). 
-Les problèmes d'enregistrement au pic des crues et après la déterioration du câble en mars et avril sont par contre très importants.  (Figures \ref{position12} \ref{position02} \ref{position03} et \ref{position04} - en violet, Figure \ref{fig_effectif_pb} rectangles verts).
+Cette année, les problèmes de fonctionnement du didson en octobre, novembre,
+février et avril sont visibles (en orange, Figure \ref{position10}). En
+avril il s'agit essentiellement de problèmes de communication via le
+cable avec le didson. Globalement il y a très peu d'enregistrements sur des
+périodes ou le didson est mal positionné (en marron), quand c'est le cas il
+peut s'agir d'écoulement en volets ailleurs sur le barrage alors que la vanne 4
+a été fermée. 
 Les fichiers non dépouillés en gris correspondent majoritairement aux fichiers
-entre 9h et 10h, après le lever du soleil (Figure \ref{fig_horairespb}).\\
+le soir et le matin, qui n'ont pas fait de dépouillement car ils sont proches du
+lever ou du coucher du soleil (Figure \ref{fig_horairespb}).\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{\dimexpr.8pt+\fboxsep\relax}
@@ -3217,7 +3217,7 @@ voisine a peut être également limité les écoulements turbulents en rive.
                 \includegraphics[trim=2mm 2mm 2mm
                 2mm,clip]{2022/qualite_distance_volet_all}%trim l b
                 % r t
-               \hspace*{25mm} \caption{\small surface \\
+               \hspace*{25mm} \caption{\small surface (ensemble des années) \\
                 $\delta$=5-15m \\
                 N=\Sexpr{vvv$nqualiteallvolet}\\
                }
@@ -3229,7 +3229,7 @@ voisine a peut être également limité les écoulements turbulents en rive.
                 \includegraphics[trim=2mm 5mm 5mm
                 2mm,clip]{2022/qualite_distance_vanne_all}%trim l b r
                 % t
-               \hspace*{25mm} \caption{\small fond \\
+               \hspace*{25mm} \caption{\small fond (ensemble des années) \\
                 $\delta$=5-15m N=\Sexpr{vvv$nqualiteallvanne}
                 }   
                 \label{qualite_distance_vanne_all}
@@ -3264,8 +3264,9 @@ cor=\num{\Sexpr{round(c_dddp[["estimate"]],2)}}, p<0.001) (Figure
   distance au sonar. Couleur en fonction du nombre d'observations par carré.
   Les polygones d'isodensité permettent de mettre en évidence la relation
   distance - taille (les plus petites anguilles ne sont visibles que près du
-  didson). Les données correspondent à toutes les anguilles enregistrées depuis
-  2012.}
+  didson, on distingue aisément les deux modes "mâles" centré autour de 40 cm et
+  femelles centré autour de 75 cm).
+  Les données correspondent à toutes les anguilles enregistrées depuis 2012.}
   \label{taille_distance}
 \end{figure}
 %=====================================================================
@@ -3302,9 +3303,11 @@ en regroupant l'ensemble des années de suivi.
 La couleur bleue indique qu'il y a plus d'anguilles dans une des classes que dans une
 distribution homogène. On retrouve le fait qu'il y ait moins d'anguilles de
 grande taille et plus d'anguilles de petite taille (mâles <45 mm) en début de
-saison (Figure \ref{mosaic_taille_mois}).
-\textit{A contrario}, les anguilles de plus petites tailles sont moins
-nombreuses en décembre et janvier (en rouge). 
+saison (octobre novembre décembre) (Figure \ref{mosaic_taille_mois}). C'est
+également le cas pour les petites femelles qui sont présentes en plus grande
+abondance en septembre et octobre, puis moins abondantes que dans une
+distribution homogène en janvier février. \textit{A contrario}, les anguilles de
+grande taille  (en rouge).
 
 %=====================================================================
 \begin{figure}[htbp]
@@ -4002,8 +4005,8 @@ Pour l'ensembles des années, les diminutions d'effectifs en fonction de la
 distance au didson sont résumées en figure \ref{nombre_taille_distance},  
 les efficacités sont calculées
 en figure \ref{efficacite} et les nombres corrigés issus du recalcul sont
-présentés en figure \ref{Ncor} et
-\ref{efficacite} (les trois figures sont en annexe).
+présentés en figures \ref{efficacite} et \ref{Ncor}
+ (les deux figures sont en annexe).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\vspace{\dimexpr.15pt+\fboxsep\relax}
@@ -4439,9 +4442,11 @@ p=\textcolor{grisbleufonce}{\Sexpr{round(chisqta[["p.value"]],3)})}.
 Les anguilles en nage à contre courant ont en effet une probabilité plus forte que les autres de
 rentrer dans le faisceau. La proportion d'anguilles effectuant une 
 traversée complète
-(\textcolor{grisbleufonce}{\Sexpr{round(perctrav)}}\%) est faible ce qui indique une prospection verticale de la colonne d'eau par les anguilles. Comme pour les
- autres saisons, cette prospection est plus importante lorsque le didson
-est positionné en surface (Tableau \ref{tab_traversee}).
+(\textcolor{grisbleufonce}{\Sexpr{round(perctrav)}}\%) est faible quand on la
+compare aux trois autres comportements dans lesquels les anguilles entrent ou
+sortent du faiseau, ce qui indique qu'il existe une prospection
+verticale de la colonne d'eau par les anguilles (Tableaux \ref{tab_comportement}, \ref{tab_traversee}).
+Comme pour les autres saisons, cette prospection est plus importante lorsque le didson est positionné en surface (Tableau \ref{tab_traversee}).
 \input{../table/2022/comportement.tex}
 \input{../table/2022/traversee.tex}
 
@@ -4559,7 +4564,7 @@ sexe.ratio <- sum(tailledf$N[tailledf$rightb<50])/sum(tailledf$N)# 8% de mâles 
 tailledf$taille3 <- (tailledf$taille/100)^3
 tailledf$weight <- predict(rlmmod,newdata=tailledf)
 vvv$mean_weight <- sum(tailledf$weight*tailledf$N/sum(tailledf$N))# 516
-
+vvv$sexe_ratio <- sexe.ratio
 # 31.16 sum surface Vilaine, km2 voir sqldf commenté
 #TODO check here
 # EDA 31.16
@@ -4596,9 +4601,9 @@ des anguilles est estimé à \num{\Sexpr{round(vvv$mean_weight)}}g.
   \label{structure_taille}
 \end{figure}
 Les sexes ratios calculés en utilisant une limite de 
- taille entre les mâles et les femelles à 450 mm \citep{acou_estimation_2010} 
- s'établissent à \num{\Sexpr{round(100*sexe.ratio)}} \% de mâles en
- \Sexpr{saison}, soit la plus importante proportion de mâles observée
+ taille entre les mâles et les femelles à 500 mm (450 mm pour
+ \citep{acou_estimation_2010}) s'établissent à
+ \num{\Sexpr{round(100*vvv$sexe_ratio)}} \% de mâles en \Sexpr{saison}, soit la plus importante proportion de mâles observée
  jusqu'alors.
  Les chiffres de sexe ratio montrent une diminution puis une réaugmentation de
  la proportion de mâles. Les premières années 2012-2013 et 2013-2014, ce
@@ -4606,7 +4611,8 @@ Les sexes ratios calculés en utilisant une limite de
 en 2014-2015 et 2015-2016 \citep{briand_suivi_2016,
 briand_suivi_2017}, 7\% en 2016-2017 \citep{briand_suivi_2018}, 5\% en
 2017-2018 \citep{briand_suivi_2018}, 7 \% en 2018-2019
-\citep{briand_suivi_2019}, 8\% en 2019-2020 \citep{briand_suivi_2020}.
+\citep{briand_suivi_2019}, 8\% en 2019-2020 \citep{briand_suivi_2020} et 24 \%
+de mâles en 2020-2021.
 
 % le pdf fait planter l'impression
 %\begin{figure}[htbp]
@@ -5799,16 +5805,17 @@ dev.off()
 La deuxième étape du calcul des effectifs correspond à la prédiction des
 migrations lorsque le didson est dans une mauvaise position ($\otimes$), c'est à
 dire en surface alors que les écoulements sont au fond, et au fond alors que les
-écoulements sont en surface, ou quand le didson est en arrêt technique. Le
-nombre de données correspondant à ce type de configuration est de
-\num{\Sexpr{vvv$number.otimes}} enregistrements  ($\otimes$), contre
+écoulements sont en surface, ou quand le didson est en arrêt technique. Pour la
+saison \Sexpr{saison}, le nombre de données correspondant à ce type de configuration
+est de \num{\Sexpr{vvv$number.otimes}} enregistrements  ($\otimes$), contre
 \num{\Sexpr{vvv$number.odot}} enregistrements en fonctionnement normal
 ($\odot$). Les effectifs extrapolés à partir des migrations observées le même
 jour  est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} anguilles argentées.
 
-Sur l'ensemble des années, il y a eu \num{\Sexpr{vvv$number.missingday}}
-journées avec aucun enregistrement du fait de problèmes d'acquisition ou
-d'écriture disque (Figure \ref{fig_horairespb}).
+Sur l'ensemble des années, il y a eu en moyenne
+\num{\Sexpr{round(mean(vvv$number.missingday.all$N))}} journées avec aucun enregistrement du fait de problèmes d'acquisition ou
+d'écriture disque (Figure \ref{fig_horairespb}). Pour la saison \Sexpr{saison} ce
+nombre est de \num{\Sexpr{vvv$number.missingday}}.
 Pour ces jours, un modèle GAM a été utilisé pour extrapoler 
  les effectifs en migration à partir des valeurs des jours proches ($\oplus$).
  La migration correspondant à ces journées manquantes est estimée à N =
@@ -5836,7 +5843,7 @@ A partir de l'ensemble des effectifs ($\odot$+$\otimes$) et du poids moyen calcu
 La migration estimée par mois est présentée au tableau
 \ref{table_effectif_mois}, le résumé du modèle est présenté au tableau
 \ref{tableau_modele_miss} en annexe. Le modèle est identique à celui de l'année
-précédente mais les débits à 3 jours (delta 3d) ont été utilisés en lieu des
+précédente mais les débits à 3 jours (delta 3d) ont été utilisés à la place des
 débits à 7 jours.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -5853,7 +5860,7 @@ effectifs extrapolés pour les jours sans estimation
   (N$\oplus$=\num{\Sexpr{vvv$N.oplus}}) donnent une
   estimation quantitative partielle des effectifs d'anguilles argentées en
   dévalaison sur la Vilaine N=\num{\Sexpr{vvv$N}} soit
-  \Sexpr{vvv$total_weight} tonnes (Tableau \ref{tabfinal}).
+  \num{\Sexpr{vvv$total_weight}} tonnes (Tableau \ref{tabfinal}).
   
 }}\vspace{\dimexpr.8pt+\fboxsep\relax}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -5931,25 +5938,17 @@ vvv$lpm <- sum(tt)
 \section{Discussion}
 \subsection{Migration}
 
-Plusieurs pics de débits autour de 100 \si{\cubic\metre\per\second} ont été
-observés très tôt dans la saison en octobre et novembre. Ces pics se sont
-accompagnés par des pics de migration de l'ordre de 1500 anguilles par jour.
-Lors du deuxième pic la migration est reconstituée car l'ordinateur a eu des
-problèmes d'acquisition. Plus tard dans la saison en janvier et février,
-deux pics de débits avec des débits de grande crue de l'ordre de 700
-\si{\cubic\metre\per\second} se sont succédés. Le premier pic, composé d'une
-première vague de débit puis d'un ressaut, a permis la migration d'effectifs
-journaliers de l'ordre de 3000- 4000 anguilles par jour lors du pic. Le didson
-a été retiré de l'eau lors du deuxième pic, mais sur plusieurs nuits, les effectifs en migration étaient nuls,
-et la qualité des images était suffisamment bonne pour pouvoir détecter les
-anguilles argentées car la turbiditité était faible. Il est très probable que
-les effectifs ayant migré lors de ce deuxième pic ont été faibles (ce que donne le modèle de prédiction) 
-car les forts débits du mois de janvier ont déjà permis le départ d'une grande
-part du stock potentiel d'anguilles argentées du bassin. Globalement, les
+La saison \Sexpr{saison} se caractérise par des débits de crue assez faibles
+(3 pics à plus de 100 \si{\cubic\metre\per\second}), avec le plus important pic
+observé fin décembre, début janvier. La migration s'est principalement
+effectuée lors de la première augmentation de débit fin décembre avec un effectif journalier dépassant 10000
+anguilles. Le pic de crue de fin février n'a permis la migration que d'un nombre
+limité d'anguilles argentées. Globalement, les
 effectifs totaux sur la saison sont de N=\num{\Sexpr{vvv$N}} soit
   \Sexpr{vvv$total_weight} tonnes (Tableau \ref{tabfinal}, Figure
   \ref{fig_N_interannuel}).
-  
+Il faut en particulier remarquer la très forte proportion de mâles, qui
+confirme la modification de la structure en taille des anguilles amorcée en 2020-2021.  
 
 \begin{figure}[htbp]
   \centering
@@ -5975,11 +5974,7 @@ effectifs totaux sur la saison sont de N=\num{\Sexpr{vvv$N}} soit
 L'anguille présente une morphologie et une nage particulière qui
 permettent de la discerner des autres poissons \citep{langkau_can_2012}.
 En \Sexpr{saison}, \Sexpr{vvv$lpm} lamproies marines 
-(\textit{Petromyzon marinus}) ont été détectées, une en février, une en mars, et
-le reste les 12 et 13 avril. Dans la passe à bassins, les principales migrations
-de lamproies ont été observées entre le 31 mars et le 16 avril. 
-La première lamproie observée (02/02) arrive avant la
-première observation sur la passe car le suivi vidéo ne débute que fin février.
+(\textit{Petromyzon marinus}) ont été détectées.
 
 \begin{table}
 \centering
@@ -5999,6 +5994,7 @@ descendante.}
 2018--2019 & 1\\
 2019--2020 & 0\\
 2020--2021 & 58\\
+2021--2022 & \Sexpr{vvv$lpm}
    \hline
 \end{tabular}
 \end{table}
@@ -6028,19 +6024,18 @@ configuré en haute fréquence. La taille des anguilles mesurées correspond au
 nombre de faisceaux rencontrés par la cible, mais elle est légèrement sous-estimée 
 \citep{bilotta_decline_2011}. En effet, la taille dépasse légèrement un faisceau
 sans entrer en contact avec le faisceau suivant. L'erreur de mesure est au maximum de 1 cm à 2m
-et elle augmente linéairement jusqu'à 7 cm à 15 m. Globalement on observe une
-diminution année après année de la proportion d'anguilles mâles. Ce phénomène
-indique très probablement un problème de recrutement au niveau du bassin de la
-Vilaine pour les cohortes en migration.
+et elle augmente linéairement jusqu'à 7 cm à 15 m. La modification de la
+structure en taille amorcée en 2020--2021 est confirmée cette saison avec un
+pourcentage de mâles de \num{\Sexpr{round(100*vvv$sexe_ratio)}} \%, alors que ce
+pourcentage était plutôt de l'ordre de 5 à 9 \% de 2014--2015 à 2019--2020
 
 \subsubsection{Efficacité moyenne}
 
 Les efficacité moyennes sont plus faibles que celles calculées historiquement
 depuis le nouveau calcul en 2020 intégrant la qualité des anguilles dans le
 calcul (Tableau \ref{tabefficacite_moyenne}, Tableau
-\ref{tab_efficacite_historique} en annexe). Cette année l'efficacité est
-meilleure que l'année dernière ou l'arrêt de la vanne 3 provoquait des
-turbulences devant le didson.
+\ref{tab_efficacite_historique} en annexe). La forte efficacité cette année
+est une traduction des débits plus faibles.
 
 \input{../table/2022/tabefficacite_moyenne.tex}
 
@@ -6080,8 +6075,9 @@ plus éloignée du didson donc pas d'extrapolation des effectifs.}.
 \caption[Production annuelle]{Production en anguilles argentées de la Vilaine à
 partir des comptages au didson en fonction des saisons de suivi. 
 $N_{old}$ indique les effectifs calculés sur les rapports d'origine, $N_{new}$ indique
-les effectifs recalculés en 2021 XXXXXXXXXXXXXXXXXXXXX en assemblant toutes les
-données disponibles et utilisant des modèles communs. Débit maximum journalier $Q_{j~max}~m^{3}s^{-1}$.
+les effectifs recalculés à partir de 2021 en assemblant
+toutes les données disponibles et utilisant des modèles communs.
+$Q_{j~max}~m^{3}s^{-1}$= débit maximum journalier,
 * comptages partiels pour les effectifs "old".}
 \label{table_synthese_production}
 \small
@@ -6108,7 +6104,8 @@ données disponibles et utilisant des modèles communs. Débit maximum journalie
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2019-2020" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 1000\\
 2020--2021 & {-} &
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2020-2021" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 700\\
-2021--2022 & {-} & & \\
+2021--2022 & {-} & 
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2021-2022" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\& \\
  \hline
 \end{tabular}
 \normalsize
@@ -6129,7 +6126,7 @@ transport de civelles qui s'est traduit par un pic de recrutement fluvial entre
 ans ce qui est cohérent avec les données de croissance recueillies sur le bassin. Il est
 donc probable que cet effectif de mâles donne le pas à un départ de femelles
 argentées dans les années qui viennent. Les effectifs plus importants observés
-l'année dernière (2019-2020) sont peut être lié à l'effet d'une grande crue
+en 2019--2020 sont peut être lié à l'effet d'une grande crue
 suivant plusieurs années sans débit important qui aurait permis le départ d'un
 plus grand nombre d'anguilles argentées, bloquées dans leur progression par la
 succession d'ouvrages entravant leur migration.
@@ -6172,16 +6169,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/periode4_phi0_didf_4}
+                25mm,clip, width=0.5\textwidth]{2022/periode4_phi0_dids_-7}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode4_phi0_didf_4"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode4_phi0_didf_4"$incl}, 
-                $h$=\Sexpr{ppp$"periode4_phi0_didf_4"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode4_phi0_didf_4"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode4_phi0_didf_4"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode4_phi0_didf_4"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode4_phi0_didf_4"$minus},
-                date= \Sexpr{iconv(ppp$"periode4_phi0_didf_4"$date,"UTF-8")}
+                $\Phi$=\Sexpr{ppp$"periode4_phi0_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode4_phi0_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode4_phi0_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode4_phi0_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode4_phi0_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode4_phi0_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode4_phi0_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode4_phi0_dids_-7"$date,"UTF-8")}
                 }
                 \label{periode4}
 \end{figure}
@@ -6189,16 +6186,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/periode5_phif_didf_4}
+                25mm,clip, width=0.5\textwidth]{2022/periode5_phis_dids_-7}
         \caption{
-                $\Phi$=\Sexpr{ppp$periode5_phif_didf_4$Phi}, 
-                $\beta$=\Sexpr{ppp$periode5_phif_didf_4$incl}, 
-                $h$=\Sexpr{ppp$periode5_phif_didf_4$prof}, 
-                $O_t$=\Sexpr{ppp$periode5_phif_didf_4$N}, 
-                $O_t\circ$=\Sexpr{ppp$periode5_phif_didf_4$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$periode5_phif_didf_4$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$periode5_phif_didf_4$minus},
-                date= \Sexpr{iconv(ppp$periode5_phif_didf_4$date,"UTF-8")}
+                $\Phi$=\Sexpr{ppp$"periode5_phis_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode5_phis_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode5_phis_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode5_phis_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode5_phis_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode5_phis_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode5_phis_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode5_phis_dids_-7"$date,"UTF-8")}
                 }
                 \label{periode5}
 \end{figure}
@@ -6206,83 +6203,34 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/periode6_phis_didf_4}
+                25mm,clip, width=0.5\textwidth]{2022/periode9_phis_didf_-7}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode6_phis_didf_4"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode6_phis_didf_4"$incl}, 
-                $h$=\Sexpr{ppp$"periode6_phis_didf_4"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode6_phis_didf_4"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode6_phis_didf_4"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode6_phis_didf_4"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode6_phis_didf_4"$minus},
-                date= \Sexpr{iconv(ppp$"periode6_phis_didf_4"$date,"UTF-8")}}
+                $\Phi$=\Sexpr{ppp$"periode9_phis_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode9_phis_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode9_phis_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode9_phis_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode9_phis_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode9_phis_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode9_phis_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode9_phis_didf_-7"$date,"UTF-8")}}
         \label{periode6}
 \end{figure}
 
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode7_phis_dids_-7"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode7_phis_dids_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode7_phis_dids_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode7_phis_dids_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode7_phis_dids_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode7_phis_dids_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode7_phis_dids_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode7_phis_dids_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode7_phis_dids_-7"$date,"UTF-8")}
-                 }
-                \label{periode7}
-\end{figure}
+
 
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode8_phif_dids_-7"}
+                25mm,clip, width=0.5\textwidth]{2022/periode10_phif_didf_-7}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode8_phif_dids_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode8_phif_dids_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode8_phif_dids_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode8_phif_dids_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode8_phif_dids_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode8_phif_dids_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode8_phif_dids_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode8_phif_dids_-7"$date,"UTF-8")}
-}
-                \label{periode8}
-\end{figure}
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode9_phis_dids_-14"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode9_phis_dids_-14"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode9_phis_dids_-14"$incl}, 
-                $h$=\Sexpr{ppp$"periode9_phis_dids_-14"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode9_phis_dids_-14"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode9_phis_dids_-14"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode9_phis_dids_-14"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode9_phis_dids_-14"$minus},
-                date= \Sexpr{iconv(ppp$"periode9_phis_dids_-14"$date,"UTF-8")}
-                }
-                \label{periode9}
-\end{figure}
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/periode10_phis_didf_-7}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode10_phis_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode10_phis_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode10_phis_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode10_phis_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode10_phis_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode10_phis_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode10_phis_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode10_phis_didf_-7"$date,"UTF-8")}
+                $\Phi$=\Sexpr{ppp$"periode10_phif_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode10_phif_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode10_phisf_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode10_phif_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode10_phif_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode10_phif_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode10_phif_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode10_phif_didf_-7"$date,"UTF-8")}
               }
               \label{periode10}
 \end{figure}
@@ -6290,141 +6238,18 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/periode11_phif_didf_-7}
+                25mm,clip, width=0.5\textwidth]{2022/periode11_phis_didf_-7}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode11_phif_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode11_phif_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode11_phif_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode11_phif_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode11_phif_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode11_phif_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode11_phif_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode11_phif_didf_-7"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode11_phis_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode11_phis_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode11_phifs_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode11_phis_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode11_phis_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode11_phis_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode11_phis_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode11_phis_didf_-7"$date,"UTF-8")}               
                }
                 \label{periode11}
-\end{figure}
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/periode12_phi0_dids_-7}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode12_phi0_dids_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode12_phi0_dids_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode12_phi0_dids_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode12_phi0_dids_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode12_phi0_dids_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode12_phi0_dids_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode12_phi0_dids_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode12_phi0_dids_-7"$date,"UTF-8")}               
-                }
-                \label{periode12}
-\end{figure}
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode13_phi0_didf_-7"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode13_phi0_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode13_phi0_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode13_phi0_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode13_phi0_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode13_phi0_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode13_phi0_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode13_phi0_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode13_phi0_didf_-7"$date,"UTF-8")}               
-            }
-     \label{periode13}
-\end{figure}
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode14_phif_didf_4"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode14_phif_didf_4"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode14_phif_didf_4"$incl}, 
-                $h$=\Sexpr{ppp$"periode14_phif_didf_4"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode14_phif_didf_4"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode14_phif_didf_4"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode14_phif_didf_4"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode14_phif_didf_4"$minus},
-                date= \Sexpr{iconv(ppp$"periode14_phif_didf_4"$date,"UTF-8")}               
-            }
-     \label{periode14}
-\end{figure}
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode15_phi0_didf_4"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode15_phi0_didf_4"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode15_phi0_didf_4"$incl}, 
-                $h$=\Sexpr{ppp$"periode15_phi0_didf_4"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode15_phi0_didf_4"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode15_phi0_didf_4"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode15_phi0_didf_4"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode15_phi0_didf_4"$minus},
-                date= \Sexpr{iconv(ppp$"periode15_phi0_didf_4"$date,"UTF-8")}               
-            }
-     \label{periode15}
-\end{figure}
-
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode16_phi0_didf_5"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode16_phi0_didf_5"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode16_phi0_didf_5"$incl}, 
-                $h$=\Sexpr{ppp$"periode16_phi0_didf_5"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode16_phi0_didf_5"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode16_phi0_didf_5"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode16_phi0_didf_5"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode16_phi0_didf_5"$minus},
-                date= \Sexpr{iconv(ppp$"periode16_phi0_didf_5"$date,"UTF-8")}               
-            }
-     \label{periode16}
-\end{figure}
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode17_phif_didf_5"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode17_phif_didf_5"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode17_phif_didf_5"$incl}, 
-                $h$=\Sexpr{ppp$"periode17_phif_didf_5"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode17_phif_didf_5"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode17_phif_didf_5"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode17_phif_didf_5"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode17_phif_didf_5"$minus},
-                date= \Sexpr{iconv(ppp$"periode17_phif_didf_5"$date,"UTF-8")}               
-            }
-     \label{periode17}
-\end{figure}
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2022/"periode18_phis_didf_5"}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode18_phis_didf_5"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode18_phis_didf_5"$incl}, 
-                $h$=\Sexpr{ppp$"periode18_phis_didf_5"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode18_phis_didf_5"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode18_phis_didf_5"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode18_phis_didf_5"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode18_phis_didf_5"$minus},
-                date= \Sexpr{iconv(ppp$"periode18_phis_didf_5"$date,"UTF-8")}               
-            }
-     \label{periode18}
 \end{figure}
 
 \clearpage
