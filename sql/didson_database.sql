@@ -733,6 +733,42 @@ dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_d
 select * from depouillement order by temps_lecture;
 
 
+with depouillement as (
+SELECT dsf_timeinit,
+dsr_id,
+extract('month' from dsf_timeinit) as mois,
+dsr_reader,
+dsf_position,
+dsr_readend,
+dsr_readinit,
+    dsr_readend-dsr_readinit as temps_lecture 
+    from did.t_didsonread_dsr 
+    join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
+     where dsf_timeinit>'2021-09-01 00:00:00'
+     and dsf_timeinit<'2022-05-01 00:00:00'
+     )
+select mois,justify_hours(sum(temps_lecture)) 
+from depouillement group by mois order by  mois
+
+
+with depouillement as (
+SELECT dsf_timeinit,
+dsr_id,
+extract('month' from dsf_timeinit) as mois,
+dsr_reader,
+dsf_position,
+dsr_readend,
+dsr_readinit,
+    dsr_readend-dsr_readinit as temps_lecture,
+    dsf_saison
+    from did.t_didsonread_dsr 
+    join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
+     where dsf_timeinit>'2012-09-01 00:00:00'
+     and dsf_timeinit<'2022-05-01 00:00:00'
+     )
+select mois,justify_hours(sum(temps_lecture)) 
+from depouillement group by mois order by  mois
+
 
 /*
 runonce 2017
