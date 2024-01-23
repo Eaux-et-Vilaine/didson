@@ -24,7 +24,7 @@ password<- decrypt_string(passworddistant,pois)
 #####################################
 #install.packages("R.utils")
 
-datawd <- "C:/temp/didson/2021-2022/f/"
+datawd <- "D:/temp/didson/2022-2023/f/"
 #datawd<-"F:/projets/devalaison/fichier_txt_pb/"
 listoffiles <- list.files(str_c(datawd)) # list of files
 listoffiles <- listoffiles[grep(".txt",listoffiles)]
@@ -38,8 +38,13 @@ progress<-winProgressBar(title = "Chargement des fichiers texte",
 
 #----- chargement des fichiers déjà rentrés pour vérification --------------------------------------
 
-
-drr_id <- sqldf("select drr_id from did.t_didsonreadresult_drr 
+con <- dbConnect(Postgres(), 		
+		dbname="didson", 		
+		host=host,
+		port=5432, 		
+		user= user, 		
+		password= password)
+drr_id <- dbGetQuery(con, "select drr_id from did.t_didsonreadresult_drr 
 join did.t_didsonfiles_dsf on drr_dsf_id=dsf_id where dsf_timeinit>'2013-09-01'")
 fichiers_dans_la_base <- vector() # vecteur vide qui stockera les valeurs de fichiers d�j� rentr�s
 #i=155
