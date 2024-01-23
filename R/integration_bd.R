@@ -8,9 +8,10 @@ require("getPass")
 require("DBI")
 require('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 setwd("C:/workspace/p/didson/")
-library("SIVA")
+require("SIVA")
 #install.packages("xlsx")
-library("xlsx")
+install.packages("D:/temp/didson/2022-2023/SIVA_0.1.4.3.tar.gz")
+require("xlsx")
 
 if (!exists("userdistant") |
     !exists("passworddistant"))
@@ -21,7 +22,7 @@ user <- decrypt_string(userdistant, pois)
 password <- decrypt_string(passworddistant, pois)
 Sys.timezone()
 #Sys.setenv(TZ='GMT')
-datawd <- "C:/temp/didson/2021-2022/depouillement/"
+datawd <- "D:/temp/didson/2022-2023/"
 #######################################################################
 ## essai de connection à la base didson
 #req<-new("RequeteODBC")
@@ -37,9 +38,9 @@ datawd <- "C:/temp/didson/2021-2022/depouillement/"
 # récupération du fichier excel
 
 
-xls.file <- str_c(datawd, "depouillement_2021_brice.xlsx")
+xls.file <- str_c(datawd, "depouillement_2022_TOTAL.xlsx")
 file.exists(xls.file)
-ta <- read.xlsx(
+ta <- xlsx::read.xlsx(
     xls.file ,
     sheetName = "depouillement",
     colIndex = 1:19,
@@ -83,7 +84,8 @@ ta <- ta[!(ta$dsr_csotdb == "echo" & !is.na(ta$dsr_csotdb)), ]
 
 ta <- ta[!is.na(ta$dsf_filename), ]
 ta <- ta[!is.na(ta$dsf_incl), ]
-
+ta$dsf_readok <- TRUE
+ta$dsf_readok[is.na(ta$dsr_eelplus)] <- FALSE
 # nrow(ta)
 # 2015 10630
 # 2016 9511
@@ -104,8 +106,7 @@ ta <- ta[!is.na(ta$dsf_incl), ]
 dsf <- ta[, grep("dsf", colnames(ta))]
 dsf[is.na(dsf$dsf_filename), ]
 
-dsf$dsf_readok <- as.logical(as.numeric(dsf$dsf_readok))
-dsf$dsf_readok[is.na(dsf$dsf_readok)] <- FALSE
+
 
 table(dsf$dsf_distancestart) # 5 9993
 # 2015 correction
@@ -206,7 +207,7 @@ DBI::dbExecute(con, statement =
         dsf_readok,
         dsf_filename
  from temp_dsf"
-) # 9993
+) # 9993 # 8373
 ## pb d'encrassement des lentilles+ turbidite
 #sqldf("update did.t_didsonfiles_dsf set dsf_fls_id=3 where dsf_timeinit>='2013-12-30 09:00:00' and
 #				dsf_timeend<='2014-01-06 17:00:00'")
@@ -226,7 +227,7 @@ DBI::dbExecute(con, statement =
 # INTEGRATION DE LA TABLE DSR
 #####################
 dsr <-
-    ta[, c(match("dsf_filename", colnames(ta)), grep("dsr", colnames(ta)))]#3365
+    ta[, c(match("dsf_filename", colnames(ta)), grep("dsr", colnames(ta)))]#3365 # 8374
 colnames(dsr)
 
 
@@ -265,7 +266,7 @@ table(dsr$dsr_reader)
 #1014  1388
 #3432   162
 #3569   452
-
+#70     3124
 dsf <- DBI::dbGetQuery(con,"select * from   did.t_didsonfiles_dsf")
 dsf <- dsf[, c("dsf_id", "dsf_filename")]
 
@@ -315,7 +316,7 @@ DBI::dbExecute(con, statement =
         dsr_muletscore,
         dsr_fryscore,
         dsr_comment from temp_dsr"
-) # 4021
+) # 4021 #3194
 
 
 
