@@ -24,7 +24,7 @@ password<- decrypt_string(passworddistant,pois)
 #####################################
 #install.packages("R.utils")
 
-datawd <- "D:/temp/didson/2022-2023/f/"
+datawd <- "C:/temp/didson/2022-2023/f/"
 #datawd<-"F:/projets/devalaison/fichier_txt_pb/"
 listoffiles <- list.files(str_c(datawd)) # list of files
 listoffiles <- listoffiles[grep(".txt",listoffiles)]
@@ -46,7 +46,7 @@ con <- dbConnect(Postgres(),
 		password= password)
 drr_id <- dbGetQuery(con, "select drr_id from did.t_didsonreadresult_drr 
 join did.t_didsonfiles_dsf on drr_dsf_id=dsf_id where dsf_timeinit>'2013-09-01'")
-fichiers_dans_la_base <- vector() # vecteur vide qui stockera les valeurs de fichiers d�j� rentr�s
+fichiers_dans_la_base <- vector() # vecteur vide qui stockera les valeurs de fichiers deja rentres
 #i=155
 #000000000000000000000000000000000000000 loop
 for (i in 1:length(chemins)){
@@ -268,30 +268,20 @@ DBI::dbWriteTable(con, name=ttp,  value = all_t_poissonsfiletemp_psf, overwrite 
 
 
 ######################################################
-# bout de script pour fichiers manquants (TODO a adpter à DBI si nécessaire)----------------------
+# bout de script pour fichiers manquants (A ne lancer que pour ajouter les fichiers supplémentaires si erreur
 ########################################################
-sqldf(
-		"drop table if exists did.t_didsonfiletemppb_dsft",
-		dbname = getOption("sqldf.RPostgreSQL.dbname"),
-		host = getOption("sqldf.RPostgreSQL.host"),
-		port = getOption("sqldf.RPostgreSQL.port")
-)
-sqldf(
-		"create table did.t_didsonfiletemppb_dsft as select * from all_t_didsonfiletemp_dsft",
-		dbname = getOption("sqldf.RPostgreSQL.dbname"),
-		host = getOption("sqldf.RPostgreSQL.host"),
-		port=getOption("sqldf.RPostgreSQL.port")
-)
 
-sqldf(
-		"drop table if exists did.t_poissonsfiletemppb_psf",
-		dbname = getOption("sqldf.RPostgreSQL.dbname"),
-		host = getOption("sqldf.RPostgreSQL.host"),
-		port=getOption("sqldf.RPostgreSQL.port")
-)
-sqldf(
-		"create table did.t_poissonsfiletemppb_psf as select * from all_t_poissonsfiletemp_psf",
-		dbname = getOption("sqldf.RPostgreSQL.dbname"),
-		host = getOption("sqldf.RPostgreSQL.host"),
-		port=getOption("sqldf.RPostgreSQL.port")
-)
+
+con <- dbConnect(Postgres(), 		
+    dbname="didson", 		
+    host=host,
+    port=5432, 		
+    user= user, 		
+    password= password)
+#DBI::dbExecute(con, "drop table if exists did.t_didsonfiletemppb_dsft")
+tt <- DBI::Id(schema = "did",    table = "t_didsonfiletemppb_dsft")
+DBI::dbWriteTable(con, name=tt,  value = all_t_didsonfiletemp_dsft, overwrite = TRUE)
+ttp <- DBI::Id(schema = "did",    table = "t_poissonsfiletemppb_psf")
+DBI::dbWriteTable(con, name=ttp,  value = all_t_poissonsfiletemp_psf, overwrite = TRUE)
+
+
