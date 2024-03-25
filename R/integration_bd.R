@@ -7,10 +7,10 @@ require("safer")
 require("getPass")
 require("DBI")
 require('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
-setwd("C:/workspace/p/didson/")
+setwd("C:/workspace/didson/")
 require("SIVA")
 #install.packages("xlsx")
-install.packages("D:/temp/didson/2022-2023/SIVA_0.1.4.3.tar.gz")
+-#install.packages("D:/temp/didson/2022-2023/SIVA_0.1.4.3.tar.gz")
 require("xlsx")
 
 if (!exists("userdistant") |
@@ -64,7 +64,8 @@ ta <- xlsx::read.xlsx(
 # read.xlsx convertit tout en GMT car il n'y a pas de tz dans excel
 # Il faut donc remettre les données à la main
 attributes (ta$dsf_timeinit)
-
+attributes (ta$dsf_timeend)
+head(ta$dsf_timeinit)
 #head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
 #ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
 #ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
@@ -233,6 +234,7 @@ colnames(dsr)
 
 # Tests : il peut y avoir des champs textes dans les dates
 attributes(dsr$dsr_readend)
+attributes(dsr$dsr_readinit)
 #dsr$dsr_readend <-  lubridate::force_tz(dsr$dsr_readend,  tz = "CET")
 #dsr$dsr_readinit <- lubridate::force_tz(dsr$dsr_readinit, tz = "CET")
 
