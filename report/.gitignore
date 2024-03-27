@@ -9,3 +9,12 @@
 /didson2022.toc
 /didson2022.run.xml
 /didson2022.bbl
+*.toc
+*.synctex.gz
+*.run.xml
+*.blg
+*.log
+*.out
+*.aux
+*.bbl
+*.bcf
