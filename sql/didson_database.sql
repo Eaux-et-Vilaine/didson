@@ -170,29 +170,47 @@ Retour à l'heure normale le Dimanche 31 Octobre 2021 - 02 h 00 (GMT + 1 h ) CET
 Année : 2022
 Passage à l'heure d'été le Dimanche 27 Mars 2022 - 03 h 00 (GMT + 2 h ) CEST
 Retour à l'heure normale le Dimanche 30 Octobre 2022 - 02 h 00 (GMT + 1 h ) CET
-
+Année : 2023
+Passage à l'heure d'été le Dimanche 26 Mars 2022 - 03 h 00 (GMT + 2 h ) CEST
+Retour à l'heure normale le Dimanche 29 Octobre 2023 - 02 h 00 (GMT + 1 h ) CET
 */
 
+-- DANS R j'ai du GMT. 
+-- Je passe par une creation de table (au format timestamp). Et j'écris directement dans la table 
+
+
+/*
+ * LA FONCTION RAJOUTE UNE HEURE EN ETE...
 DROP FUNCTION IF EXISTS did.adjust_time(TIMESTAMP) cascade;
 CREATE OR REPLACE FUNCTION did.adjust_time(TIMESTAMP) 
 RETURNS TIMESTAMP AS $$ 
-  SELECT case when $1 < TIMESTAMP '2021-10-28 03:00:00' or $1 > TIMESTAMP '2022-03-27 02:00:00' 
+  SELECT case when $1 < TIMESTAMP '2022-10-30 03:00:00' or $1 > TIMESTAMP '2023-03-26 02:00:00' 
   then $1 + INTERVAL '1 hour'
   else $1 end
+$$ LANGUAGE SQL;  
+  
+DROP FUNCTION IF EXISTS did.adjust_time(TIMESTAMP) cascade;
+CREATE OR REPLACE FUNCTION did.adjust_time(TIMESTAMP) 
+RETURNS TIMESTAMPTZ AS $$ 
+  SELECT case when $1 >= TIMESTAMP '2022-10-29 03:00:00' or $1 <= TIMESTAMP '2023-03-26 02:00:00' 
+  then $1 - INTERVAL '1 hour'
+  else $1 end
 $$ LANGUAGE SQL;
+*/
+/*
 select * from did.t_env_env_temp limit 10;
 select * from did.t_env_env_temp WHERE env_time='2021-10-28 03:00:00';
 select * from did.t_env_env_temp WHERE env_time='2021-10-28 02:00:00';
 select * from did.t_env_env_temp WHERE env_time='2021-10-28 04:00:00';
-
+*/
 -----------------------------------------
 -- SCRIPT INTEGRATION DES DONNEES ANNUELLES DIDSON
 ---------------------------------------------
 
 
 
--- attention ne lancer qu'une fois
-update did.t_env_env_temp set env_time =did.adjust_time(env_time);--38846 2013 34702 2014--34846 --34990 --34846(2017-2018) --52558 (2018-2019) --34990(2019-2020)
+-- plus besoin de lancer
+update did.t_env_env_temp set env_time =did.adjust_time(env_time);--38846 2013 34702 2014--34846 --34990 --34846(2017-2018) --52558 (2018-2019) --34990(2019-2020) 34250 (2020-2023)
 /*drop table if exists did.t_env_env cascade;
 create table did.t_env_env as select distinct on (env_time) * from did.t_env_env_temp;
 alter table did.t_env_env add constraint c_uk_env_time unique (env_time);
@@ -319,7 +337,8 @@ env_qvolet5
   --52552 2019 
   -- 34990 2020
   -- 34846 2021
-   --335782022
+   --33578 2022
+  --34244 2023
  
  /*
   * select  env_qvolet4, env_volet4 from did.t_env_env where env_time='2013-11-08 00:30:00'
@@ -349,14 +368,14 @@ ALTER TABLE did.t_envjour_enj ADD CONSTRAINT c_uk_enj_date UNIQUE(enj_date);
  
 
 select * from did.debitjour;
-select * from did.t_envjour_enj ORDER BY enj_date;
 select * from did.t_envjour_enj ORDER BY enj_date desc;
 INSERT INTO did.t_envjour_enj(enj_date,enj_turb,deb_qtotalj)  
 SELECT date, turbidite, debit_moyen_recalcule  FROM did.debitjour
 WHERE date > (SELECT max(enj_date) FROM did.t_envjour_enj); 
 --243 
 --242
---239 (2022-2023)
+--239 (2021-2022)
+--243 (2022-2023)
 
 
 --select max(enj_date) from did.t_envjour_enj 

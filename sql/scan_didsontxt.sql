@@ -2153,7 +2153,7 @@ problèmes de temps d'enregistrement
 	SELECT dsf_timeinit,dsr_id, EXTRACT('month' FROM dsf_timeinit) 
 	AS mois,dsr_reader, dsf_position,dsr_readinit,dsr_readend, dsr_readend-dsr_readinit AS temps_lecture , dsr_id
 	FROM did.t_didsonread_dsr JOIN did.t_didsonfiles_dsf ON dsf_id=dsr_dsf_id
-	 WHERE dsf_timeinit>'2015-09-01 00:00:00' AND dsf_timeinit<'2016-05-01 00:00:00')
+	 WHERE dsf_timeinit>'2022-09-01 00:00:00' AND dsf_timeinit<'2023-05-01 00:00:00')
  SELECT * FROM depouillement WHERE temps_lecture<interval '00:00:00';
  -----------------------------
  
