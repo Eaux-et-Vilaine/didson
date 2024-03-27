@@ -366,6 +366,8 @@ Date d'édition :\\}
 \begin{center}
 \Large
 Août 2023
+\color{orange_EVf}
+Correction 2024
 \end{center}
 \vspace{2cm}\\
 \end{minipage}
@@ -5080,7 +5082,7 @@ D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season)%>%
 D3j <- D2 %>% 
     dplyr::select(dsf_season,ndays,N,indexOK,ex3,volbarrage30)%>%
     dplyr::group_by(dsf_season,ndays,ex3)%>%
-    dplyr::summarize(N=sum(N),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
+    dplyr::summarize(N=sum(N, na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
 D3j0 <- dplyr::filter(D3j,ex3==0) %>% select(-ex3) # bien positionné
 D3j1 <- dplyr::filter(D3j,ex3==1) %>% select(-ex3)# mal positionné
 
@@ -5107,6 +5109,7 @@ D5j$nb.1[D5j$nex3==0] <- 0
 # une journée complètement manquante le 2017-11-21, pas de données dans D2 ni d3ej ???
 # très peu de débit, pas à s'en soucier
 D5j$vol.1[is.na(D5j$vol.1)] <- 0
+D5j$N.0 <- D5j$N.0/muinv # On corrige les effectifs journaliers de jour / nuit
 D5j$N.1 <- D5j$N.0*(D5j$vol.1)/D5j$vol.0
 #open_in_excel(D5j)
 
