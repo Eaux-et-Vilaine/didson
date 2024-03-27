@@ -365,7 +365,7 @@ Date d'édition :\\}
 \color{orange_EV}
 \begin{center}
 \Large
-Août 2023
+Mars 2024
 \end{center}
 \vspace{2cm}\\
 \end{minipage}
@@ -879,10 +879,10 @@ load(file=str_c(datawdy,"vvv.Rdata"))
 \pagestyle{stylestandard}
 \begin{abstract}
     
-Les dévalaisons d'anguilles argentées ont été suivies, pour la dixième année
+Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième année
   consécutive, à l'aide d'un sonar multifaisceaux (didson). Le didson est placé
   sur un rail porteur au niveau du quatrième pertuis de vannes du barrage d'Arzal à la limite de l'estuaire de la Vilaine.
- Sur les dix années,  \num{\Sexpr{round(Nprim04all)}} anguilles
+ Sur les onze années,  \num{\Sexpr{round(Nprim04all)}} anguilles
  argentées ont été comptées lors des dépouillements. En \Sexpr{saison},
  \num{\Sexpr{round(Nprim04allCY)}} anguilles ont été comptées. L'efficacité de
  la détection a été calculée en fonction de la taille des anguilles, de la
@@ -912,11 +912,11 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la dixième ann�
   \textit{  
   \centering{\textbf{Abstract}}\\
   \smallskip
- Silver eel migrations were monitored, for the tenth year
+ Silver eel migrations were monitored, for the eleventh year
   in a row, using a multibeam sonar (didson). The didson is placed
   on a guiding rail at the level of the fourth sluice gate of the Arzal dam at
   the limit of the Vilaine estuary.
- Over ten years, \num{\Sexpr{round(Nprim04all)}} silver eels
+ Over eleven years, \num{\Sexpr{round(Nprim04all)}} silver eels
  silver were counted during the readings. In \Sexpr{saison},
  \num{\Sexpr{round(Nprim04allCY)}} eels have been counted. The effectiveness of
  the detection was calculated according to the size of the eels, the
@@ -1045,19 +1045,19 @@ req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,extract('mon
 sumdepouillement <- query(req, base) %>% getquery()
 save(sumdepouillement,file=str_c(datawdy,"sumdepouillement.Rdata"))
 req@sql <- str_c("with depouillement as (select dsf_timeinit,dsr_id,
-         extract('month' from dsf_timeinit) as mois,
-         dsr_reader, 
-         dsf_position, 
-         dsf_season,
+        extract('month' from dsf_timeinit) as mois,
+        dsr_reader, 
+        dsf_position, 
+        dsf_season,
         dsr_readend-dsr_readinit as temps_lecture    
- from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
+        from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
         where dsf_timeinit>'",toutdebut,
     "' and dsf_timeinit<'",fin,
     "' )
         select justify_hours(sum(temps_lecture)) tps, 
-    sum(temps_lecture) as tps_h, 
-    dsf_season from depouillement 
-    group by dsf_season ")
+        sum(temps_lecture) as tps_h, 
+        dsf_season from depouillement 
+        group by dsf_season ")
 sumdepouillement_all <- query(req, base) %>% getquery()
 save(sumdepouillement_all,file=str_c(datawdy,"sumdepouillement_all.Rdata"))
 
@@ -1531,10 +1531,6 @@ for (j in 1:nrow(res)) {
 # sur la nouvelle version dddp contient toutes les années, mais les données mises à jour sont écrites sur l'année en cours
 # je les écris en base dans t_didsonfiles.dsf_periode
 
-#TODO 2021 RUNONCE (commenté pour ne pas écrire en base)
-#xxxx<- dddp[!is.na(dddp$periode),c("dsf_id","periode")]
-#sqldf("UPDATE did.t_didsonfiles_dsf set dsf_periode = periode FROM xxxx where xxxx.dsf_id = t_didsonfiles_dsf.dsf_id ")
-
 
 
 save(ppp, file = str_c(datawdy, "ppp.Rdata"))
@@ -1602,7 +1598,9 @@ correct<-function(data,var,value,newvalue){
 dddp <- correct(dddp,"dsf_distancestart",2,2.08)
 ddde <- correct(ddde,"dsf_distancestart",2,2.08)
 ddde <- ddde[!is.na(ddde$dsr_id),]
-ddde$hour <- as.numeric(strftime(ddde$round_time,format="%H"))
+ddde <- ddde[!is.na(ddde$round_time),]
+stopifnot(tz(ddde$round_time)=="UTC")
+ddde$hour <- as.numeric(strftime(ddde$round_time,format="%H", tz="UTC"))
 lpm$count <- 1
 horaires <- function(data){
   data$Hdeb<-as.numeric(strftime(data$dsf_timeinit,"%H"))+as.numeric(strftime(data$dsf_timeinit,"%M"))/60
@@ -1864,7 +1862,15 @@ barrage et sont en général de faible durée (Figure \ref{fig_effectif_pb}).
 Un seul pic de crue est observé en janvier avec des débits de l'ordre de 300
 $m^3.s^{-1}$
 
-En 2022--2023, TODO
+En 2022--2023, il y a eu de nombreux plantages intempestifs du didson au cours de la saison.
+La majorité de ces derniers sont liés à un problème d'accès au disque dur. 
+Le rotateur commence également à montrer des signes d'usures.
+La première crue à débutée le 20 décembre avec des débits de l'ordre de 
+380 $m^3.s^{-1}$. Plus une diminution suivie d'une deuxième crue à partir 
+du 31 décembre de l'ordre de 350 $m^3.s^{-1}$. 
+Ces crues ont été suivies d'une période calme du 6 février au 9 mars, puis un
+enchainement de 5 pics de crues jusqu'à la fin de la saison (en fin avril) 
+avec des débits de l'ordre de 180 à 270 $m^3.s^{-1}$.
 
 %------------------------------------------
 \begin{figure}[htbp]
@@ -1957,9 +1963,8 @@ débits recalculés par la méthode de \citet{briand_note_2015}.}
 \label{debits_ajustes}
 \end{figure}
 
-TODO
-L'analyse des données de débit des volets montre que leur fonctionnement a été
-continu en 2022-2023 (Figure \ref{debitvoletjour}).
+L'analyse des données de débit des volets montre un fonctionnement régulier en
+2022-2023 (Figure \ref{debitvoletjour}).
 
 \begin{figure}[htbp]
 \centering
@@ -1992,9 +1997,6 @@ poissons, des objets, voire rien en période de fort débit et forte turbidité.
 processus permet de réduire la taille des fichiers et de limiter le temps de dépouillement, mais il dépend aussi des conditions. Le passage d'un banc de mulets,
 par exemple, pourra conduire à garder l'ensemble du fichier. 
 Les seuils de traitement appliqués sont identiques aux années précédentes, 2.8 dB en volet et 2.5 dB en vanne.
-A plusieurs reprises, des
-comparaisons ont été menées aux fichiers complets pour vérifier que
-l'application du CSOT ne conduisait pas à écarter des données. 
 Les fichiers qui contenaient des anguilles douteuses (notées 1 sur une échelle de 1 à 5) ont été relus par les deux lecteurs pour validation. 
 La présence de mulets en dévalaison ou de nombreux alevins est notée sur une échelle de 0 à 5, 
 depuis le niveau zéro (pas d'alevins ou de mulets) à 5 (gêne maximale).
@@ -2030,8 +2032,8 @@ prospection); pour l'observateur elle apparaît donc en cours de trajectoire au 
 
 \label{partraitement}
 Les données sont récupérées depuis la base de données PostgreSQL à l'aide
-d'outils RODBC et sqldf
-\citep{grothendieck_SqldfManipulateData_2017,conway_RPostgreSQLInterfacePostgreSQL_2021}.
+d'outils RODBC et DBI
+\citep{conway_RPostgreSQLInterfacePostgreSQL_2021, wickham_2022}.
 
 Les suivis concernent quatre classes de tailles d'anguilles ($\tau$ formule \ref{eq_tau}) dont les probabilités de détection par le didson ne sont pas
 équivalentes en fonction des distances ($\delta$, formule \ref{eq_delta}, Figures
@@ -2306,9 +2308,7 @@ N = \frac{\sum_{t=nuit}N}{1-\mu}\\
 \end{equation}
 
 \subsubsection{Modélisation de la migration}
-TODO CHECKME
-Le dépouillement des fichiers a débuté le 04/10 avec un problème de
-qualité des images  Nous avons reconstitué les
+Nous avons reconstitué les
 effectifs en migration lors des périodes sans suivi $N_d\otimes$ à partir des densités mesurées 
 pour la même nuit dans un positionnement correct $N_d\odot$ et du volume d'eau
 transitant par le barrage $V\odot$ (Equation \ref{mod}).
@@ -2324,8 +2324,8 @@ tendance saisonnière et le débit.
 \subsubsection{Calcul des biomasses}
 
 Les biomasses en dévalaison ont été calculées à partir de la fréquence de taille
-corrigée des anguilles. Les fréquences des effectifs de chaque classe de taille
-de 5cm ont été calculées et multipliées par le poids moyen du centre de la
+corrigée des anguilles à moins de 7 m de distance du didson. Les fréquences des
+effectifs de chaque classe de taille de 5cm ont été calculées et multipliées par le poids moyen du centre de la
 classe, tel que prédit par la relation taille/poids calée sur les données régionales
 d'anguilles argentées (source OFB et EPTB-Vilaine).
 
@@ -2336,7 +2336,7 @@ d'anguilles argentées (source OFB et EPTB-Vilaine).
 \subsubsection{Fonctionnement du barrage}
 
 
-<<fonctionnementvanne, echo=FALSE, eval=TRUE,results=hide>>=
+<<fonctionnementvanne, echo=FALSE, eval=FALSE,results=hide>>=
 png(file=str_c(imgwdy,"fonctionnementvanne.png"),width = 8, height = 8, units = 'in', res = 300)
 def.par <- par(no.readonly = TRUE)
 par(mar = c(2,3,1,1))
@@ -2372,7 +2372,7 @@ d3ej<-d3ej[,-match(c("hv","hvo","dsc"),colnames(d3ej))]
 
 
 cor(d3edj$debitvilainej,d3edj$enj_turb) # NA
-cor(d3edj$debitvilainej,d3edj$enj_turb, use="complete.obs") # 0.87
+cor(d3edj$debitvilainej,d3edj$enj_turb, use="complete.obs") # 0.76
 
 #' fonction de graphique des débits et turbidités et des pb de fonctionnement
 #' @param ylim2   limite du graph
@@ -2384,7 +2384,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
   # ajoute de la place à gauche
   par(oma=c(0,2,0,0))
   #calcul des problèmes d'acquistion
-   # d3ej[,c("dsf_timeinit","dsf_fls_id")]
+  # d3ej[,c("dsf_timeinit","dsf_fls_id")]
   pb <- d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==3&!is.na(d3ej$dsf_fls_id[thisseason])]
   if (length(pb>0)){
     pb<-data.frame("date"=pb,"delta"=NA)
@@ -2407,7 +2407,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
   #	datefin2<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
   #	datefin2<-as.Date(datefin2,tz=Sys.timezone())
   #}else {dateinit2=NULL;datefin2=NULL}
-    ############################
+  ############################
   pb<-d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==1]
   if (length(pb>0)){
     pb<-data.frame("date"=pb,"delta"=NA)
@@ -2420,10 +2420,10 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
     datefin3<-as.Date(datefin3,tz=Sys.timezone())
   } else {dateinit3=NULL;datefin3=NULL}
 # plot, mais pas les axes 
-
+  
   plot(d3edj$enj_date[thisseason],d3edj$deb_qtotalj[thisseason],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,ylim))
   if (!is.null(dateinit3)){
-    rect(xleft=dateinit3,ybottom=102,xright=datefin3,ytop=ytop,col=jaune_EV,border=jaune_EV,density=6)
+    rect(xleft=dateinit3,ybottom=102,xright=datefin3+2,ytop=ytop,col=jaune_EV,border=jaune_EV,density=6)
   }
   if (!is.null(dateinit)){
     rect(xleft=dateinit,ybottom=102,xright=datefin,ytop=ytop,col=orange_EV,border=rouille)
@@ -2431,7 +2431,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
   
   #rect(xleft=date_seuil_pb_lentille,ybottom=102,xright=as.Date(max(d3ej$dsf_timeinit)),ytop=1000,col=makeTransparent("yellow",70),border="orange")
   # si le premier elt du polygone est sup 100 et tout seul ça plante
-
+  
   polygon(c(min(d3edj$enj_date[thisseason])-1,d3edj$enj_date[thisseason],max(d3edj$enj_date[thisseason])+1),c(100,pmax(100,d3edj$deb_qtotalj[thisseason]),100),col="grey",border=NA)
   # petit ajustement 2018-2019 pour que le gris finisse à 100
   #polygon(d3edj$enj_date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
@@ -2449,13 +2449,14 @@ plotdebitturbidite(ylim= 400, ytop= 350)
 dev.off()
 @
 
-Le barrage a connu quelques ouvertures nocturnes avant la mise en place du
-didson du 02 octobre au 05 octobre (Figures \ref{debitturbidite} et
-\ref{fonctionnementvanne}). Trois petites crues sont observées (débit supérieur à
-\SI{100}{\cubic\metre\per\second}) en mi-décembre, la première quinzaine de
-janvier (crue principale), puis fin février.  Les
-turbidités montent au-delà de \underline{50 NTU} au cours de la crue de janvier
-(Figure \ref{debitturbidite}).
+Le barrage ne commence à ouvrir qu'en novembre à la date de la mise en place du
+didson (Figures \ref{debitturbidite} et \ref{fonctionnementvanne}). Trois
+grosses crues sont observées (débit supérieur à
+\SI{300}{\cubic\metre\per\second}) entre mi-décembre et mi-janvier, puis mars
+des pics successifs entre 100 et 200 \unit{\cubic\metre\per\second}.
+Les
+turbidités montent au-delà de 100 NTU au cours de la crue de
+décembre-janvier (Figure \ref{debitturbidite}).
 
 \begin{figure}[ht!]
   \centering
@@ -2575,8 +2576,8 @@ options(encoding = "native.enc")
 # tps
 ##################
 tps_semaine <- 
-   (as.numeric(sapply(strsplit(sumdepouillement_all$tps_h,":"),function(X)X[1]))+
-as.numeric(sapply(strsplit(sumdepouillement_all$tps_h,":"),function(X)X[2]))/60)/6/5
+    (as.numeric(sapply(strsplit(sumdepouillement_all$tps_h,":"),function(X)X[1]))+
+      as.numeric(sapply(strsplit(sumdepouillement_all$tps_h,":"),function(X)X[2]))/60)/6/5
 
 tps_jour_supl <-  
     round(5*(tps_semaine - floor(tps_semaine)))
@@ -2596,7 +2597,7 @@ saisons précédentes (Tableau \ref{tabletps}).
 
 
 \input{../table/2023/depouillement.tex}
-Cette année les temps de dépouillement sont de 20 minutes alors qu'ils
+Cette année les temps de dépouillement sont de 10-20 minutes alors qu'ils
 pouvaient être de 30 minutes lors des pics de migration, la mesure des anguilles
 restant chronophage (Figure \ref{tpspoint}).
 \begin{figure}[htbp]
@@ -2759,7 +2760,7 @@ L'ensemble des problèmes techniques est résumé sur les Figures
 \input{../table/2023/tabfls.tex}
 \input{../table/2023/tabflsall.tex}
 \subsubsection{Positionnement du didson}
-<<positionnement, echo=FALSE, eval=TRUE,results=hide>>=
+<<positionnement, echo=FALSE, eval=FALSE,results=hide>>=
 # pour extrapoler d3ej$ex>1
 d3ej2 <- d3ej[d3ej$dsf_season==saison,]
 # JE passe sur un nouveau d3ej2 pour pas casser le dsf_position
@@ -2925,7 +2926,7 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
     sf= surface et fond (l'ouverture change au cours des 30 minutes). 
     
     Couleurs :
-    \textbf{\textcolor{orange_EV}{violet}} le didson n'enregistre
+    \textbf{\textcolor{orange_EV}{orange}} le didson n'enregistre
     pas pour des raisons techniques, \textbf{noir} vanne fermée, \textbf{\textcolor{Gray}{gris}} pas de lecture,
     \textbf{\textcolor{turquoise_EV}{turquoise}} le didson est bien positionné,
     \textbf{\textcolor{rouille}{marron}} le didson enregistre mais il est mal
@@ -2975,8 +2976,8 @@ round-precision = 1]{\Sexpr{vvv$perc$"4"}}\% du
  \end{itemize}
 \end{itemize}
 Cette année, les problèmes de fonctionnement du didson en octobre, novembre,
-février et avril sont visibles (en orange, Figure \ref{position10}). En
-avril il s'agit essentiellement de problèmes de communication via le
+février, mars et avril sont visibles (en orange, Figure \ref{position}). 
+Il s'agit essentiellement de problèmes de communication via le
 cable avec le didson. Globalement il y a très peu d'enregistrements sur des
 périodes où le didson est mal positionné (en marron), quand c'est le cas il
 peut s'agir d'écoulement en volets ailleurs sur le barrage alors que la vanne 4
@@ -3222,14 +3223,11 @@ grande des colonnes),
 Pour la saison \Sexpr{saison} les détections sont majoritairement faites en
 vanne. Dans ces conditions, les détections de petites anguilles $\tau$
 <45cm~\text{mâles} et 45-60cm~\text{petites femelles} sont très réduites, et ces
-effectifs faibles se traduisent dans le diagramme
-\ref{qualite_distance_vanne_all} où dominent les anguilles de 60 à 80cm. On ne
-retrouve pas comme l'année précédente, de moins bonnes qualités d'anguilles
-détectées dans les deux premières classes de distance, mais une diminution
-progressive de la qualité à mesure que l'on s'éloigne du didson ou que la
-taille des anguilles diminue. Il est possible que les observations à grande
-vitesse de courant aient été moins nombreuses. La fin des travaux sur la vanne
-voisine a peut être également limité les écoulements turbulents en rive.
+effectifs faibles se traduisent sur l'ensemble des saisons de suivi dans le
+diagramme \ref{qualite_distance_vanne_all} où dominent les anguilles de 60 à 80cm. 
+Cette année les distributions des qualités d'anguilles sont conformes à une
+diminution progressive des qualités d'images à mesure que l'on s'éloigne du
+didson, et on retrouve une meilleure qualité des images en surface.
 
 
 
@@ -3373,7 +3371,7 @@ anguilles.}}
 \vspace{\dimexpr.8pt+\fboxsep\relax}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<taille_volets, echo=FALSE, eval=TRUE,results=hide>>=
+<<taille_volets, echo=FALSE, eval=FALSE,results=hide>>=
 ########################
 # Données volets
 ########################
@@ -3462,7 +3460,7 @@ dev.off()
 
 
 
-<<taille_vannes_dddpf5, echo=FALSE, eval=TRUE,results=hide>>=
+<<taille_vannes_dddpf5, echo=FALSE, eval=FALSE,results=hide>>=
 
 
 pdf(file=str_c(imgwdy,"taille_distance_vannefond.pdf"))
@@ -3745,8 +3743,8 @@ ff <- function(x){
 aic<- cbind(AIC(gef0,gef1,gef2,gef3,gef4,gef5,gef6,gef7,gef9,gef10,gef12,gef13),
     map_chr(.x=c("gef0","gef1","gef2","gef3","gef4","gef5","gef6","gef7","gef9","gef10","gef12","gef13"),.f=ff))
 aic[order(aic$AIC),]
-(aovlmsel<-as.data.frame(anova(gef12,test="Chisq")))
-(pdev <- deviance(gef0)-deviance(gef12))/deviance(gef0) # le modèle explique 73 % de la déviance totale
+(aovlmsel<-as.data.frame(anova(gef13,test="Chisq")))
+(pdev <- deviance(gef0)-deviance(gef13))/deviance(gef0) # le modèle explique 76 % de la déviance totale
 
 anova(gef1,gef5,gef9,gef12,gef13,test="Chisq")
 
@@ -3756,7 +3754,8 @@ aovlmsel[,4]<-round(aovlmsel[,4],1)
 aovlmsel[,5]<-scales::pvalue(aovlmsel[,5])
 aovlmsel[,5] <- str_c("$",aovlmsel[,5],"$")
 rownames(aovlmsel)
-rownames(aovlmsel)<-c("$Resid.$","$\\delta$","$\\tau$","$saison$","$k (position)$","$\\delta*\\tau$")
+rownames(aovlmsel)<-c("$Resid.$","$\\delta$","$\\tau$","$k (position)$","$saison$",
+    "$\\delta*\\tau$","$\\delta*k$", "$\\tau*k$","$\\delta*\\tau*k$")
 colnames(aovlmsel)<-c("$df$","$dev.$","$res. df$", "$res. dev.$","$P(>chi^2$)$")
 # le fichier est enregistré en UTF8
 options(encoding = "UTF-8")
@@ -3766,7 +3765,7 @@ toto<-latex(aovlmsel,
     col.just=strsplit("l r r r r r", " ")[[1]],	
     label="tab_aovefficacite",
     caption=str_c("Analyse de variance du modèle logit des efficacités. 
-            $\\tau$= taille, $\\delta$= distance au didson"),
+            $\\tau$= taille, $\\delta$= distance au didson, $k$=position"),
     caption.lot=str_c("aov efficacité"),		
     file=str_c(tabwdy,"aovefficacite.tex"))
 options(encoding = "native.enc")
@@ -3896,9 +3895,9 @@ C <- dddp %>%
     select(psf_l_cm,  saison) %>%
     split( ~ saison) %>%
     #map( ~ max(x=.x$psf_l_cm))
-    map(~hist(x=.x$psf_l_cm,plot=FALSE,breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130))) %>%
+    map(~hist(x=.x$psf_l_cm,plot=FALSE,breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130,140))) %>%
     map_dfr(c("counts"))
-C$taille <- c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120) # un de moins
+C$taille <- c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130) # un de moins
 C<-C %>% pivot_longer(cols=!taille, names_to="saison",values_to="N")
 C$taille_cm <- cut(C$taille,c(0,45,60,80,150))
 C$taille_cm <- factor(C$taille_cm,ordered=TRUE) # sinon le join ne marche pas
@@ -3928,7 +3927,7 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
 
-<<qualite, echo=FALSE, eval=TRUE, results=hide>>=
+<<qualite, echo=FALSE, eval=FALSE, results=hide>>=
 load(file= str_c(datawdy,"dddp_2.Rdata"))
 
 # 5 missing lines for brice and gerard together in 2012-2013 dddp[is.na(dddp$psf_q),]
@@ -4017,12 +4016,14 @@ fonction de la distance au didson $\delta$, de la position vanne ou volet ($k$),
 et de la taille des anguilles $\tau$ (Formule \ref{eq_efficacite3}).
 Toutes les variables sont traitées comme des facteurs qualitatifs. L'efficacité
 est ensuite calculée à l'aide d'un modèle linéaire généralisé binomial (Formule \ref{eq_efficacite31}).
-Le modèle retenu est le modèle  $\delta + \tau + k + saison + \delta*\tau$  
-Il existe une interaction entre la taille et la
-distance ($\delta*\tau$) (Figure \ref{aovefficacite}, Tableau
-\ref{tab_aovefficacite}). En d'autres termes, en plus d'un effet direct de
-la taille pour l'efficacité, la réponse en fonction de la distance dépend de la
-taille. 
+Le modèle retenu cette année est plus complexe que le modèle de 2021-2022. Il
+s'écrit $\delta + \tau + k + saison + \delta*\tau*k$. Il retient toutes les
+interactions : entre la taille, la distance et la position ($\delta*\tau*k$) là
+ou le modèle de 2021-2022 ne retenait que l'interaction $\delta*\tau$)
+(Figure \ref{aovefficacite}, Tableau \ref{tab_aovefficacite}).
+En d'autres termes, en plus d'un effet direct de la taille pour l'efficacité, 
+la réponse en fonction de la distance dépend de la taille et de la position du
+didson.
 %=====================================================================
 \begin{figure}[htbp]
   \centering
@@ -4033,7 +4034,7 @@ taille.
   la saison (avec une classe particulière pour les premières années où le didson
   a alterné son acquisition entre des distances de 2-12m et 5-15m).
   Attention, il existe en plus une interaction entre la taille, la distance et
-  la saison, cet effet est pris en compte dans le modèle mais ignoré dans la
+  la position, cet effet est pris en compte dans le modèle mais ignoré dans la
   représentation graphique.}
   \label{aovefficacite}
 \end{figure}
@@ -4043,7 +4044,8 @@ distance au didson sont résumées en Figure \ref{nombre_taille_distance},
 les efficacités sont calculées
 en Figure \ref{efficacite} et les nombres corrigés issus du recalcul sont
 présentés en Figures \ref{efficacite} et \ref{Ncor}
- (les deux figures sont en annexe).
+ (les trois figures \ref{nombre_taille_distance}, \ref{efficacite} et
+ \ref{Ncor} sont en annexe).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\vspace{\dimexpr.15pt+\fboxsep\relax}
@@ -4702,9 +4704,9 @@ d3ej <- d3ej[order(d3ej$dsf_timeinit),]
 d3ej$Nprimo4 <- rowSums(d3ej[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)
 
 # Ensemble des détections du fichier poisson
-(Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 20898
-(Nprim04allCY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1937
-sum(d3ej$Nprimo4) # plus faible car limité de jour #19840
+(Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 22479
+(Nprim04allCY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1581
+sum(d3ej$Nprimo4) # plus faible car limité de jour #20650
 
 duree <- d3ej$dsf_timeend-d3ej$dsf_timeinit
 duree[duree>30]<-duree[which(duree>30)+1] # je décale et je prends le temps du voisin
@@ -4946,7 +4948,7 @@ load(file= str_c(datawdy,"efficacite_moyenne.Rdata"))
 muinv <- (100-mu)/100
 D0 <- d3ej
 Dj <- d3edj
-
+nrow(Dj)
 
 # rappel -----------------------------------------------
 
@@ -4968,43 +4970,77 @@ Dj <- d3edj
 
 
 # Traitement des dates -------------------------------
-
+attr(D0$dsf_timeinit, "tzone") <- "UTC"
+attr(D0$dsf_timeend, "tzone") <- "UTC"
 D0 <- D0 %>% mutate(
     year = year(date),
     month = month(date), # mois existe mais c'est un ordered factor
-    H = strftime(dsf_timeinit,format="%H"),
+    H = strftime(dsf_timeinit,format="%H", tz ="UTC"),
     H = as.factor(H),
-    W = strftime(dsf_timeinit,format="%W"),
+    W = strftime(dsf_timeinit,format="%W", tz ="UTC"),
     W = as.factor(W),
     duree = dsf_timeend - dsf_timeinit,
     hourm = as.numeric(as.character(H)),
-    day = as.numeric(strftime(dsf_timeinit,format="%j")),
+    day = as.numeric(strftime(dsf_timeinit,format="%j", tz ="UTC")),
+    leap_year = leap_year(dsf_timeinit),
     position = as.factor(position),
     indexOK = (dsf_fls_id == 0 | dsf_fls_id == 3) & ex == 1, # pas de problème de filestatus bloquant et didson bien positionné (regarde au bon endroit)  
     indexOKex3 = dsf_fls_id == 0 & ex == 3  # le didson est mal positionné
 )
-
+attr(D0$.dsf_timeinit, "tzone") 
 
 Dj <- Dj %>% mutate(
     year = year(enj_date),
     month = month(enj_date),
-    day = as.numeric(strftime(enj_date,format="%j")))
+    day = as.numeric(strftime(enj_date,format="%j")),
+    leap_year = leap_year(dsf_timeinit))
 
-#D0$saison <- NA
-#D0$saison[D0$month< 6] <-  str_c(D0$year-1,"-",D0$year)[D0$month< 6]
-#D0$saison[D0$month>=6] <- str_c(D0$year,"-",D0$year+1)[D0$month>= 6]
-D0$duree[D0$duree>30] <- 30 
-D0$hourm[D0$hourm<=8] <- 24+D0$hourm[D0$hourm<=8]
-D0$hourm <- D0$hourm-18 # 0 à 18h00
-D0$day[D0$day<250] <- D0$day[D0$day<250]+365
-D0$ndays <- D0$day - min(D0$day)+1
+
+D0 <- D0 %>% 
+    # here we want to know if a year is following a leap_year (annee bissextile)
+    # so we compile a table with column season and defining if leap_year (true and false)
+    # and the use lag to get the value from the previous season.
+    # we want a year that follows a leap year to start at 123 (not 122)
+    # because otherwise we have two 122
+    inner_join(
+        D0 %>% 
+            select(leap_year,dsf_season) %>%
+            group_by(dsf_season) %>%
+            summarize(leap_year=first(leap_year)),
+        by="dsf_season") %>%
+    mutate(duree = pmin(30,duree)) %>%
+    rename(hourm0=hourm)  %>%
+    mutate(hourm = case_when(hourm0<=9~ hourm0+7, hourm0>9~hourm0-17)) %>% # à 18h00 il est 1 h et à 1 h il est 8h (1+7)
+    # on a d3ej <-    subset(ddde, (hour > 17 | hour <= 9) & !is.na(ddde$date))
+    mutate(ndays = 
+            case_when(day<250 & !leap_year ~ day + 365,
+                day<250 & leap_year ~ day + 366,
+                TRUE ~day),
+        ndays = ndays - min(ndays) + 1) 
+
+
+
+# use this to check.... that hours are evenly reported and that there is a continuous progress of ndays
+# even during leap years, note that leap_year are divible by 4 or 100 (year%%4 == 0) & ((year%%100 != 0) | (year%%400 == 0)
+
+
+# tests (il peut y avoir des problèmes de décalage horaires....)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2012-09-21 19:00:00","hourm0"]==19)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2012-09-21 19:00:00","hourm"]==2)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2013-01-01 01:00:00","ndays"]==103)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2014-01-01 01:00:00","ndays"]==102)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2017-01-01 01:00:00","ndays"]==103)
+## if there is a problem use this :
+# View(D0[, c("dsf_timeinit","duree","leap_year","hourm","hourm0","day","ndays")])
 D0$indexOK[is.na(D0$indexOK)] <- FALSE
 D0$indexOKex3[is.na(D0$indexOKex3)] <- FALSE
 
 Dj$dsf_season <- NA
 Dj$dsf_season[Dj$month< 6] <-  str_c(Dj$year-1,"-",Dj$year)[Dj$month< 6]
 Dj$dsf_season[Dj$month>=6] <- str_c(Dj$year,"-",Dj$year+1)[Dj$month>= 6]
-Dj$day[Dj$day<250] <- Dj$day[Dj$day<250]+365
+
+Dj$day[Dj$day<250 & !leap_year] <- Dj$day[Dj$day<250 & !leap_year]+365
+Dj$day[Dj$day<250 & leap_year] <- Dj$day[Dj$day<250  & leap_year]+365
 Dj$ndays <- Dj$day - min(Dj$day)+1
 
 
@@ -5030,8 +5066,15 @@ D2 <- D1 %>%
         N4 = No4/psurface,
         N = N4/pvol4
     )
-D2$N[D2$vol4==0] <- 0
-D2$N4[D2$vol4==0] <- 0
+D2$N[D2$vol4==0] <- NA
+D2$N4[D2$vol4==0] <- NA
+# test
+sum(D2$N[D2$indexOK==1], na.rm=TRUE) #889654.6
+sum(D2$N4[D2$indexOK==1]) 
+
+D2$N[D2$indexOK==0] <- NA
+D2$N4[D2$indexOK==0] <- NA
+
 #open_in_excel(D2)
 stopifnot(sum(duplicated(D2$dsf_id))==0)
 
@@ -5061,7 +5104,7 @@ stopifnot(sum(duplicated(D2$dsf_id))==0)
 
 # en pratique ex=3 correspond à tous les fichiers Didson avec fls 0 (ok) ou 3 (pb qualité) [car ex4 eclue les fls 1 et 2]
 # et où il y a un écoulement sur la vanne et le didson est mal positionné
-D2$ex3 <- as.numeric(D2$ex==3 |D2$ex==0 & D2$volbarrage30>0)
+D2$ex3 <- as.numeric((D2$ex==3 |D2$ex==0) & D2$volbarrage30>0)
 
 
 # D2j group par numéro de jour et fait le sumarize
@@ -5071,37 +5114,44 @@ D2$ex3 <- as.numeric(D2$ex==3 |D2$ex==0 & D2$volbarrage30>0)
 # on fait un join à la fin pour tout regrouper
 
 
-D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season)%>%
-    dplyr::group_by(ndays,dsf_season)%>%
+D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season) %>%
+    dplyr::group_by(ndays,dsf_season) %>%
     dplyr::summarize(nex3=sum(ex3),
         pos_s=sum(dsf_position=="s")/dplyr::n(),
         pos_f=sum(dsf_position=="f")/dplyr::n(),
-        .groups="drop")
+        N=sum(N/muinv, na.rm=TRUE), # pour vérif ultérieure
+        .groups="drop")  
 
 
 # D3j groupe par jour et par position bonne ou mauvaise
 D3j <- D2 %>% 
-    dplyr::select(dsf_season,ndays,N,indexOK,ex3,volbarrage30)%>%
-    dplyr::group_by(dsf_season,ndays,ex3)%>%
-    dplyr::summarize(N=sum(N),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
+    dplyr::select(dsf_season,ndays,N,indexOK,ex3,volbarrage30) %>%
+    dplyr::group_by(dsf_season,ndays,ex3) %>%
+    dplyr::summarize(N=sum(N, na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
 D3j0 <- dplyr::filter(D3j,ex3==0) %>% select(-ex3) # bien positionné
 D3j1 <- dplyr::filter(D3j,ex3==1) %>% select(-ex3)# mal positionné
+
+
 
 # on cree un tableau avec le nombre de fichiers bien positionné et le nb mal 
 # positionnés en parallèle
 # par jour
 D4j <- full_join(D3j1,D3j0,by=c("ndays","dsf_season"),suffix = c(".1", ".0")) %>%
     arrange(dsf_season,ndays)
-
 #colnames(D4j)
-
+stopifnot(nrow(D4j)==nrow(D2j))
 # Dans le fichier ci dessous .1 correspond aux arrêts de tout type
 # .0 correspond à une lecture dans de bonnes conditions.
 
-nrow(D4j) # 1924
-nrow(Dj) #  1912
-D5j <- left_join(Dj,D4j,by=c("ndays", "dsf_season"))
-D5j <- left_join(D5j, D2j, by=c("ndays", "dsf_season")) # compte les périodes fls et fond sur surface
+sum(duplicated(paste(Dj$ndays,Dj$dsf_season)))
+Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),]
+duplicated_ndays <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"ndays"]
+duplicated_seasons <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"dsf_season"]
+Dj[Dj$ndays%in%duplicated_ndays,]
+D5j <- left_join(D4j,Dj,by=c("ndays", "dsf_season"))
+D5j <- left_join(D5j, D2j %>% select(-N), by=c("ndays", "dsf_season")) # compte les périodes fls et fond sur surface
+
+# sur ce fichier on passe de 2100 lignes à 2087
 
 # extrapolation des effectifs manquants
 D5j$vol.1[D5j$nex3==0] <- 0
@@ -5110,6 +5160,7 @@ D5j$nb.1[D5j$nex3==0] <- 0
 # une journée complètement manquante le 2017-11-21, pas de données dans D2 ni d3ej ???
 # très peu de débit, pas à s'en soucier
 D5j$vol.1[is.na(D5j$vol.1)] <- 0
+D5j$N.0 <- D5j$N.0/muinv # On corrige les effectifs journaliers de jour / nuit
 D5j$N.1 <- D5j$N.0*(D5j$vol.1)/D5j$vol.0
 #open_in_excel(D5j)
 
@@ -5214,225 +5265,12 @@ dev.off()
 
 
 
-save(D2, D7j, file=str_c(datawd,"D2D7j.Rdata"))
+save(D2, D7j, file=str_c(datawdy,"D2D7j.Rdata"))
 
 
 @
 
 
-
-
-<<missing_values, echo=FALSE, eval=FALSE,results=hide>>=
-stop("DEPRECATED")
-#load(file=str_c(datawdy,"d3edj.Rdata"))
-d3edj$day <- as.numeric(strftime(d3edj$enj_date,format="%j"))
-d3edj$day[d3edj$day<250] <- d3edj$day[d3edj$day<250]+365
-d3edj$ndays <- d3edj$day-min(d3edj$day)+1
-
-d3ejko <- d3ej[!indexOK,] # fichiers non utilisés pour le calcul
-d3ejko$N <- NA
-
-# d3ejf dans un meme tableau toutes les lignes : celles OK et les autres qu'on est allé rechercher
-# periodes 30minutes
-d3ejf <- rbind(d3ejko,d3ejok)	
-d3ejf <- d3ejf[order(d3ejf$dsf_timeinit),] # toutes les lignes
-
-# d3edj2 group par numéro de jour et fait le sumarize
-# en comptant le nomre de positions fond surface
-# periodes jour
-d3edj2 <- dplyr::select(d3ejf,ndays,N,flsall,dsf_position)%>%
-    dplyr::group_by(ndays)%>%
-    dplyr::summarize(nfls0=sum(flsall%in%c(0,3)),
-        pos_s=sum(dsf_position=="s")/dplyr::n(),
-        pos_f=sum(dsf_position=="f")/dplyr::n())
-
-
-
-#   flsall	flsall2
-#   0	      0      enregistrement normal   
-#   1	      1      problème d'acquisition, 
-#   2	      1      problème d'écriture, 
-#   3	      0      problème de qualité, 
-#   4	      1      mauvais positionnement du didson ou écoulement ailleurs sur le barrage, 
-#   5	      0      vanne fermée mais ensemble du #barrage fermé également
-
-# creation d'un vecteur flsall2 contenant deux positions 0 ou 1
-d3ejf$flsall2 <- d3ejf$flsall
-d3ejf$flsall2[d3ejf$flsall2%in%c(0,3)] <- 0
-d3ejf$flsall2[d3ejf$flsall2%in%c(1,2,4)] <- 1
-
-# d3edj3 groupe par jour et par position bonne ou mauvaise
-d3edj3<-dplyr::select(d3ejf,ndays,N,indexOK,flsall2,volbarrage30)%>%
-    dplyr::group_by(ndays,flsall2)%>%
-    dplyr::summarize(N=sum(N,na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30))
-d3edj31 <- dplyr::filter(d3edj3,flsall2==1) # mal positionné
-d3edj30 <- dplyr::filter(d3edj3,flsall2==0) # bien positionné
-
-# on cree un tableau avec le nombre de fichiers bien positionné et le nb mal 
-# positionnés en parallèle
-# par jour
-d3edj4 <- merge(d3edj31,d3edj30,by="ndays",all.x=TRUE,all.y=TRUE)
-colnames(d3edj4) <- gsub("x","1",colnames(d3edj4))
-colnames(d3edj4) <- gsub("y","0",colnames(d3edj4))
-colnames(d3edj4)[1] <- "ndays"
-
-
-
-# Dans le fichier ci dessous .1 correspond aux arrêts de tout type
-# .0 correspond à une lecture dans de bonnes conditions.
-
-
-d3edj <- merge(d3edj,d3edj4,by="ndays")
-d3edj <- merge(d3edj,d3edj2,by="ndays")
-# calculer le nombre de fenêtre de migration manquantes
-#d3edj[d3edj$sumok==0,"Nd"]<-NA
-
-
-
-# l'extrapolation est surement surestimée car les fonctionnements
-# en volets sont en général en fin de nuit.
-d3edj$vol.1[is.na(d3edj$vol.1)] <- 0
-d3edj$N.1 <- d3edj$N.0*(d3edj$vol.1)/d3edj$vol.0
-# 
-#open_in_excel(d3edj)
-# valeurs manquantes début de saison, interpolation
-d3edj$N <- d3edj$N.0+d3edj$N.1
-
-
-#################################
-# Extrapolation des jours manquants
-# voir didson2016 pour loess pour quelques jours
-# voir didson 2015 pour gam avec presence absence
-# ################################
-
-# extrapoler la tendance à partir des données dispo sur une journée
-d3edj[d3edj$nfls0==0,"N.0"] <- NA
-require(mgcv)
-nrow(d3ejok) # 3184
-
-#d3edj$N
-g0 <- mgcv::gam(N~s(deb_qtotalj,k=3),dat=d3edj[d3edj$N>0,],family=Gamma(link="log"))
-summary(g0)
-pdf(file=str_c(imgwdy,"gam_predict.pdf",width=7,height=7))
-plot(g0,pages=1,all.terms=TRUE)
-dev.off()
-
-######################################
-# predictions pour les jours manquants
-# utilisation d'un modèle gam sur qtotal + effet saisonnier ... bizarre...
-# avec un creux en janvier
-#####################################
-p1 <-    is.na(d3edj$N)
-#d3edj[p1,"N.2"]
-#d3edj[p1,"N.2"]<- 0
-d3edj[p1,"N.2"] <- predict(g0,newdata=d3edj[p1,],type="response")
-#p2<-c(44,45,47)
-## d3edj[p2,]
-#d3edj[p2,"N.2"]<-predict(g0,newdata=d3edj[p2,],type="response")
-
-# d3edj[p3,]
-
-
-######################################################
-#pdf(file=str_c(imgwdy,"fig_effectif_pb.pdf"),width=9,height=7)
-#opar <- par(c(5, 4, 4, 4) + 0.1)
-#plot(d3edj$enj_date,d3edj$N,type="n",ylab="N & 10debit m3.s-1",xlab="date")
-#
-#pb <- d3ej$dsf_timeinit[d3ej$dsf_fls_id==3&!is.na(d3ej$dsf_fls_id)]
-#if (length(pb>0)){
-#	pb<-data.frame("date"=pb,"delta"=NA)
-#	pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-#	pb$delta[1]<-30
-#	w<-which(pb$delta>690)
-#	dateinit<-c(pb[1,"date"],pb[w,"date"])
-#	dateinit<-as.Date(dateinit,tz=Sys.timezone())
-#	datefin<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-#	datefin<-as.Date(datefin,tz=Sys.timezone())
-#} else {dateinit=NULL;datefin=NULL}
-##pb<-d3ej$dsf_timeinit[d3ej$dsf_fls_id==2&!is.na(d3ej$dsf_fls_id)]
-##if (length(pb>0)){
-##	pb<-data.frame("date"=pb,"delta"=NA)
-##	pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-##	pb$delta[1]<-30
-##	w<-which(pb$delta>690)
-##	dateinit2<-c(pb[1,"date"],pb[w,"date"])
-##	dateinit2<-as.Date(dateinit2,tz=Sys.timezone())
-##	datefin2<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-##	datefin2<-as.Date(datefin2,tz=Sys.timezone())
-##}else {dateinit2=NULL;datefin2=NULL}
-#############################
-#pb <- d3ej$dsf_timeinit[d3ej$dsf_fls_id==1|d3ej$dsf_fls_id==2]
-#if (length(pb>0)){
-#	pb<-data.frame("date"=pb,"delta"=NA)
-#	pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
-#	pb$delta[1]<-30
-#	w<-which(pb$delta>690)
-#	dateinit3<-c(pb[1,"date"],pb[w,"date"])
-#	dateinit3<-as.Date(dateinit3,tz=Sys.timezone())
-#	datefin3<-c(pb[w-1,"date"],pb[nrow(pb),"date"])
-#	datefin3<-as.Date(datefin3,tz=Sys.timezone())
-#} else {dateinit3=NULL;datefin3=NULL}
-## plot, mais pas les axes 
-##plot(d3edj$enj_date,d3edj$deb_qtotalj,type="l",yaxt='n',col="black",ylab="",xlab="date")
-#if (!is.null(dateinit3)){
-#	rect(xleft=dateinit3,ybottom=0,xright=datefin3,ytop=5000,col=makeTransparent(jaune_EV,50),border=jaune_EV)#,density=6)
-#}
-#if (!is.null(dateinit)){
-#	rect(xleft=dateinit,ybottom=0,xright=datefin,ytop=5000,col=makeTransparent("steelblue",50),border="steelblue")#,density=8,angle
-#	#= -45) 
-#}
-##if (!is.null(dateinit2)){
-##	rect(xleft=dateinit2,ybottom=0,xright=datefin2,ytop=5000,col="yellow",border="orange")
-##}
-################################################################
-##rect(xleft=16394,ybottom=0,xright=16426,ytop=3000,col=rouille)
-##rect(xleft=16456,ybottom=0,xright=16483,ytop=3000,col=rouille)
-##text(x=17158,y=4500,label="pb acqu",pos=4)
-##text(x=17186,y=4000,label="pb acqu",pos=4)
-##text(x=17211,y=4500,label="corrosion",pos=4)
-#
-##text(x=16425,y=1800,label="Pb efficacité",pos=4)
-#rect(xleft=as.numeric(dmy("23112018")),ybottom=0,xright=as.numeric(dmy("13122018")),ytop=6000,border=rouille)
-#text(x=as.numeric(dmy("04122018")),y=5000,label="A",col=orange_EV)
-#rect(xleft=as.numeric(dmy("13122018")),ybottom=0,xright=as.numeric(dmy("01022019")),ytop=6000,border=rouille)
-#text(x=as.numeric(dmy("15012019")),y=5000,label="B",col=orange_EV)
-#rect(xleft=as.numeric(dmy("01022019")),ybottom=0,xright=as.numeric(dmy("01032019")),ytop=6000,border=rouille)
-#text(x=as.numeric(dmy("14022019")),y=5000,label="C",col=orange_EV)
-#rect(xleft=as.numeric(dmy("01032019")),ybottom=0,xright=as.numeric(dmy("01052019")),ytop=6000,border=rouille)
-#text(x=as.numeric(dmy("01042019")),y=5000,label="D",col=orange_EV)
-#
-#
-#points(d3edj$enj_date,d3edj$N,col=orange_EV,type="h",lwd=2)
-#points(d3edj$enj_date,d3edj$N.0,col=turquoise_EV,type="h",lwd=2)
-#points(d3edj$enj_date,d3edj$N.2,col="purple",type="h",lwd=2)
-#points(d3edj$enj_date[d3edj$enj_date<dmy("13122018")],d3edj$N.0[d3edj$enj_date<dmy("13122018")],col="mediumorchid",type="h",lwd=2)
-##points(d3edj$enj_date,d3edj$N.4,col="purple",type="h",lwd=1)
-##axis(side=4,at=pretty(0:max(d3edj$N,na.rm=TRUE)),label=as.character(pretty(0:max(d3edj$N,na.rm=TRUE))/10))
-#text(17487,3200,"Did. FOND",col=rouille,adj = c(0,0))
-#points(d3edj$enj_date[d3edj$pos_f>0],rep(3000,sum(d3edj$pos_f>0)),col=rouille,type="p",lwd=2,pch=15)
-#text(17487,3700,"Did. SURF",col=bleu_EV,adj = c(0,0))
-#points(d3edj$enj_date[d3edj$pos_s>0],rep(3500,sum(d3edj$pos_s>0)),col=bleu_EV,type="p",lwd=2,pch=15)
-#
-#axis(1, pos=0,labels=FALSE,lwd.ticks=0)
-#points(d3edj$enj_date,d3edj$deb_qtotalj*10,type="l", col="blue")
-#points(d3edj$enj_date,d3edj$debit4j*10,type="l",col="red")
-#dev.off()
-#
-#
-#
-#
-#
-#d3edj$N<-rowSums(d3edj[,c("N.0","N.1")],na.rm=TRUE)
-#d3edj[d3edj$nfls0==0,"N"]<-NA
-#d3edj$N[!is.na(d3edj$N.2)]<-d3edj$N.2[!is.na(d3edj$N.2)]
-## extrapoler les données à partir de la librairie zoo
-#write.table(d3edj,row.names = FALSE,file=str_c(datawdy,"d3edj.csv"),sep=";")
-#detach(package:dplyr)
-#(Nko.1<-sum(d3edj$N.1,na.rm=TRUE)/muinv)# 11181.98
-#(Nko.3<-sum(d3edj$N.2,na.rm=TRUE)/muinv)# 923 effectifs des jours manquants
-#
-
-@
 
 
 
@@ -5441,28 +5279,48 @@ d3edj[p1,"N.2"] <- predict(g0,newdata=d3edj[p1,],type="response")
 # Devalaison observée dans le champ de la vanne pour positions mauvaise ...
 # didson en vanne alors que en volet, ou en volet alors que écoulement en vanne
 
-load(file=str_c(datawd,"D2D7j.Rdata"))
+load(file=str_c(datawdy,"D2D7j.Rdata"))
+
+# ci dessous vérification de la cohérence des chiffres
 D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
     mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
     group_by(dsf_season,type) %>% 
     summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
     pivot_wider(names_from=type, values_from=N)
 
+D4j  %>% select(starts_with("N."),dsf_season) %>%
+    pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
+    mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
+    group_by(dsf_season,type) %>% 
+    summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
+    pivot_wider(names_from=type, values_from=N)
+
+D2j  %>%     
+    group_by(dsf_season) %>% 
+    summarize(N=sum(N,na.rm=TRUE), .groups="drop")
+
+D2  %>% select (N, dsf_season, ex, volbarrage30, indexOK, vol4) %>%   
+    filter(ex==1 & volbarrage30>0)  %>%  
+    mutate(N = case_when(indexOK==0~0, TRUE ~N),
+        N = case_when(vol4==0~0, TRUE ~N)) %>%            
+    group_by(dsf_season) %>% 
+    summarize(N=sum(N/muinv,na.rm=TRUE), .groups="drop") 
+
+
 
 
 # Calculs pour les détections ou le didson est bien positionné ---------------------
+D2$exvol <- as.numeric(D2$ex==1 & D2$volbarrage30>0)
+Dok <- D2 %>% dplyr::filter(exvol==1) %>% select(-exvol)
 
-Dok <- D2 %>% filter(indexOK) # tableau des enregistrement 30 min ou le didson est bien positionné
-#Dok_ex3 <- D2 %>% filter(indexOKex3) # tableau des enregistrements 30 min ou le didson est mal positionné
-vvv$number.odot <- 
 # Quelques extrapolations en divisant par zéro, correspond
 # à l'ouverture de la vanne, ouverture très faible, dans la fonction de calcul
 # dans Dok
-    
-    if (sum(is.infinite(Dok$N4))>0){
-      warning(str_c("il y a ",sum(is.infinite(Dok$N4))," de valeurs NaN pour N4"))
-      Dok[is.infinite(Dok$N4),"N4"]<-NA 
-    }
+
+if (sum(is.infinite(Dok$N4))>0){
+  warning(str_c("il y a ",sum(is.infinite(Dok$N4))," de valeurs NaN pour N4"))
+  Dok[is.infinite(Dok$N4),"N4"]<-NA 
+}
 
 if (sum(is.infinite(Dok$N))>0){
   warning(str_c("il y a ",sum(is.infinite(Dok$N))," de valeurs NaN pour N"))
@@ -5518,6 +5376,7 @@ tapply(Dok$N, Dok$dsf_season,sum, na.rm=TRUE)
 
 
 res.1 <-  D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
+    select(dsf_season,type,N) %>%
     group_by(dsf_season,type) %>% 
     summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop")%>%
     filter(type=="N.1") %>%
@@ -5534,6 +5393,7 @@ res.2 <-  D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="t
     mutate(type="$\\oplus$(?)","$N'_{o4}$"=NA,"$N_{o4}$"=NA,"$N_{4}$"=NA) 		
 # tous
 res.t <-  D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
+    select(dsf_season,type,N) %>%
     group_by(dsf_season) %>% 
     summarize(N=round(sum(N,na.rm=TRUE)), .groups="drop") %>% 
     select("Saison"=dsf_season,	N) %>%
@@ -5559,8 +5419,8 @@ final <- bind_rows(
         res %>% filter(type=="s$\\odot$") %>% mutate("Saison"=paste0("\\multirow{7}{*}{",Saison,"}")),
         res %>% filter(type!="s$\\odot$") %>% mutate("Saison"="")
     )	%>%
-    arrange(ma.)%>%
-    select(-ma.)%>%
+    arrange(ma.) %>%
+    select(-ma.) %>%
     mutate_if(is.numeric,round)
 
 
@@ -5602,7 +5462,7 @@ toto <- latex(final,
     file=str_c(tabwdy,"tabfinal.tex"),
     # arguments pour longtable :
     longtable = TRUE,
-    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7, 6),
+    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6),
     continued = "\\dots suite \\dots",
     collabel.just = c("l",
         "l",
@@ -5702,9 +5562,11 @@ effmois  <- effmois %>%
 
 # group rows for longtable
 effmois <- bind_rows(
-        effmois %>% filter(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" &  Saison %in% c("2017-2018","2018-2019")) %>% 
+        effmois %>% filter(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" & 
+                    Saison %in% c("2017-2018","2018-2019","2022-2023")) %>% 
             mutate("Saison"=Saison),
-        effmois %>% filter(!(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" &  Saison %in% c("2017-2018","2018-2019"))) %>%
+        effmois %>% filter(!(mois=="sept"|mois=="oct" & ! Saison %in% c("2012-2013", "2015-2016")|mois=="nov" & 
+                      Saison %in% c("2017-2018","2018-2019","2022-2023"))) %>%
             mutate("Saison"="")
     )	%>%
     arrange(ma.)%>%
@@ -5750,7 +5612,7 @@ dj2 <- D7j  %>%
 
 png(file=str_c(imgwdy,"fig_effectif_pb.png"), width = 29.7, height = 21, units = 'cm', res = 300)
 opar <- par(mar=c(5, 4, 4, 4) + 0.1)
-plot(dj2$enj_date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,10000))
+plot(dj2$enj_date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,6000))
 # calcul des périodes consécutives pour dsf_fls_id
 date <- d3ej$dsf_timeinit[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
 fls_id <- d3ej$dsf_fls_id[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
@@ -5810,7 +5672,7 @@ points(d3edj$enj_date, d3edj$debit4j*10, type="l", col="red")
 dev.off()
 @
 
-<<positionnement, echo=FALSE, eval=TRUE,results=hide>>=
+<<positionnement_deprecated, echo=FALSE, eval=TRUE,results=hide>>=
 #lambda <- c(1,1.5,2,3,4,6,8,10,20)
 #f3=c(24193,24736,24966,28444,32513,39787,43457,47766,48147)/muinv
 #ff=c(18731,23533,27067,33335,38694,47281,52096,57304,58486)/muinv
@@ -5902,7 +5764,7 @@ effectifs extrapolés pour les jours sans estimation
 }}\vspace{\dimexpr.8pt+\fboxsep\relax}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<lpm, echo=FALSE, eval=TRUE,results=hide>>=
+<<lpm, echo=FALSE, eval=FALSE,results=hide>>=
 #############################
 # Données pab
 #############################
@@ -5975,11 +5837,11 @@ vvv$lpm <- sum(tt)
 \section{Discussion}
 \subsection{Migration}
 
-La saison \Sexpr{saison} se caractérise par des débits de crue assez faibles
-(3 pics à plus de 100 \si{\cubic\metre\per\second}), avec le plus important pic
-observé fin décembre, début janvier. La migration s'est principalement
-effectuée lors de la première augmentation de débit fin décembre avec un effectif journalier dépassant 10000
-anguilles. Le pic de crue de fin février n'a permis la migration que d'un nombre
+La saison \Sexpr{saison} se caractérise par des débits de crue moyens avec 
+un premier pic à 300 \si{\cubic\metre\per\second}) fin décembre, début
+janvier puis un deuxième pic assez long à 100-200 \si{\cubic\metre\per\second})
+en mars et avril. La migration s'est principalement effectuée lors de la
+première augmentation de débit fin décembre avec un effectif journalier dépassant 10000 anguilles. Le pic de crue de fin février n'a permis la migration que d'un nombre
 limité d'anguilles argentées (Figure
   \ref{fig_N_interannuel}).
 Il faut en particulier remarquer la très forte proportion de mâles, qui
@@ -6207,16 +6069,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2023/periode4_phi0_dids_-7}
+                25mm,clip, width=0.5\textwidth]{2023/periode2_phif_didf_4.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode4_phi0_dids_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode4_phi0_dids_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode4_phi0_dids_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode4_phi0_dids_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode4_phi0_dids_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode4_phi0_dids_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode4_phi0_dids_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode4_phi0_dids_-7"$date,"UTF-8")}
+                $\Phi$=\Sexpr{ppp$"periode2_phif_didf_4"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode2_phif_didf_4"$incl}, 
+                $h$=\Sexpr{ppp$"periode2_phif_didf_4"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode2_phif_didf_4"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode2_phif_didf_4"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode2_phif_didf_4"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode2_phif_didf_4"$minus},
+                date= \Sexpr{iconv(ppp$"periode2_phif_didf_4"$date,"UTF-8")}
                 }
                 \label{periode4}
 \end{figure}
@@ -6224,33 +6086,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2023/periode5_phis_dids_-7}
+                25mm,clip, width=0.5\textwidth]{2023/periode3_phis_didf_4}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode5_phis_dids_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode5_phis_dids_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode5_phis_dids_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode5_phis_dids_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode5_phis_dids_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode5_phis_dids_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode5_phis_dids_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode5_phis_dids_-7"$date,"UTF-8")}
-                }
-                \label{periode5}
-\end{figure}
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2023/periode9_phis_didf_-7}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode9_phis_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode9_phis_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode9_phis_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode9_phis_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode9_phis_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode9_phis_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode9_phis_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode9_phis_didf_-7"$date,"UTF-8")}}
+                $\Phi$=\Sexpr{ppp$"periode3_phis_didf_4"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode3_phis_didf_4"$incl}, 
+                $h$=\Sexpr{ppp$"periode3_phis_didf_4"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode3_phis_didf_4"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode3_phis_didf_4"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode3_phis_didf_4"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode3_phis_didf_4"$minus},
+                date= \Sexpr{iconv(ppp$"periode3_phis_didf_4"$date,"UTF-8")}}
         \label{periode6}
 \end{figure}
 
@@ -6259,37 +6104,162 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2023/periode10_phif_didf_-7}
+                25mm,clip, width=0.5\textwidth]{2023/periode5_phif_dids_-7}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode10_phif_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode10_phif_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode10_phisf_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode10_phif_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode10_phif_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode10_phif_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode10_phif_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode10_phif_didf_-7"$date,"UTF-8")}
-              }
-              \label{periode10}
+                $\Phi$=\Sexpr{ppp$"periode5_phif_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode5_phif_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode5_phif_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode5_phif_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode5_phif_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode5_phif_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode5_phif_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode5_phif_dids_-7"$date,"UTF-8")}               
+               }
+                \label{periode11}
 \end{figure}
 
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2023/periode11_phis_dids_-10}
+                25mm,clip, width=0.5\textwidth]{2023/periode6_phis_dids_-7}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode11_phis_dids_-10"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode11_phis_dids_-10"$incl}, 
-                $h$=\Sexpr{ppp$"periode11_phifs_dids_-10"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode11_phis_dids_-10"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode11_phis_dids_-10"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode11_phis_dids_-10"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode11_phis_dids_-10"$minus},
-                date= \Sexpr{iconv(ppp$"periode11_phis_dids_-10"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode6_phis_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode6_phis_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode6_phis_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode6_phis_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode6_phis_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode6_phis_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode6_phis_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode6_phis_dids_-7"$date,"UTF-8")}               
                }
                 \label{periode11}
 \end{figure}
 
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode7_phif_didf_-7}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode7_phif_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode7_phif_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode7_phif_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode7_phif_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode7_phif_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode7_phif_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode7_phif_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode7_phif_didf_-7"$date,"UTF-8")}               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode8_phi0_didf_5}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode8_phi0_didf_5"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode8_phi0_didf_5"$incl}, 
+                $h$=\Sexpr{ppp$"periode8_phi0_didf_5"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode8_phi0_didf_5"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode8_phi0_didf_5"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode8_phi0_didf_5"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode8_phi0_didf_5"$minus},
+                date= \Sexpr{iconv(ppp$"periode8_phi0_didf_5"$date,"UTF-8")}               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode9_phif_didf_5}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode9_phif_didf_5"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode9_phif_didf_5"$incl}, 
+                $h$=\Sexpr{ppp$"periode9_phif_didf_5"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode9_phif_didf_5"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode9_phif_didf_5"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode9_phif_didf_5"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode9_phif_didf_5"$minus},
+                date= \Sexpr{iconv(ppp$"periode9_phif_didf_5"$date,"UTF-8")}               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode10_phis_didf_5}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode10_phis_didf_5"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode10_phis_didf_5"$incl}, 
+                $h$=\Sexpr{ppp$"periode10_phis_didf_5"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode10_phis_didf_5"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode10_phis_didf_5"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode10_phis_didf_5"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode10_phis_didf_5"$minus},
+                date= \Sexpr{iconv(ppp$"periode10_phis_didf_5"$date,"UTF-8")}               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode11_phis_didf_-7}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode11_phis_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode11_phis_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode11_phis_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode11_phis_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode11_phis_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode11_phis_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode11_phis_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode11_phis_didf_-7"$date,"UTF-8")}               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode12_phi0_didf_-7}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode12_phi0_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode12_phi0_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode12_phi0_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode12_phi0_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode12_phi0_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode12_phi0_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode12_phi0_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode12_phi0_didf_-7"$date,"UTF-8")}               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode14_phif_didf_14}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode14_phif_didf_14"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode14_phif_didf_14"$incl}, 
+                $h$=\Sexpr{ppp$"periode14_phif_didf_14"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode14_phif_didf_14"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode14_phif_didf_14"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode14_phif_didf_14"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode14_phif_didf_14"$minus},
+                date= \Sexpr{iconv(ppp$"periode14_phif_didf_14"$date,"UTF-8")}               
+               }
+                \label{periode11}
+\end{figure}
 \clearpage
 \FloatBarrier
 
@@ -6355,7 +6325,6 @@ observées pondérée par les effectifs en migration.
      \end{tabular} 
 \end{table} 
 
-\newpage{}
 \subsection{Tableaux}
 \onecolumn
 \input{../table/2023/aovefficacite.tex}
@@ -6371,9 +6340,9 @@ observées pondérée par les effectifs en migration.
     \includegraphics[width=0.8\linewidth,keepaspectratio]{2023/fig_effectif_pb}
 \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage,
 				en turquoise $(N)\odot$ 
-				\textcolor{bleu_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en
-				turquoise $N\otimes$
-				\textcolor{turquoise_EV}{\rule[-0.5mm]{0.7mm}{3mm}}=effectifs extrapolés à
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en
+				bleu foncé $N\otimes$
+				\textcolor{bleu_EV}{\rule[-0.5mm]{0.7mm}{3mm}}=effectifs extrapolés à
 				partir de données de densité recueillies dans la journée.
                 En orange, $N\oplus$
                 \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} effectifs
@@ -6484,7 +6453,7 @@ de suivi. * Hors problèmes de concentrateur.}
 \vfill
 \section*{Remerciements}
 Les principaux remerciements, vont au personnel
-d'exploitation du barrage d'Arzal, Gilbert Olivier, Laurent Philippot, Thierry
+d'exploitation du barrage d'Arzal, Laurent Philippot, Thierry
 Besnard, Johann Dalhem, Alban Leguen, Cyril Faucon pour leur
 aide au quotidien.
 Cette étude a été financée par l'Agence de l'eau Loire
@@ -6493,7 +6462,7 @@ Bretagne.
 
 \begin{center}
    Rapport \LaTeX \\
-   Dernière compilation le \today correction\\
+   Dernière compilation le 26 février 2024\\
 \Sexpr{str_c("version R ",version$major,".",version$minor)} 
 \end{center}
 

@@ -23,8 +23,11 @@ load_library("getPass")
 load_library("pool")
 library(SIVA)
 
-CY<-2022
-label<-2022# season is CY-1 - CY
+CY<-2023
+label<-2023# season is CY-1 - CY
+# adaptation : le script n'est pas lancer avec les params passés par le Rmarkdown
+params <-list()
+params$work_with_db <- TRUE
 rouille="#87472D"
 turquoise="#008080"
 orange="#FF8040"
@@ -136,7 +139,7 @@ if (!params$work_with_db){
 debit_barrage <- traitement_siva(debit_barrage)
 
 
-
+debit_barrage$tot_vol_vanne[debit_barrage$tot_vol_vanne > 480000 & !is.na(debit_barrage$tot_vol_vanne)]
 
 
 ###############################
@@ -199,7 +202,7 @@ lo<-loess(niveauvilaine~day,data=dat,span=0.1)
 dat$p[!is.na(dat$niveauvilaine)]<-predict(lo)
 #
 #
-#dat$pb <- abs(dat$diffniveauvilaineb-dat$p)>0.3
+#dat$pb <- abs(dat$diffniveauvilaineb-dat$p)>0.25
 #sum(dat$pb)
 #
 #
@@ -295,15 +298,23 @@ while(length(w>0)){
 #dat$niveauvilaine[dat$horodate<'2018-03-23 00:00:00' & dat$horodate>'2018-03-22 00:00:00'
 #& dat$niveauvilaine<1.7]<-1.95 
 
+# change 2023
+
+dat$niveauvilaineb[dat$horodate<'2022-12-23 00:00:00' & dat$horodate>='2022-12-22 00:00:00'
+& dat$niveauvilaineb<0]<-1.34
+
+plot(dat$niveauvilaineb[dat$horodate<'2023-03-25 00:00:00' & dat$horodate>='2023-03-24 00:00:00'])
+dat$niveauvilaineb[dat$horodate<'2023-03-25 00:00:00' & dat$horodate>='2023-03-24 00:00:00'
+        & dat$niveauvilaineb<1] <-1.9
 
 plot(dat$horodate,dat$volet1)
 plot(dat$horodate,dat$volet2)
 plot(dat$horodate,dat$volet3) 
 plot(dat$horodate,dat$volet4)
 plot(dat$horodate,dat$volet5)
-dat$deltav5[2:nrow(dat)] <- diff(dat$volet5)
-with(subset(dat,dat$volet5>3.8 & dat$volet5<4.030 & abs(deltav5)<0.2), points(horodate, volet5, col="red"))
-dat$volet5[dat$volet5>3.8 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
+#dat$deltav5[2:nrow(dat)] <- diff(dat$volet5)
+#with(subset(dat,dat$volet5>3.8 & dat$volet5<4.030 & abs(deltav5)<0.2), points(horodate, volet5, col="red"))
+#dat$volet5[dat$volet5>3.8 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
 # pas de problèmes en 2020
 # correction 2012
 #plot(dat$horodate,dat$volet3) 
@@ -345,8 +356,8 @@ dat$volet5[dat$volet5>3.8 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
 # dat[23708,"volet1"]<-4.03;dat[23708,"volet2"]<-4.03;dat[23708,"volet3"]<-4.03;dat[23708,"volet4"]<-4.03
 
 # change 2022, essais chaine
-dat[dat$day==294 ,"vanne2"] <- 0
-dat[dat$day==294 ,"debit_vanne2"] <- 0
+#dat[dat$day==294 ,"vanne2"] <- 0
+#dat[dat$day==294 ,"debit_vanne2"] <- 0
 save(dat,file=str_c(datawdy,"dat.Rdata"))
 write.table(dat,file=str_c(datawdy,"dat.csv"),sep=";",row.names=FALSE)
 load(file=str_c(datawdy,"dat.Rdata"))
@@ -528,7 +539,14 @@ dev.off()
 # IMPORT DES DONNES DE TURBIDITE
 ###################################################################
 # utilise la classe Tabkesiva pour une seule table
-
+poolsiva <- pool::dbPool(
+    drv = RMariaDB::MariaDB(),
+    dbname = "archive_IAV",
+    host = hostmysql.,
+    username = umysql.,
+    password = pwdmysql.,
+    port=3306
+)
 ta <- new("tablesiva",
     table="b_ferel_mesure",
     nom="turbidite",
@@ -555,7 +573,7 @@ Q12345$Qsiphon <- Q12345$tot_vol_siphon/600 #env_debitsipon
 dbExecute(pooldidson,  "drop table if exists did.t_env_env_temp")
 dbExecute(pooldidson,"create table did.t_env_env_temp(
         env_id serial primary key,
-        env_time timestamp without time zone,
+        env_time timestamp,
         env_volet1 numeric,
         env_volet2 numeric,
         env_volet3 numeric,
@@ -663,12 +681,12 @@ colnames(t_env_env_temp) <- c(
   "env_qvolet4",
   "env_qvolet5")
     
-dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp"),t_env_env_temp, overwrite=TRUE) 
+dbAppendTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp2"),t_env_env_temp) 
         
 #t_env_env_21102021 <- t_env_env_temp[strftime(t_env_env_temp$env_time, "%Y-%m-%d")=="2021-10-21",]
 # dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_21102021"),t_env_env_21102021, overwrite=TRUE) 
 ##########################################################
-# ===========>voir ligne 170 script  didson_database.sql
+# ===========>voir ligne 196 script  didson_database.sql
 # INTEGRATION DES DONNEES DE did.t_env_env_temp DANS t_env_env ;
 # PUIS INTEGRATION DE debitjour dans did.t_envjour_enj
 ##########################################################

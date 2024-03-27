@@ -22,7 +22,7 @@ user <- decrypt_string(userdistant, pois)
 password <- decrypt_string(passworddistant, pois)
 Sys.timezone()
 #Sys.setenv(TZ='GMT')
-datawd <- "D:/temp/didson/2022-2023/"
+datawd <- "C:/temp/didson/2022-2023/"
 #######################################################################
 ## essai de connection à la base didson
 #req<-new("RequeteODBC")
@@ -53,7 +53,8 @@ ta <- xlsx::read.xlsx(
             rep("numeric", 4),
             "logical",
             "character",
-            rep("POSIXct", 2),
+            #"character", # to fix when format is 1970 see below erreur 2023
+            rep("POSIXct",2),
             "character",
             rep("numeric", 2),
             rep("character", 2),
@@ -65,6 +66,10 @@ ta <- xlsx::read.xlsx(
 # Il faut donc remettre les données à la main
 attributes (ta$dsf_timeinit)
 attributes (ta$dsf_timeend)
+# erreur en 2023 le format ne passait pas
+#ta$dsr_readinit <- openxlsx::convertToDateTime(ta$dsr_readinit, origin = "1900-01-01")
+ta$dsr_readinit
+ta$dsr_readend 
 head(ta$dsf_timeinit)
 #head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
 #ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
@@ -209,6 +214,9 @@ DBI::dbExecute(con, statement =
         dsf_filename
  from temp_dsf"
 ) # 9993 # 8373
+
+
+
 ## pb d'encrassement des lentilles+ turbidite
 #sqldf("update did.t_didsonfiles_dsf set dsf_fls_id=3 where dsf_timeinit>='2013-12-30 09:00:00' and
 #				dsf_timeend<='2014-01-06 17:00:00'")
@@ -320,5 +328,10 @@ DBI::dbExecute(con, statement =
         dsr_comment from temp_dsr"
 ) # 4021 #3194
 
-
+DBI::dbExecute(con, statement =
+        
+        "update did.t_didsonread_dsr set
+        dsr_readinit=temp_dsr.dsr_readinit::timestamp FROM temp_dsr
+        WHERE (t_didsonread_dsr.dsr_dsf_id, t_didsonread_dsr.dsr_readend::timestamp)=(temp_dsr.dsr_dsf_id,temp_dsr.dsr_readend::timestamp)"
+) # 4021 #3194
 
