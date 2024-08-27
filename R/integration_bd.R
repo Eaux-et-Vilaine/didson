@@ -1,17 +1,26 @@
-require("RODBC")
-require("stacomirtools")
-require("stringr")
-require("plyr")
-require("lubridate")
-require("safer")
-require("getPass")
-require("DBI")
-require('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
+load_package <- function(x)
+{
+  if (!is.character(x)) stop("Package should be a string")
+  if (!require(x,character.only = TRUE))
+  {
+    install.packages(x, lib=.libPaths()[1],repos="http://cran.us.r-project.org", dep=TRUE)
+    if(!require(x,character.only = TRUE)) stop("Package not found")
+  }
+}
+load_package("RODBC")
+load_package("stacomirtools")
+load_package("stringr")
+load_package("plyr")
+load_package("lubridate")
+load_package("safer")
+load_package("getPass")
+load_package("DBI")
+load_package('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 setwd("C:/workspace/didson/")
-require("SIVA")
+load_package("SIVA")
 #install.packages("xlsx")
 -#install.packages("D:/temp/didson/2022-2023/SIVA_0.1.4.3.tar.gz")
-require("xlsx")
+load_package("xlsx")
 
 if (!exists("userdistant") |
     !exists("passworddistant"))
@@ -22,7 +31,7 @@ user <- decrypt_string(userdistant, pois)
 password <- decrypt_string(passworddistant, pois)
 Sys.timezone()
 #Sys.setenv(TZ='GMT')
-datawd <- "C:/temp/didson/2022-2023/"
+datawd <- "C:/temp/didson/2023-2024/"
 #######################################################################
 ## essai de connection à la base didson
 #req<-new("RequeteODBC")
@@ -38,7 +47,7 @@ datawd <- "C:/temp/didson/2022-2023/"
 # récupération du fichier excel
 
 
-xls.file <- str_c(datawd, "depouillement_2022_TOTAL.xlsx")
+xls.file <- str_c(datawd, "depouillement_2023_TOTAL.xlsx")
 file.exists(xls.file)
 ta <- xlsx::read.xlsx(
     xls.file ,
@@ -64,8 +73,8 @@ ta <- xlsx::read.xlsx(
 )
 # read.xlsx convertit tout en GMT car il n'y a pas de tz dans excel
 # Il faut donc remettre les données à la main
-attributes (ta$dsf_timeinit)
-attributes (ta$dsf_timeend)
+attributes (ta$dsf_timeinit) #GMT OK
+attributes (ta$dsf_timeend) # GMT OK
 # erreur en 2023 le format ne passait pas
 #ta$dsr_readinit <- openxlsx::convertToDateTime(ta$dsr_readinit, origin = "1900-01-01")
 ta$dsr_readinit
@@ -74,8 +83,8 @@ head(ta$dsf_timeinit)
 #head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
 #ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
 #ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
-#ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
-#ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
+ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
+ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
 
 # vérifier que le nom du fichier correspond bien à la date
 View(head(ta))
@@ -101,7 +110,7 @@ ta$dsf_readok[is.na(ta$dsr_eelplus)] <- FALSE
 # 2020 9552
 # 2021
 # 2022 9995
-
+# 2023 9482
 
 #####################################################
 # t_didsonfiles_dsf
@@ -114,7 +123,7 @@ dsf[is.na(dsf$dsf_filename), ]
 
 
 
-table(dsf$dsf_distancestart) # 5 9993
+table(dsf$dsf_distancestart) # 5 9482
 # 2015 correction
 
 #-7 3.75    5   =>  3.75    5
@@ -126,19 +135,21 @@ table(dsf$dsf_distancestart) # 5 9993
 # 2019
 # 5
 # 5621
-# je selectionne les données uniques (parfois plusieurs lectures pour un fichier)
+# Pour dsf je selectionne les données uniques (parfois plusieurs lectures pour un fichier) dans dsr , plus loin, on gardera ces doublons
 dupl <- dsf$dsf_filename[duplicated(dsf$dsf_filename)]
 # 2015 10608
 # 2016 7
 # 2018 1
 # 2019 0
 # 2022 0
+# 2023 11
 #stopifnot(is.null(dupl))
 dsf <- dsf[!duplicated(dsf$dsf_filename), ]
 # 2015 8886
 # 2016 9504
 # 2018 7681
 # 2019 9552
+# 2023 9471
 #str(dsf)
 #dsf<-prepare_for_sql(dsf) # quote character et POSIXt>> character
 #str(dsf)
@@ -146,7 +157,7 @@ summary(dsf$dsf_incl)
 
 
 # ATTENTION AU CHANGEMENT D'HEURE, CERTAINS FICHIERS N'EXISTENT PAS
-# Le format a été converti en tz=Europe/Paris et j'ai supprimé les données excel
+# Le format a été converti en tz=Europe/Paris
 # Pour retrouver les lignes avant la conversion de GMT en CET on peut lancer :
 
 # Ci dessous je corrige le problème en forcant en CET ce qui transforme en
@@ -213,7 +224,7 @@ DBI::dbExecute(con, statement =
         dsf_readok,
         dsf_filename
  from temp_dsf"
-) # 9993 # 8373
+) # 9993 # 8373 # 9471
 
 
 
@@ -236,7 +247,7 @@ DBI::dbExecute(con, statement =
 # INTEGRATION DE LA TABLE DSR
 #####################
 dsr <-
-    ta[, c(match("dsf_filename", colnames(ta)), grep("dsr", colnames(ta)))]#3365 # 8374
+    ta[, c(match("dsf_filename", colnames(ta)), grep("dsr", colnames(ta)))]#3365 # 8374 # 9482
 colnames(dsr)
 
 
@@ -277,6 +288,7 @@ table(dsr$dsr_reader)
 #3432   162
 #3569   452
 #70     3124
+#1182   1827 
 dsf <- DBI::dbGetQuery(con,"select * from   did.t_didsonfiles_dsf")
 dsf <- dsf[, c("dsf_id", "dsf_filename")]
 
@@ -326,7 +338,7 @@ DBI::dbExecute(con, statement =
         dsr_muletscore,
         dsr_fryscore,
         dsr_comment from temp_dsr"
-) # 4021 #3194
+) # 4021 #3194 # 3009
 
 DBI::dbExecute(con, statement =
         
