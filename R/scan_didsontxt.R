@@ -24,7 +24,7 @@ password<- decrypt_string(passworddistant,pois)
 #####################################
 #install.packages("R.utils")
 
-datawd <- "C:/temp/didson/2022-2023/f/"
+datawd <- "C:/temp/didson/2023-2024/f/"
 #datawd<-"F:/projets/devalaison/fichier_txt_pb/"
 listoffiles <- list.files(str_c(datawd)) # list of files
 listoffiles <- listoffiles[grep(".txt",listoffiles)]
