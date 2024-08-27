@@ -1208,6 +1208,9 @@ lpm <- query(req, base) %>% getquery()
 lpm$date<-as.Date(lpm$dsf_timeinit,tz=Sys.timezone())
 save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 # FIN CHUNK database
+
+
+
 @
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
 <<d3ej, echo=FALSE, eval=FALSE,results=hide >>=
@@ -1222,14 +1225,17 @@ tapply(rowSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE), ddde$dsf
 # 2012-2013 2013-2014 2014-2015 2015-2016 2016-2017 2017-2018 2018-2019 2019-2020
 # 2617      1999      1937      3808      2020      1425      1736      1434
 
-nrow(dddp)  # 1734
-hour <- as.numeric(strftime(ddde$round_time, format = "%H"))
+nrow(dddp)  
+ddde$hour <- as.numeric(strftime(ddde$round_time, format = "%H", tz ="UTC"))
+
 stopifnot(length(which(duplicated(ddde$dsf_id))) == 0)
 stopifnot(nrow(dddp) == sum(colSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE)))
-# ddde[which(duplicated(ddde$dsf_id)),]
+
 d3ej <-
-    subset(ddde, (hour > 17 |
-              hour <= 9) & !is.na(ddde$date))  # ddde de jour
+    subset(ddde, (ddde$hourhour > 17 |
+              ddde$hourhour <= 9) & !is.na(ddde$date))  # ddde de jour
+d3ej[d3ej$dsf_timeinit>'2022-12-21 04:00:00' & d3ej$dsf_timeinit<'2022-12-21 10:00:00',]
+ddde[ddde$dsf_id==225363,"hour"]
 
 # CALCUL DES DEBITS ------------------------------------------
 d3ej$volbarrage30 <-
@@ -1341,8 +1347,7 @@ d3ej$ex[d3ej$optvanne4 %in% c("s") &
         d3ej$optvanne4 %in% c("f") &
         d3ej$dsf_position == "s" & d3ej$position != "sl"] <- 3
 d3ej$ex[is.na(d3ej$dsr_id)] <- 2
-d3ej$ex[d3ej$position == "n"] <-
-    4 # le 2 est effacé par les pb techniques
+d3ej$ex[d3ej$position == "n"] <- 4 # le 2 est effacé par les pb techniques
 d3ej$ex[d3ej$dsf_fls_id %in% c(1, 2)] <- 4
 d3ej$ex[d3ej$optvanne4 == "0"] <- 0
 
@@ -4987,23 +4992,24 @@ D0 <- D0 %>% mutate(
     indexOK = (dsf_fls_id == 0 | dsf_fls_id == 3) & ex == 1, # pas de problème de filestatus bloquant et didson bien positionné (regarde au bon endroit)  
     indexOKex3 = dsf_fls_id == 0 & ex == 3  # le didson est mal positionné
 )
-attr(D0$.dsf_timeinit, "tzone") 
+
 
 Dj <- Dj %>% mutate(
     year = year(enj_date),
     month = month(enj_date),
     day = as.numeric(strftime(enj_date,format="%j")),
-    leap_year = leap_year(dsf_timeinit))
+    leap_year = leap_year(enj_date))
 
 
 D0 <- D0 %>% 
+    select(-leap_year)%>%
     # here we want to know if a year is following a leap_year (annee bissextile)
     # so we compile a table with column season and defining if leap_year (true and false)
     # and the use lag to get the value from the previous season.
     # we want a year that follows a leap year to start at 123 (not 122)
     # because otherwise we have two 122
     inner_join(
-        D0 %>% 
+        D0%>%  
             select(leap_year,dsf_season) %>%
             group_by(dsf_season) %>%
             summarize(leap_year=first(leap_year)),
@@ -5016,7 +5022,7 @@ D0 <- D0 %>%
             case_when(day<250 & !leap_year ~ day + 365,
                 day<250 & leap_year ~ day + 366,
                 TRUE ~day),
-        ndays = ndays - min(ndays) + 1) 
+           ndays =  ndays - min(ndays)+1) 
 
 
 
@@ -5025,6 +5031,7 @@ D0 <- D0 %>%
 
 
 # tests (il peut y avoir des problèmes de décalage horaires....)
+
 stopifnot(D0[as.character(D0$dsf_timeinit)=="2012-09-21 19:00:00","hourm0"]==19)
 stopifnot(D0[as.character(D0$dsf_timeinit)=="2012-09-21 19:00:00","hourm"]==2)
 stopifnot(D0[as.character(D0$dsf_timeinit)=="2013-01-01 01:00:00","ndays"]==103)
@@ -5039,11 +5046,15 @@ Dj$dsf_season <- NA
 Dj$dsf_season[Dj$month< 6] <-  str_c(Dj$year-1,"-",Dj$year)[Dj$month< 6]
 Dj$dsf_season[Dj$month>=6] <- str_c(Dj$year,"-",Dj$year+1)[Dj$month>= 6]
 
-Dj$day[Dj$day<250 & !leap_year] <- Dj$day[Dj$day<250 & !leap_year]+365
-Dj$day[Dj$day<250 & leap_year] <- Dj$day[Dj$day<250  & leap_year]+365
-Dj$ndays <- Dj$day - min(Dj$day)+1
-
-
+Dj$day[Dj$day<250 & !Dj$leap_year] <- Dj$day[Dj$day<250 & !Dj$leap_year]+365
+Dj$day[Dj$day<250 & Dj$leap_year] <- Dj$day[Dj$day<250  & Dj$leap_year]+366
+Dj$ndays[!Dj$leap_year] <- Dj$day[!Dj$leap_year] - min(Dj$day)+1
+Dj$ndays[Dj$leap_year] <- Dj$day[Dj$leap_year] - min(Dj$day)
+stopifnot(sum(duplicated(paste(Dj$ndays,Dj$dsf_season)))==0)
+#Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),]
+#duplicated_ndays <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"ndays"]
+#duplicated_seasons <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"dsf_season"]
+#Dj[Dj$ndays%in%duplicated_ndays & Dj$dsf_season %in%duplicated_seasons,]
 
 # Jointure avec les efficacites -------------------------
 
@@ -5110,13 +5121,13 @@ D2$ex3 <- as.numeric((D2$ex==3 |D2$ex==0) & D2$volbarrage30>0)
 # D2j group par numéro de jour et fait le sumarize
 # en comptant le nomre de positions fond surface
 # periodes jour (note cette étape est nécessaire pour avoir les "stats" par jour
-# le group by suivant les donnera par ex3 0 ou 1
+# le group by suivant les donnera pour nok le nombre de sequences ou le didson est en position correcte
 # on fait un join à la fin pour tout regrouper
 
 
 D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season) %>%
     dplyr::group_by(ndays,dsf_season) %>%
-    dplyr::summarize(nex3=sum(ex3),
+    dplyr::summarize(nOK=sum(indexOK),
         pos_s=sum(dsf_position=="s")/dplyr::n(),
         pos_f=sum(dsf_position=="f")/dplyr::n(),
         N=sum(N/muinv, na.rm=TRUE), # pour vérif ultérieure
@@ -5125,11 +5136,11 @@ D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season) %>%
 
 # D3j groupe par jour et par position bonne ou mauvaise
 D3j <- D2 %>% 
-    dplyr::select(dsf_season,ndays,N,indexOK,ex3,volbarrage30) %>%
-    dplyr::group_by(dsf_season,ndays,ex3) %>%
+    dplyr::select(dsf_season,ndays,N,indexOK,indexOK,volbarrage30) %>%
+    dplyr::group_by(dsf_season,ndays,indexOK) %>%
     dplyr::summarize(N=sum(N, na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
-D3j0 <- dplyr::filter(D3j,ex3==0) %>% select(-ex3) # bien positionné
-D3j1 <- dplyr::filter(D3j,ex3==1) %>% select(-ex3)# mal positionné
+D3j0 <- dplyr::filter(D3j,indexOK)  %>% select(-indexOK) # bien positionné
+D3j1 <- dplyr::filter(D3j,!indexOK) %>% select(-indexOK)# mal positionné
 
 
 
@@ -5143,28 +5154,31 @@ stopifnot(nrow(D4j)==nrow(D2j))
 # Dans le fichier ci dessous .1 correspond aux arrêts de tout type
 # .0 correspond à une lecture dans de bonnes conditions.
 
-sum(duplicated(paste(Dj$ndays,Dj$dsf_season)))
-Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),]
-duplicated_ndays <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"ndays"]
-duplicated_seasons <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"dsf_season"]
-Dj[Dj$ndays%in%duplicated_ndays,]
+# On ramène dans ce tableau, les données journalières et le c
 D5j <- left_join(D4j,Dj,by=c("ndays", "dsf_season"))
 D5j <- left_join(D5j, D2j %>% select(-N), by=c("ndays", "dsf_season")) # compte les périodes fls et fond sur surface
+stopifnot(sum(duplicated(paste(D5j$ndays,D5j$dsf_season)))==0)
+#D5j[duplicated(paste(D5j$ndays,D5j$dsf_season)),]
 
 # sur ce fichier on passe de 2100 lignes à 2087
 
 # extrapolation des effectifs manquants
-D5j$vol.1[D5j$nex3==0] <- 0
-D5j$nb.1[D5j$nex3==0] <- 0
+
+
 #View(D5j[is.na(D5j$vol.1), ])
 # une journée complètement manquante le 2017-11-21, pas de données dans D2 ni d3ej ???
 # très peu de débit, pas à s'en soucier
-D5j$vol.1[is.na(D5j$vol.1)] <- 0
+
 D5j$N.0 <- D5j$N.0/muinv # On corrige les effectifs journaliers de jour / nuit
 D5j$N.1 <- D5j$N.0*(D5j$vol.1)/D5j$vol.0
+# il y a des NA propagés par N1, en vrai N1 c'est zero si il n'y a aucune période (tout est en .0) ou si les vannes sont fermées...
+D5j$N.1[is.na(D5j$nb.1)] <- 0
+D5j$N.1[is.na(D5j$N.1) & D5j$vol.1==0] <- 0
 #open_in_excel(D5j)
 
 D5j$N <- D5j$N.0 + D5j$N.1
+
+#View(D5j[,c("enj_date","nb.0","vol.0","N.0","nb.1","vol.1","N.1","N")])
 
 #
 #ggplot(D5j)+ geom_point(aes(x=N.0, y=N.1)) +
@@ -5202,6 +5216,8 @@ pdev<-function(mod){
   (mod$null.deviance-mod$deviance)/mod$null.deviance
 }
 
+# ATTENTION DECOMMENTER ET RELANCER TOUS LES MODELES, MODELES ENLEVES POUR GAGNER DU TEMPS
+
 summary(g0 <- mgcv::gam(N~1,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g0)
 summary(g1 <- mgcv::gam(N~dsf_season,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
@@ -5223,19 +5239,22 @@ AIC(g8) # delta NS
 summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(enj_turb)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g9) # delta NS
 summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5)+s(deb_qtotalj)+s(enj_turb)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g10) # delta NS
-#Deviance explained = 60.6%
+AIC(g10) 
+
+
+bestg <- g9
+
 pdf(file=str_c(imgwdy,"gam_predict.pdf"),width=7,height=7)
-plot(g8,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-20,20))
+plot(bestg,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-20,20))
 dev.off()
 AIC(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10)
-gam.check(g8)
-concurvity(g8)
+gam.check(bestg)
+concurvity(bestg)
 options(encoding = "UTF-8")
-tg8<- itsadug::gamtabs(g8, 
+besttg<- itsadug::gamtabs(bestg, 
     caption="Modèle de prédiction des effectifs",
     label="tableau_modele_miss")
-cat(tg8,
+cat(besttg,
     file=str_c(tabwdy,"tableau_modele_miss.tex"),
     sep="\n")
 options(encoding = "native.enc")
@@ -5245,11 +5264,17 @@ options(encoding = "native.enc")
 # utilisation d'un modèle gam moins performant mais plus sûr g10
 # avec un creux en janvier
 #####################################
+#D7j[D7j$pred>1e6 & !is.na(D7j$pred),c("dsf_season","enj_date","N.0","N.1","N.2","ndays")]
+D7j$ndays0 <- D7j$ndays
+# pour éviter les extrapolations quand le modèle part en sucette
+D7j$ndays[D7j$dsf_season=="2019-2020" & D7j$ndays>170] <- 170
+D7j$ndays[D7j$dsf_season=="2018-2019" & D7j$ndays<60 ] <- 60
 p1 <-    is.na(D7j$N)
-#d3edj[p1,"N.2"]
+D7j[,"pred"]<- predict(g9,newdata=D7j,type="response")
+plot(D7j$N,D7j$pred)
 D7j[p1,"N.2"] <- 0
-D7j[p1,"N.2"] <- predict(g10,newdata=D7j[p1,],type="response")
-
+D7j[p1,"N.2"] <- predict(g9,newdata=D7j[p1,],type="response")
+D7j$ndays <- D7j$ndays0
 
 png(filename=str_c(imgwdy,"N_interannuel.png"),width = 8, height = 8, units = 'in', res = 300)
 D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
@@ -5288,6 +5313,7 @@ D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",value
     summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
     pivot_wider(names_from=type, values_from=N)
 
+# Dans D4j on a pas encore multipl
 D4j  %>% select(starts_with("N."),dsf_season) %>%
     pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
     mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
@@ -5672,35 +5698,7 @@ points(d3edj$enj_date, d3edj$debit4j*10, type="l", col="red")
 dev.off()
 @
 
-<<positionnement_deprecated, echo=FALSE, eval=TRUE,results=hide>>=
-#lambda <- c(1,1.5,2,3,4,6,8,10,20)
-#f3=c(24193,24736,24966,28444,32513,39787,43457,47766,48147)/muinv
-#ff=c(18731,23533,27067,33335,38694,47281,52096,57304,58486)/muinv
-#s=c(0,53404,16189,9505,8158,8732,11230,14026,20833)/muinv
-#maxestim <- 1000*round((s[length(s)]+max(f3)+max(ff))/1000)
-#minestim <- 1000*round((min(s[s>0])+min(f3)+min(ff))/1000)
-#maxestimpoids <- round(mean_weight*maxestim/10^6,1)
-#minestimpoids <- round(mean_weight*minestim/10^6,1)
-#maxestimprod <- round(maxestimpoids*10^3/(120.64*100),1)
-#minestimprod <- round(minestimpoids*10^3/(120.64*100),1)
-#dfe <- data.frame(lambda,f3,ff,s)
-#dfe <- melt(dfe,id.vars="lambda")
-## JE NE COMPRENDS PAS POURQUOI PLANTE EN SWEAVE ET PAS SINON... s ?
-#pdf(str_c(imgwdy,"dfe.pdf"),width=6,height=6)
-#g <- ggplot(dfe,aes(x=lambda,y=value,col=variable))+geom_point()+geom_line()+
-#		scale_colour_manual("Position",values=c(bleu_EV, rouille,orange),
-#				labels=list(expression(f(+4)),expression(f-3),expression(s)))+
-#		xlab(expression(lambda~"||"~Lambda))+
-#		ylab("N")+
-#		annotate("point", x = c(1,1.5,2,3),y=c(0,53404,16189,9505)/muinv,
-#				alpha = .2,col="orange",size=5)+
-#		annotate("text",x=4,y=56004/muinv,label="Fenêtre > didson")+
-#		annotate("point",x=1.7,y=25000/muinv,size=10,col="blue",alpha=0.2)+
-#		annotate("text",x=2.5,y=25000/muinv,label="Lambda=2",parse=TRUE,hjust=0)+
-#		annotate("text",x=4,y=12000,label="lambda>=4",parse=TRUE,hjust=0)
-#print(g)
-#dev.off()
-@
+
 La deuxième étape du calcul des effectifs correspond à la prédiction des
 migrations lorsque le didson est dans une mauvaise position ($\otimes$), c'est à
 dire en surface alors que les écoulements sont au fond, et au fond alors que les
@@ -5709,7 +5707,7 @@ saison \Sexpr{saison}, le nombre de données correspondant à ce type de configu
 sont de \num{\Sexpr{vvv$number.otimes}} enregistrements  ($\otimes$), contre
 \num{\Sexpr{vvv$number.odot}} enregistrements en fonctionnement normal
 ($\odot$). Les effectifs extrapolés à partir des migrations observées le même
-jour  est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} anguilles argentées.
+jour est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} anguilles argentées.
 
 Sur l'ensemble des années, il y a eu en moyenne
 \num{\Sexpr{round(mean(vvv$number.missingday.all$N))}} journées avec aucun enregistrement du fait de problèmes d'acquisition ou
@@ -5717,8 +5715,10 @@ d'écriture disque (Figure \ref{fig_horairespb}). Pour la saison \Sexpr{saison},
 ce nombre est de \num{\Sexpr{vvv$number.missingday}}.
 Pour ces jours, un modèle GAM a été utilisé pour extrapoler 
  les effectifs en migration à partir des valeurs des jours proches ($\oplus$).
- La migration correspondant à ces journées manquantes est estimée à N =
- \num{\Sexpr{vvv$N.oplus}} anguilles argentées (Figure \ref{gam_predict}).
+ Ce modèle utilise une tendance saisonnière non linéaire, le débit à 7 jours, la
+ turbidité pour prédire les migrations. Il explique
+ \num{\Sexpr{round(100*summary(bestg)$dev.expl,2)}} \% de la déviance. La
+ migration correspondant à ces journées manquantes est estimée à N = \num{\Sexpr{vvv$N.oplus}} anguilles argentées (Figure \ref{gam_predict}).
  
  %=====================================================================
 \begin{figure}[htbp]
@@ -5727,7 +5727,7 @@ Pour ces jours, un modèle GAM a été utilisé pour extrapoler
   \caption[Modèle prédiction effectifs manquants]{Modélisation des effectifs
   manquants à l'aide d'un modèle gam (tendance saisonnière + effet saison +
   débit + cumul débit depuis le début de la saison) + turbidité + variation du
-  débit à 3 jours (delta 3d).}
+  débit à 7 jours (delta 7d).}
   \label{gam_predict}
 \end{figure}
 %=====================================================================
@@ -5741,9 +5741,7 @@ A partir de l'ensemble des effectifs ($\odot$+$\otimes$) et du poids moyen calcu
 
 La migration estimée par mois est présentée au tableau
 \ref{table_effectif_mois}, le résumé du modèle est présenté au tableau
-\ref{tableau_modele_miss} en annexe. Le modèle est identique à celui de l'année
-précédente mais les débits à 3 jours (delta 3d) ont été utilisés à la place des
-débits à 7 jours.
+\ref{tableau_modele_miss} en annexe. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{\dimexpr.8pt+\fboxsep\relax}

@@ -415,8 +415,7 @@ RETURNS TIMESTAMP AS $$
 $$ LANGUAGE SQL;
 
 
-
-drop view if exists did.v_env CASCADE;
+DROP VIEW if exists did.v_env CASCADE;
 create view did.v_env as
 select round_time,
 avg(env_debitvilaine) as debitvilaine30,
@@ -545,7 +544,7 @@ Vue didsonlectures
 drop view if exists v_didsonlectures;
 create view v_didsonlectures as 
 select v_lecture.*,debitvilaine30,volbarrage30, volet4,vanne4,fct1.*,hvanne4 from did.v_lecture 
-full outer join did.v_env on v_env.round_time=dsf_timeinit
+full outer join did.v_env on v_env.round_time=date_trunc(dsf_timeinit,'minute')
 full outer join did.v_fctvanne4 fct on fct.round_time=v_env.round_time
 full outer join did.v_fctvanne1235 fct1 on fct1.round_time=v_env.round_time
 order by dsf_timeinit, round_time;

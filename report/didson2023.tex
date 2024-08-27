@@ -447,9 +447,9 @@ Eriau}}}
 Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième année
   consécutive, à l'aide d'un sonar multifaisceaux (didson). Le didson est placé
   sur un rail porteur au niveau du quatrième pertuis de vannes du barrage d'Arzal à la limite de l'estuaire de la Vilaine.
- Sur les onze années,  \num{22479} anguilles
+ Sur les onze années,  \num{21287} anguilles
  argentées ont été comptées lors des dépouillements. En 2022-2023,
- \num{1581} anguilles ont été comptées. L'efficacité de
+ \num{1038} anguilles ont été comptées. L'efficacité de
  la détection a été calculée en fonction de la taille des anguilles, de la
  position du didson et de la distance au didson. Les effectifs migrants sont
  calculés en extrapolant à l'ensemble de la vanne le pourcentage de surface de
@@ -459,15 +459,15 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième ann�
  c'est à dire quand le didson est bien positionné par rapport aux écoulements,
   en surface et au fond sur la vanne (N=\num{963}),  
   ont été extrapolés à l'ensemble des vannes
-  (N=\num{73028}).
+  (N=\num{73455}).
   Lorsque le didson est mal placé, les effectifs sont estimés à partir des densités du jour même 
-  (N=\num{146}). Un modèle calé sur l'ensemble des journées de
+  (N=\num{4448}). Un modèle calé sur l'ensemble des journées de
   suivi a été calé pour estimer les effectifs lorsque le didson n'était pas en
   mesure d'apporter une estimation journalière des effectifs
-  (N=\num{835}).
+  (N=\num{27046}).
   L'estimation
   quantitative de la dévalaison sur la Vilaine, sur la période de suivi,
-  s'établit à (N=\num{74009}) soit 37.1 tonnes. 
+  s'établit à (N=\num{104949}) soit 52.6 tonnes. 
   Les tendances interannuelles de cette migration sont détaillées dans le
   rapport (baisse, puis possible augmentation).\\
   
@@ -481,9 +481,9 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième ann�
   in a row, using a multibeam sonar (didson). The didson is placed
   on a guiding rail at the level of the fourth sluice gate of the Arzal dam at
   the limit of the Vilaine estuary.
- Over eleven years, \num{22479} silver eels
+ Over eleven years, \num{21287} silver eels
  silver were counted during the readings. In 2022-2023,
- \num{1581} eels have been counted. The effectiveness of
+ \num{1038} eels have been counted. The effectiveness of
  the detection was calculated according to the size of the eels, the
  position of the didson and distance to the didson. To extrapolate the
  numbers of silver eel to the entire dam, the percentage of gate area monitored
@@ -492,14 +492,14 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième ann�
  i.e. when the didson is well positioned in relation to the flows,
   at the surface and at the bottom on the gate (N = \num{963}),
   have been extrapolated to all gates
-  (N = \num{73028}).
+  (N = \num{73455}).
   When the didson is in the wrong position, numbers are estimated from
-  densities of the same day (N = \num {146}). A model based on all days of
+  densities of the same day (N = \num {4448}). A model based on all days of
   monitoring was calibrated to estimate the numbers when the didson was not
   capable of providing a daily estimate of the migration
-  (N = \num{835}).
+  (N = \num{27046}).
   A quantitative estimation of downstream migration on the Vilaine, over the
-  monitoring period is established at (N = \num {74009}) or 37.1 tonnes.
+  monitoring period is established at (N = \num {104949}) or 52.6 tonnes.
   The interannual trends of this migration are detailed in the
   report (decrease, then possible increase).
 }
@@ -1981,4 +1981,814 @@ journalier (Formule \ref{eq_mu}).
 \subsubsection{Prédiction pour les données manquantes}
 
 
+
+
+
+
+
+
+
+
+
+
+La deuxième étape du calcul des effectifs correspond à la prédiction des
+migrations lorsque le didson est dans une mauvaise position ($\otimes$), c'est à
+dire en surface alors que les écoulements sont au fond, et au fond alors que les
+écoulements sont en surface, ou quand le didson est en arrêt technique. Pour la
+saison 2022-2023, le nombre de données correspondant à ce type de configuration
+sont de \num{158} enregistrements  ($\otimes$), contre
+\num{160} enregistrements en fonctionnement normal
+($\odot$). Les effectifs extrapolés à partir des migrations observées le même
+jour est de  N $\otimes$=\num{27046} anguilles argentées.
+
+Sur l'ensemble des années, il y a eu en moyenne
+\num{41} journées avec aucun enregistrement du fait de problèmes d'acquisition ou
+d'écriture disque (Figure \ref{fig_horairespb}). Pour la saison 2022-2023,
+ce nombre est de \num{18}.
+Pour ces jours, un modèle GAM a été utilisé pour extrapoler 
+ les effectifs en migration à partir des valeurs des jours proches ($\oplus$).
+ Ce modèle utilise une tendance saisonnière non linéaire, le débit à 7 jours, la
+ turbidité pour prédire les migrations. Il explique
+ \num{60.4} \% de la déviance. La
+ migration correspondant à ces journées manquantes est estimée à N = \num{4448} anguilles argentées (Figure \ref{gam_predict}).
+ 
+ %=====================================================================
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2023/gam_predict}
+  \caption[Modèle prédiction effectifs manquants]{Modélisation des effectifs
+  manquants à l'aide d'un modèle gam (tendance saisonnière + effet saison +
+  débit + cumul débit depuis le début de la saison) + turbidité + variation du
+  débit à 7 jours (delta 7d).}
+  \label{gam_predict}
+\end{figure}
+%=====================================================================
+
+Les différentes étapes de la reconstitution des effectifs sont résumées dans le tableau \ref{tabfinal} et
+aboutissent à l'estimation d'un effectif de \num{104949}
+anguilles argentées en dévalaison.
+A partir de l'ensemble des effectifs ($\odot$+$\otimes$) et du poids moyen calculé au paragraphe
+\ref{parpoids}, la biomasse d'anguille est estimée à
+\num[round-precision=1]{52.6} tonnes.
+
+La migration estimée par mois est présentée au tableau
+\ref{table_effectif_mois}, le résumé du modèle est présenté au tableau
+\ref{tableau_modele_miss} en annexe. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vspace{\dimexpr.8pt+\fboxsep\relax}
+\noindent       
+\fbox{%
+    \parbox{\linewidth-2\fboxsep-1.6pt}{%
+    \parindent\defaultparindent%
+    \indent 
+Les effectifs extrapolés à partir des données considérées comme fiables
+(N$\odot$=\num{73455}), les effectifs modélisés pour les
+mauvaises configurations (N$\otimes$=\num{27046}) et les
+effectifs extrapolés pour les jours sans estimation 
+  (N$\oplus$=\num{4448}) donnent une
+  estimation quantitative partielle des effectifs d'anguilles argentées en
+  dévalaison sur la Vilaine N=\num{104949} soit
+  \num{52.6} tonnes (Tableau \ref{tabfinal}).
+  
+}}\vspace{\dimexpr.8pt+\fboxsep\relax}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\pagestyle{styleannexe}
+
+\section{Discussion}
+\subsection{Migration}
+
+La saison 2022-2023 se caractérise par des débits de crue moyens avec 
+un premier pic à 300 \si{\cubic\metre\per\second}) fin décembre, début
+janvier puis un deuxième pic assez long à 100-200 \si{\cubic\metre\per\second})
+en mars et avril. La migration s'est principalement effectuée lors de la
+première augmentation de débit fin décembre avec un effectif journalier dépassant 10000 anguilles. Le pic de crue de fin février n'a permis la migration que d'un nombre
+limité d'anguilles argentées (Figure
+  \ref{fig_N_interannuel}).
+Il faut en particulier remarquer la très forte proportion de mâles, qui
+confirme la modification de la structure en taille des anguilles amorcée en 2020-2021.  
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2023/horairespb}
+  \caption[Fonctionnement du didson]{Fonctionnement du didson. Les rectangles
+  correspondent chacun à une période d'enregistrement, 
+  0  \textcolor{turquoise}{\rule[0mm]{1mm}{2mm}} enregistrement normal, 
+  1  \textcolor{jaune_EV}{\rule[0mm]{1mm}{2mm}} problème d'acquisition, 
+  2  \textcolor{limegreen}{\rule[0mm]{1mm}{2mm}} problème d'écriture, 
+  3  \textcolor{orange_EV}{\rule[0mm]{1mm}{2mm}} problème de qualité, 
+  4  \textcolor{rouille}{\rule[0mm]{1mm}{2mm}} mauvais positionnement du didson
+  ou écoulement ailleurs sur le barrage, 
+  5 \textcolor{gray}{\rule[0mm]{1mm}{2mm}} vanne fermée mais ensemble du
+  barrage fermé également.}
+  \label{fig_horairespb}
+  % heure de fonctionnement
+\end{figure}
+
+
+
+\subsection{Biais et précision}
+\subsubsection{Confusion avec d'autres espèces}
+L'anguille présente une morphologie et une nage particulière qui
+permettent de la discerner des autres poissons \citep{langkau_can_2012}.
+En 2022-2023,  lamproies marines 
+(\textit{Petromyzon marinus}) ont été détectées.
+
+\begin{table}
+\centering
+\caption[Nombre de lamproies]{Nombre de lamproies marines comptées au didson en
+fonction des saisons de suivi. Entre parenthèse les lamproies en direction
+descendante.}
+\label{tab_nblpm}
+\begin{tabular}{rr}
+  \hline
+ Année & effectif  \\ 
+  \hline
+2012--2013 &  640 \\ 
+2013--2014 &  29 \\ 
+2014--2015 &  275\\ 
+2015--2016 &  655+(278)    \\
+2016--2017 & 7+(1)\\
+2018--2019 & 1\\
+2019--2020 & 0\\
+2020--2021 & 58\\
+2021--2022 & 5 \\
+2022--2023 & \\
+   \hline
+\end{tabular}
+\end{table}
+
+
+
+%\begin{figure}[htbp]
+%  \centering
+%  \includegraphics[width=0.5\textwidth]{2021/lpm.pdf}
+%  \caption[Effectif]{Effectifs journaliers de lamproies en migration, en
+%  bleu \textcolor{bleu_EV}{\rule[0.5mm]{1.5mm}{.1pt}} mesurés au droit du
+%  didson, en marron
+%  \textcolor{rouille}{\rule[0.5mm]{0.7mm}{.3pt}o\rule[0.5mm]{0.7mm}{.3pt}}
+%  effectifs comptés en migration sur la passe à bassins\footnote{aucune lamproie cette année}
+%  \citep{briand_suivi_2015}, en rouge \textcolor{red}{\rule[0.5mm]{1.5mm}{.3pt}} débits moyens journaliers sur la
+%  vanne 4, en orange \textcolor{orange_EV}{\rule[0.5mm]{1.5mm}{.3pt}} débits
+%  moyens journaliers sur l'ensemble du barrage. }
+%  \label{fig_lpm}
+%  % heure de fonctionnement
+%\end{figure}
+
+\subsubsection{Taille des anguilles}
+
+La résolution du didson est calculée à partir de la largeur du faisceau (qui correspond
+à la moitié de la distance) et du nombre de faisceaux (96) lorsque le didson est
+configuré en haute fréquence. La taille des anguilles mesurées correspond au
+nombre de faisceaux rencontrés par la cible, mais elle est légèrement sous-estimée 
+\citep{bilotta_decline_2011}. En effet, la taille dépasse légèrement un faisceau
+sans entrer en contact avec le faisceau suivant. L'erreur de mesure est au maximum de 1 cm à 2m
+et elle augmente linéairement jusqu'à 7 cm à 15 m. La modification de la
+structure en taille amorcée en 2020--2021 est confirmée cette saison avec un
+pourcentage de mâles de \num{8} \%, alors que ce
+pourcentage était plutôt de l'ordre de 5 à 9 \% de 2014--2015 à 2019--2020
+
+\subsubsection{Efficacité moyenne}
+
+Les efficacité moyennes sont plus faibles que celles calculées historiquement
+depuis le nouveau calcul en 2020 intégrant la qualité des anguilles dans le
+calcul (Tableau \ref{tabefficacite_moyenne}, Tableau
+\ref{tab_efficacite_historique} en annexe). La forte efficacité cette année
+est une traduction des débits plus faibles.
+
+\input{../table/2023/tabefficacite_moyenne.tex}
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2023/fig_effectif}
+  \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage,
+				en turquoise $N\odot$ 
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en orange $N\otimes$ 
+				\textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}}=effectifs extrapolés à
+				partir de données de densité recueillies dans la journée. 
+                En jaune, $N\oplus$
+                \textcolor{jaune_EV}{\rule[-0.5mm]{0.7mm}{3mm}} effectifs
+                extrapolés à partir d'un modèle saisonnier. En bleu foncé \textcolor{bleu_EV}{\rule{3mm}{0.5mm}} débits
+                journaliers estimés au barrage d'Arzal $m3.s^{-1}$(multipliés par 10 pour des raisons graphiques).}
+  \label{fig_effectif}
+  % heure de fonctionnement
+\end{figure}
+
+\subsection{Synthèse inter-annuelle}
+
+Les effectifs par an et leur recalcul à partir d'un modèle intégrant les
+données de toutes les années sont comparés (Tableau
+\ref{tableau_effectifs_annuels} et Figure \ref{fig_N_interannuel}). 
+De 2014 à 2017 les effectifs ont augmenté, probablement du fait du recalcul de
+l'efficacité. Ils ont diminué pour 2017--2018 et 2018--2019, et ces deux saisons
+un calcul particulier avait été effectué pour corriger du problème de "myopie"
+des lentilles du didson. Il est possible que le nouveau calcul -qui ne prend pas
+en compte ce problème particulier- sous estime les effectifs \footnote{pas de détection dans la zone la 
+plus éloignée du didson donc pas d'extrapolation des effectifs.}. 
+
+
+% siunitx S[...] left of . is the number of digits left of the decimal and same with the right. 
+\begin{table}
+\centering
+\caption[Production annuelle]{Production en anguilles argentées de la Vilaine à
+partir des comptages au didson en fonction des saisons de suivi. 
+$N_{old}$ indique les effectifs calculés sur les rapports d'origine, $N_{new}$ indique
+les effectifs recalculés à partir de 2021 en assemblant
+toutes les données disponibles et utilisant des modèles communs.
+$Q_{j~max}~m^{3}s^{-1}$= débit maximum journalier,
+* comptages partiels pour les effectifs "old".}
+\label{table_synthese_production}
+\small
+\begin{tabular}{cS[table-format=8.0]S[table-format=8.0]S[table-format=5.0]}
+  \hline
+ Année & {$N{old}$} & {$N_{new}$} & {${Q_{j~max}~m^{3}s^{-1}}$} \\ 
+  \hline
+2012--2013 & 130000 &
+\num{213397} &750\\
+2013--2014 & \num{119616} &
+\num{296798} & 1000\\
+2014--2015 * &  \num{69509} &
+\num{165217}
+& 400 \\%\cellcolor{gray!20}
+2015--2016 &  \num{114186} &
+\num{219436} & 320 \\
+2016--2017 &  \num{81366} &
+\num{185784}& 200 \\
+2017--2018 & \num{68160} &
+\num{91910}& 200 \\
+2018--2019 & \num{64578} &
+\num{93769}& 200\\
+2019--2020 & {-} &
+\num{204849} & 1000\\
+2020--2021 & {-} &
+\num{79372} & 700\\
+2021--2022 & {-} & 
+\num{80977} & 100\\& \\
+2022--2023 & {-} & 
+\num{104949} & 100\\& \\
+ \hline
+\end{tabular}
+\normalsize
+\label{tableau_effectifs_annuels}
+\end{table}
+
+
+La tendance interannuelle des effectifs en migration est à la baisse, avec une
+légère augmentation à partir du minimum observé en 2017-2018. La réaugmentation des effectifs est cohérente
+avec une modification du sexe ratio à partir du minimum (5\% de mâles) observés
+en 2017-2018. Globalement, même sur une période d'observation relativement
+courte (série de moins de 10 ans), les effectifs sont en baisse. Sur le bassin versant de la Vilaine, le
+stock en place est plus qu'ailleurs la résultante des mesures de gestion prises sur la phase civelle.
+L'augmentation de la proportion de mâles traduit probablement l'effet combiné de
+l'introduction des quotas, de l'augmentation des migrations sur la passe et du 
+transport de civelles qui s'est traduit par un pic de recrutement fluvial entre
+2012 et 2014. Les mâles partant en 2021 auraient un âge continental de 6 à 8
+ans ce qui est cohérent avec les données de croissance recueillies sur le bassin. Il est
+donc probable que cet effectif de mâles donne le pas à un départ de femelles
+argentées dans les années qui viennent. Les effectifs plus importants observés
+en 2019--2020 sont peut être liés à l'effet d'une grande crue
+suivant plusieurs années sans débit important qui aurait permis le départ d'un
+plus grand nombre d'anguilles argentées, bloquées dans leur progression par la
+succession d'ouvrages entravant leur migration.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2023/N_interannuel}
+  \caption[Effectif]{Effectifs annuels estimés sur l'ensemble du barrage,
+				en turquoise $(N)\odot$ 
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en orange $N\otimes$ 
+				\textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}}=effectifs extrapolés à
+				partir de données de densité recueillies dans la journée et extrapolés en fonction
+				du ratio des débits lors des observations et sans. En jaune $N\oplus$
+				\textcolor{jaune_EV}{\rule[-0.5mm]{0.7mm}{3mm}} effectifs extrapolés à 
+				partir d'un modèle saisonnier.				}
+  \label{fig_N_interannuel}
+\end{figure}
+
+\clearpage
+
+
+\section{Annexes}
+\pagestyle{styleannexe} % pour faire apparaitre annexe dans le header de l'annexe
+\subsection{Comptage par positions}
+
+Un traitement des données de détection a été programmé pour donner une idée des
+détections à la descente (+) et à la montée (-). Les ouvertures de vannes sur
+les figures correspondent aux ouvertures moyennes lors des détections (elles
+sont pondérées par les effectifs en migration). Chaque figure correspond à un des
+positionnements du didson et un type d'écoulement : volet, vanne ou fermé.  
+$\Phi$= fonctionnement de la vanne (s= surface, f=fond, o=pas d'écoulement), $\beta$ angle du didson, 
+$h$= hauteur du didson en côte orthométrique, $O_t$=
+nombre de périodes de 30 minutes, $O_t\circ$=nombre de périodes de 30
+minutes ayant fait l'objet d'un dépouillement, $N'_{4o}+$=nombre
+d'anguilles observées en dévalaison, $N'_{4o}-$=nombre d'anguilles
+observées en montaison (nage dirigée vers l'amont). La hauteur de la
+vanne et la charge sur le volet correspondent à la moyenne des hauteurs
+observées pondérée par les effectifs en migration.
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode2_phif_didf_4.png}
+        \caption{
+                $\Phi$=f, 
+                $\beta$=4, 
+                $h$=-6.7, 
+                $O_t$=51, 
+                $O_t\circ$=30,
+                $N'_{4o}+$=41, 
+                $N'_{4o}-$=1,
+                date= 07 nov. au 23 nov.
+                }
+                \label{periode4}
+\end{figure}
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode3_phis_didf_4}
+        \caption{
+                $\Phi$=s, 
+                $\beta$=4, 
+                $h$=-6.7, 
+                $O_t$=129, 
+                $O_t\circ$=3,
+                $N'_{4o}+$=2, 
+                $N'_{4o}-$=0,
+                date= 07 nov. au 23 nov.}
+        \label{periode6}
+\end{figure}
+
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode5_phif_dids_-7}
+        \caption{
+                $\Phi$=f, 
+                $\beta$=-7, 
+                $h$=1, 
+                $O_t$=42, 
+                $O_t\circ$=25,
+                $N'_{4o}+$=2, 
+                $N'_{4o}-$=0,
+                date= 11 nov. au 26 avr.               
+               }
+                \label{periode11}
+\end{figure}
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode6_phis_dids_-7}
+        \caption{
+                $\Phi$=s, 
+                $\beta$=-7, 
+                $h$=1, 
+                $O_t$=1649, 
+                $O_t\circ$=1011,
+                $N'_{4o}+$=112, 
+                $N'_{4o}-$=46,
+                date= 23 nov. au 25 avr.               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode7_phif_didf_-7}
+        \caption{
+                $\Phi$=f, 
+                $\beta$=-7, 
+                $h$=-4.5, 
+                $O_t$=593, 
+                $O_t\circ$=467,
+                $N'_{4o}+$=257, 
+                $N'_{4o}-$=15,
+                date= 29 nov. au 30 avr.               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode8_phi0_didf_5}
+        \caption{
+                $\Phi$=0, 
+                $\beta$=5, 
+                $h$=-6.7, 
+                $O_t$=340, 
+                $O_t\circ$=21,
+                $N'_{4o}+$=12, 
+                $N'_{4o}-$=5,
+                date= 22 déc. au 28 janv.               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode9_phif_didf_5}
+        \caption{
+                $\Phi$=f, 
+                $\beta$=5, 
+                $h$=-6.7, 
+                $O_t$=551, 
+                $O_t\circ$=463,
+                $N'_{4o}+$=478, 
+                $N'_{4o}-$=3,
+                date= 22 déc. au 01 févr.               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode10_phis_didf_5}
+        \caption{
+                $\Phi$=s, 
+                $\beta$=5, 
+                $h$=-6.7, 
+                $O_t$=22, 
+                $O_t\circ$=0,
+                $N'_{4o}+$=0, 
+                $N'_{4o}-$=0,
+                date= 01 févr. au 02 févr.               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode11_phis_didf_-7}
+        \caption{
+                $\Phi$=s, 
+                $\beta$=-7, 
+                $h$=-4.5, 
+                $O_t$=41, 
+                $O_t\circ$=22,
+                $N'_{4o}+$=2, 
+                $N'_{4o}-$=1,
+                date= 08 mars au 26 avr.               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode12_phi0_didf_-7}
+        \caption{
+                $\Phi$=0, 
+                $\beta$=-7, 
+                $h$=-4.5, 
+                $O_t$=162, 
+                $O_t\circ$=28,
+                $N'_{4o}+$=31, 
+                $N'_{4o}-$=5,
+                date= 10 mars au 25 avr.               
+               }
+                \label{periode11}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2023/periode14_phif_didf_14}
+        \caption{
+                $\Phi$=f, 
+                $\beta$=14, 
+                $h$=-4.5, 
+                $O_t$=37, 
+                $O_t\circ$=18,
+                $N'_{4o}+$=16, 
+                $N'_{4o}-$=0,
+                date= 24 mars au 27 mars               
+               }
+                \label{periode11}
+\end{figure}
+\clearpage
+\FloatBarrier
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Notations}
+\begin{table}[htp] \centering 
+  \begin{tabular}{|l | p{6cm}|} 
+  \hline    
+        $\tau$ & Tailles d'anguilles, <45cm mâles,45-60cm petites
+       femelles, 60-80cm femelles, >80cm grandes femelles\\ \hline
+         $\delta$ & Classes de distance au sonar (2,5m[, (5,7m[, (7,9m[, (9,11m[, (11,13m[ et
+        (13,15m[ \\ \hline   
+         $\beta$ & Angle du didson\\ \hline
+         $\Phi$ & Type d'écoulement du barrage , $s$ surface, $f$=fond\\ \hline
+         $O_t$& Période d'enregistrement de 30 mn\\ \hline
+         $O_t\circ$& Période d'enregistrement de 30 mn avec
+         visualisation\\\hline
+         $h$ & Altitude du didson en IGN69 \\ \hline
+         $N'_{4o}(t,\tau,\delta,k)$ & Dévalaison observée dans le champ de
+           détection du didson sur la vanne 4\\ \hline
+         $N_{4o}(t,\tau,\delta,k)$ & Dévalaison réelle dans le champ de
+        détection du didson sur la vanne 4, c'est à dire corrigée des problèmes
+        d'efficacité de détection\\ \hline      
+         $N_4(t,\tau)$ & Dévalaison sur l'ensemble de la vanne 4\\ \hline   
+         $N(t,\tau)$ & Dévalaison au pas de temps $t$ pour la
+         classe de taille $\tau$\\ \hline
+  \end{tabular} 
+\end{table} 
+\begin{table}[htp] 
+\centering 
+  \begin{tabular}{|l | p{6cm}|} 
+  \hline     
+      $Q_4(t)$ & Débit total de la vanne 4 au temps $t$\\ \hline
+      $Q(t)$ & Débit total de la Vilaine au temps $t$\\ \hline 
+      $S(k,\delta)$ & Surface couverte par le faisceau à la distance $\delta$
+     pour la position $k$\\ \hline
+      $S(k)$ & Surface couverte par le faisceau pour la position $k$\\ \hline
+      $D(t)$ & Profondeur de la colonne d'eau en amont\\ \hline
+      $C(t)$ & Charge d'eau sur le volet en surface\\ \hline
+      $F(t,k,\Lambda,\lambda)$ & Fonction de répartition verticale des
+     anguilles\\ \hline
+       $l$ & Largeur de la vanne\\ \hline
+      $\widehat{E(\delta,\tau,k)}$ & Efficacité du didson calculée par un
+     glm\\ \hline
+      $\bar{E_k}$ & Efficacité moyenne du didson pour chaque position k\\ \hline
+      $\rho_k$ & Facteur de correction des effectifs pour tenir compte de la
+     minute perdue par demie-heure lorsque le rotateur est actionné\\ \hline
+      $\mu$ & Pourcentage d'anguilles migrant de jour\\ \hline
+      $\Lambda$ & Coefficient donnant le rapport entre la hauteur de la fenêtre
+     de migration au droit du didson et la hauteur de la vanne\\ \hline
+      $\lambda$ & Coefficient donnant le rapport entre la hauteur de la fenêtre
+     de migration au droit du didson et la charge (hauteur d'eau) sur le volet\\ \hline
+      $\hat{P}(N)$ & Effectifs modélisés\\ \hline
+      $\odot$ & Période de suivi complet sans problème de qualité\\ \hline
+      $\otimes$ & Période de suivi extrapolée, problème d'enregistrement
+        ou de qualité\\ \hline
+      $\oslash$ & Périodes sans problème de qualité mais avec un mauvais
+        positionnement du didson (les périodes $\oslash$ sont inclues dans
+        $\otimes$)\\ \hline
+     $\oplus$ & Période sans donnée pendant laquelle les effectifs sont
+     extrapolés à partir des données des jours voisins.\\
+     \hline
+     \end{tabular} 
+\end{table} 
+
+\subsection{Tableaux}
+\onecolumn
+\input{../table/2023/aovefficacite.tex}
+\newpage{}
+\input{../table/2023/tabfinal.tex}
+\newpage
+\input{../table/2023/table_effectif_mois.tex}
+\newpage
+\input{../table/2023/tableau_modele_miss.tex}
+\normalsize
+\begin{landscape}
+\begin{figure}
+    \includegraphics[width=0.8\linewidth,keepaspectratio]{2023/fig_effectif_pb}
+\caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage,
+				en turquoise $(N)\odot$ 
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en
+				bleu foncé $N\otimes$
+				\textcolor{bleu_EV}{\rule[-0.5mm]{0.7mm}{3mm}}=effectifs extrapolés à
+				partir de données de densité recueillies dans la journée.
+                En orange, $N\oplus$
+                \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} effectifs
+                extrapolés à partir des données des jours voisins. En bleu \textcolor{blue}{\rule{3mm}{0.5mm}}, débits
+                journaliers estimés au barrage d'Arzal $m3.s^{-1}$(multipliés par 10 pour des raisons graphiques).
+                En rouge, \textcolor{red}{\rule{3mm}{0.5mm}}, débits de la
+                vanne 4. Les barres en gris et marron indiquent la position
+                verticale du didson.
+                Les rectangles en arrière plan indiquent les problèmes
+                d'acquisition (en jaune) et de qualité (en orange) ou
+                d'écriture disque (en vert).}
+  \label{fig_effectif_pb}
+  \end{figure}
+%=====================================================================
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth,keepaspectratio]{2023/nombre_taille_distance}
+  \caption[Effectifs observés et corrigés]{Effectifs observés (traits
+  plains) et corrigés de l'augmentation de la taille du faisceau (traits
+  pointillés) en fonction de la distance, pour l'ensemble des saisons et les
+  deux classes de distance. Les cercles jaunes correspondent au maximum observé pour
+  les effectifs corrigées (pas toujours au plus près du didson).}
+  \label{nombre_taille_distance}
+\end{figure}
+%=====================================================================
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth,keepaspectratio]{2023/efficacite}
+  \caption[Efficacité]{Efficacité en fonction de la taille des anguilles et de
+  la distance au didson, commune aux deux positions du sonar, fond et surface.}
+  \label{efficacite}
+\end{figure}
+%=====================================================================
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth,keepaspectratio]{2023/Ncor}
+  \caption[Effectifs recalculés]{Effectif recalculés après correction. En
+  théorie les effectifs devraient augmenter. Il n'est pas toujours possible
+  d'extrapoler les effectifs pour la classe de distance la plus grande, car il
+  n'y a alors plus de détections.}
+  \label{Ncor}
+\end{figure}
+%=====================================================================
+\end{landscape}
+%=====================================================================
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2023/taille_distance_vannefond}
+  \caption[Taille des anguilles vanne]{Taille des anguilles en fonction de la
+  distance au sonar en vanne. Couleur en fonction du nombre d'observations par
+  carré.
+  Les polygones d'isodensité permettent de mettre en évidence la relation
+  distance - taille (les plus petites anguilles ne sont visibles que près du
+  didson). Les données correspondent à toutes les anguilles enregistrées depuis
+  2012 pour une position du didson au fond.}
+  \label{taille_distance_vannefond}
+\end{figure}
+%=====================================================================
+%=====================================================================
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2023/taille_distance_volet}
+  \caption[Taille des anguilles vanne]{Taille des anguilles en fonction de la
+  distance au sonar en volets. Couleur en fonction du nombre d'observations par
+  carré.
+  Les polygones d'isodensité permettent de mettre en évidence la relation
+  distance - taille (les plus petites anguilles ne sont visibles que près du
+  didson). Les données correspondent à toutes les anguilles enregistrées depuis
+  2012 pour une position du didson en surface.}
+  \label{taille_distance_volet}
+\end{figure}
+%=====================================================================
+
+\twocolumn   
+
+
+ \begin{table}[htbp]
+\centering
+\caption[Efficacités moyennes historiques]{Efficacités moyennes calculées lors
+des précédents rapports pour les différentes positions du didson pour les 7 saisons
+de suivi. * Hors problèmes de concentrateur.}
+\label{tab_efficacite_historique}
+\begin{tabular}{rrr}
+  \hline
+ Année & surface & fond 5-15m  \\ 
+  \hline
+2012--2013 & 65 & 53\\ 
+2013--2014 & 58 & 58\\ 
+2014--2015 & 60 & 53\\ 
+2015--2016 & 59 & 55\\
+2016--2017 & 53 & 63\\
+2017--2018* & 36 & 60\\
+2018--2019* & 56 & 52\\
+   \hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+\clearpage % termine la page et met tous les floats non terminés ici
+\twocolumn
+
+\printbibliography
+
+\nul
+\vfill
+\section*{Remerciements}
+Les principaux remerciements, vont au personnel
+d'exploitation du barrage d'Arzal, Laurent Philippot, Thierry
+Besnard, Johann Dalhem, Alban Leguen, Cyril Faucon pour leur
+aide au quotidien.
+Cette étude a été financée par l'Agence de l'eau Loire
+Bretagne.
+
+
+\begin{center}
+   Rapport \LaTeX \\
+   Dernière compilation le 26 février 2024\\
+version R 4.2.2 
+\end{center}
+
+
+
+
+
+
+\end{document}
+
+%%============================================================
+%%============================================================
+%%==========    HINTS    ========================%%
+
+	%% About chapters and TOC
+	
+
+
+	%% A table of contents is produced with the \tableofcontents command. You put the command right where you want the table of contents to go; LaTeX does the rest for you. It produces a heading, but it does not automatically start a new page. If you want a new page after the table of contents, include a \newpage command after the \tableofcontents command.
+	%% There are similar commands \listoffigures and \listoftables for producing a list of figures and a list of tables, respectively. Everything works exactly the same as for the table of contents. 
+	%% \addcontentsline{file}{sec_unit}{entry}
+	%% The \addcontentsline command adds an entry to the specified list or table where file is the extension of the file on which information is to be written: toc (table of contents), lof (list of figures), or lot (list of tables).
+	%% sec_unit controls the formatting of the entry. It should be one of the following, depending upon the value of the file argument:
+		%% toc the name of the sectional unit, such as part or subsection.
+		%% lof figure
+		%% lot table 
+	%% entry is the text of the entry.
+	
+	%% For example if you use an unnumbered section heading command to start a preliminary piece of text like a Foreword or Preface, you can write:    
+	%% \subsection*{Preface}
+	%% \addcontentsline{toc}{subsection}{Preface}    
+	%% This will format an unnumbered ToC entry for "Preface" in the "subsection" style.
+	
+	%% The default ToC will list headings of level 3 and above. To change how deep the table of contents displays automatically the following command can be  used in the preamble:
+	%% \setcounter{tocdepth}{4}
+	
+	%% \chapter[Page layout]{Exploring the page layout} % A heading might be very long; it could span over two or more lines. In that case, we might wish to shorten its corresponding table of contents entry. We can use the optional argument of the sectioning commands to produce shorter entries, different to the actual heading.
+%%============================================================
+
+	%% Floating environments
+
+	%% Floating environments such as figures or tables are forbidden in the multicol environment.  
+	%% To get around this limitation, you have two options when including a figure or table:
+	%% use \begin{figurehere}... \end{figurehere} and \begin{tablehere}... \end{tablehere} 
+	%% to place a float in the two column format,
+	%% or you can use \begin{figure*} \begin{table*}.  These commands will span your float body across the page, usually at the top --- best for large images and tables.
+	
+	%% E.g.
+	% \begin{figure}[H]
+	%   \centering
+	%	 \includegraphics[width=\textwidth]{name-of-the-picture}
+	%	 \caption{}
+	%	 \label{fig:basicProbability}
+	% \end{figure}
+%%============================================================	
+	
+	%% References
+	%%
+	%% Note: 'bibmodel.bst' has been changed so it preserves 
+	%% original titles (without change case)
+	%%
+	%% Following citation commands can be used in the body text:
+	%%
+	%%  \citet{key}  ==>>  Jones et al. (1990)
+	%%  \citep{key}  ==>>  (Jones et al., 1990)
+	%%
+	%% Multiple citations as normal:
+	%% \citep{key1,key2}         ==>> (Jones et al., 1990; Smith, 1989)
+	%%                            or  (Jones et al., 1990, 1991)
+	%%                            or  (Jones et al., 1990a,b)
+	%% \cite{key} is the equivalent of \citet{key} in author-year mode
+	%%
+	%% Full author lists may be forced with \citet* or \citep*, e.g.
+	%%   \citep*{key}            ==>> (Jones, Baker, and Williams, 1990)
+	%%
+	%% Optional notes as:
+	%%   \citep[chap. 2]{key}    ==>> (Jones et al., 1990, chap. 2)
+	%%   \citep[e.g.,][]{key}    ==>> (e.g., Jones et al., 1990)
+	%%   \citep[see][pg. 34]{key}==>> (see Jones et al., 1990, pg. 34)
+	%%  (Note: in standard LaTeX, only one note is allowed, after the ref.
+	%%   Here, one note is like the standard, two make pre- and post-notes.)
+	%%
+	%%   \citealt{key}          ==>> Jones et al. 1990
+	%%   \citealt*{key}         ==>> Jones, Baker, and Williams 1990
+	%%   \citealp{key}          ==>> Jones et al., 1990
+	%%   \citealp*{key}         ==>> Jones, Baker, and Williams, 1990
+	%%
+	%% Additional citation possibilities
+	%%   \citeauthor{key}       ==>> Jones et al.
+	%%   \citeauthor*{key}      ==>> Jones, Baker, and Williams
+	%%   \citeyear{key}         ==>> 1990
+	%%   \citeyearpar{key}      ==>> (1990)
+	%%   \citetext{priv. comm.} ==>> (priv. comm.)
+	%%   \citenum{key}          ==>> 11 [non-superscripted]
+	%% Note: full author lists depends on whether the bib style supports them;
+	%%       if not, the abbreviated list is printed even when full requested.
+	%%
+	%% For names like della Robbia at the start of a sentence, use
+	%%   \Citet{dRob98}         ==>> Della Robbia (1998)
+	%%   \Citep{dRob98}         ==>> (Della Robbia, 1998)
+	%%   \Citeauthor{dRob98}    ==>> Della Robbia
+	
+%%============================================================
+%%============================================================
+%%============================================================
 
