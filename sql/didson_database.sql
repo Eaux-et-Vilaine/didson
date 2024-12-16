@@ -376,6 +376,7 @@ copy did.t_envjour_enj(enj_date,enj_turb) from 'F:/workspace/pdata/didson/rappor
  /*
 DELETE FROM  did.t_envjour_enj WHERE enj_id=1655;
 ALTER TABLE did.t_envjour_enj ADD CONSTRAINT c_uk_enj_date UNIQUE(enj_date);
+DELETE FROM  did.t_envjour_enj WHERE enj_date >='2023-09-01'; --234
   */
  
 

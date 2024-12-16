@@ -1224,7 +1224,8 @@ tapply(rowSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE), ddde$dsf
 # nouveau calcul 202
 # 2012-2013 2013-2014 2014-2015 2015-2016 2016-2017 2017-2018 2018-2019 2019-2020
 # 2617      1999      1937      3808      2020      1425      1736      1434
-
+#2020-2021 2021-2022 2022-2023 2023-2024 
+#     1985      1937      1581      1690
 nrow(dddp)  
 ddde$hour <- as.numeric(strftime(ddde$round_time, format = "%H", tz ="UTC"))
 
@@ -1232,10 +1233,9 @@ stopifnot(length(which(duplicated(ddde$dsf_id))) == 0)
 stopifnot(nrow(dddp) == sum(colSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE)))
 
 d3ej <-
-    subset(ddde, (ddde$hourhour > 17 |
-              ddde$hourhour <= 9) & !is.na(ddde$date))  # ddde de jour
-d3ej[d3ej$dsf_timeinit>'2022-12-21 04:00:00' & d3ej$dsf_timeinit<'2022-12-21 10:00:00',]
-ddde[ddde$dsf_id==225363,"hour"]
+    subset(ddde, (ddde$hour > 17 |
+              ddde$hour <= 9) & !is.na(ddde$date))  # ddde de jour
+
 
 # CALCUL DES DEBITS ------------------------------------------
 d3ej$volbarrage30 <-
@@ -2453,7 +2453,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
 
 png(file=str_c(imgwdy,"debitturbidite.png"),,width = 8, height = 8, units = 'in', res = 300)
 #d3edj<-d3edj[!is.na(d3edj$enj_turb),]
-plotdebitturbidite(ylim= 400, ytop= 350)
+plotdebitturbidite(ylim= 700, ytop= 600)
 dev.off()
 @
 
@@ -3155,9 +3155,9 @@ ggplot(dddp[dddp$mois%in%c("11","12","01","02","03","04"),],aes(x=psf_l_cm))+
     coord_flip()+theme_bw()+
     xlab("Taille (mm)")+ylab("classes de distance (densite)")+
     theme(
-        axis.line = element_line(colour = "black", size = 0.2), 
+        axis.line = element_line(colour = "black", linewidth = 0.2), 
         axis.text.x = element_text(size = 12 * 0.8, colour = 'white', lineheight = 0.9, vjust = 1), 
-        axis.ticks = element_line(colour = "white", size = 0.2))
+        axis.ticks = element_line(colour = "white", linewidth = 0.2))
 dev.off()
 
 # même graphique pour la saison en cours....

@@ -110,10 +110,10 @@ pooldidson <- pool::dbPool(
 
 # end if params$work_with_db
 setwd("C:/workspace/didson/R")
-datawd<-"C:/workspace/didson/data/" 
-datawdy<-str_c(datawd,CY,"/")
-imgwd<-"C:/workspace/didson/image/"
-imgwdy<-str_c(imgwd,CY,"/")
+datawd <- "C:/workspace/didson/data/" 
+datawdy <- str_c(datawd,CY,"/")
+imgwd <- "C:/workspace/didson/image/"
+imgwdy <- str_c(imgwd,CY,"/")
 dir.create(imgwdy,showWarnings = FALSE)
 dir.create(datawdy,showWarnings = FALSE)
 Sys.setenv(TZ='GMT') # pour prendre en compte le format des heures au barrage
@@ -576,7 +576,7 @@ ta <- new("tablesiva",
 )
 tur <- loaddb(ta, poolsiva)@rawdata
 tur$date <- as.Date(tur$horodate)
-
+plot(tur$date, tur$turbidite)
 
 debitjour=left_join(QV, tur[,c("date","turbidite")])
 #nrow(debitjour) # 239
