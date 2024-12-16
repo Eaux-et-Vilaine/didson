@@ -159,6 +159,7 @@ SELECT * FROM did.t_didsonfiles_dsf WHERE dsf_season='2019-2020';
 SELECT * FROM did.t_didsonfiles_dsf WHERE dsf_season='2017-2018';
 SELECT * FROM did.t_didsonfiles_dsf WHERE dsf_season='2020-2021';
 SELECT * FROM did.t_didsonfiles_dsf WHERE dsf_season='2021-2022';
+SELECT * FROM did.t_didsonfiles_dsf WHERE dsf_season='2023-2024';
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2015-2016' WHERE  dsf_timeinit>='2015-09-01 00:00:00' AND dsf_timeinit<='2016-05-01 00:00:00'; --10608
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2016-2017' WHERE  dsf_timeinit>='2016-09-01 00:00:00' AND dsf_timeinit<='2017-05-01 00:00:00'; --9277
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2017-2018' WHERE  dsf_timeinit>='2017-09-01 00:00:00' AND dsf_timeinit<='2018-05-01 00:00:00'; --5784
@@ -167,9 +168,9 @@ UPDATE did.t_didsonfiles_dsf SET dsf_season='2019-2020' WHERE  dsf_timeinit>='20
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2020-2021' WHERE  dsf_timeinit>='2020-09-01 00:00:00' AND dsf_timeinit<='2021-05-01 00:00:00'; --10175
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2021-2022' WHERE  dsf_timeinit>='2021-09-01 00:00:00' AND dsf_timeinit<='2022-05-01 00:00:00'; --9993
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2022-2023' WHERE  dsf_timeinit>='2022-09-01 00:00:00' AND dsf_timeinit<='2023-05-02 00:00:00'; --8367
+UPDATE did.t_didsonfiles_dsf SET dsf_season='2023-2024' WHERE  dsf_timeinit>='2023-09-01 00:00:00' AND dsf_timeinit<='2024-05-02 00:00:00'; --9469
 
-
-UPDATE did.t_didsonfiles_dsf SET dsf_mois =EXTRACT(month FROM dsf_timeinit);--100440  Insertion des données des tables temporaires 
+UPDATE did.t_didsonfiles_dsf SET dsf_mois =EXTRACT(month FROM dsf_timeinit);--109909  Insertion des données des tables temporaires 
 -- verif qu'elles sont déjà dedans (avant DELETE)
 
 
@@ -204,9 +205,9 @@ dsft_windowstart_m,dsft_csotminthreshold_db,dsft_csotmincluster_cm2,dsft_thresho
 dsft_intensity_db,dsft_editorid,dsft_countfilename,dsft_upstreammotion,dsft_end,dsft_start,
 dsft_date,dsft_path,dsft_filename
  FROM 
-t_didsonfiletemp_dsft;--1323 # 2014 902 2015 951 2016 1421 2017 477 2018 (+34+4+38(jour) 2018) 848 2019 690 2020 985 2021 811 2022 780 2023
+t_didsonfiletemp_dsft;--1323 # 2014 902 2015 951 2016 1421 2017 477 2018 (+34+4+38(jour) 2018) 848 2019 690 2020 985 2021 811 2022 780 2023 903 2024
 
--- a ne lancer que pour les données supplémentaires
+-- !!!! a ne lancer que pour les données supplémentaires
 INSERT INTO t_didsonreadresult_drr(
 drr_id,drr_unknown,drr_downstream,drr_upstream,drr_totalfish,drr_windowend_m,
 drr_windowstart_m,drr_csotminthreshold_db,drr_csotmincluster_cm2,drr_threshold_db,
@@ -234,7 +235,7 @@ psf_aspect,psf_ldr,psf_dr_cm,psf_l_cm,psf_theta,psf_radius_m,psf_dir,psf_frame,p
 psf_pan,psf_longitude_unit,psf_longitude4,psf_longitude3,psf_longitude2,psf_longitude1,
 psf_latitude_unit,psf_latitude4,psf_latitude3,psf_latitude2,psf_latitude1,psf_date,psf_time,
 psf_aspect,psf_ldr,psf_dr_cm,psf_l_cm,psf_theta,psf_radius_m,psf_dir,psf_frame,psf_total,psf_file
- FROM did.t_poissonsfiletemp_psf;--3429 --1972 -- 2303 --4744 --2031 --1314 (+44+4+87(jour) 2018) 1742 2019 1432 2020 2044 2021 1942 2022 2429 2023
+ FROM did.t_poissonsfiletemp_psf;--3429 --1972 -- 2303 --4744 --2031 --1314 (+44+4+87(jour) 2018) 1742 2019 1432 2020 2044 2021 1942 2022 2429 2023 2079 2024
 
  
  
@@ -259,7 +260,7 @@ integration_bd.R en vérifiant que les identifiants sqldf de connexion pointent 
 */
 
 SELECT count(*) FROM t_didsonfiles_dsf  dsf JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
-JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename;--1322 --2455 -- 3518 --4940 -5660 --6195 --6234--7082 -- 7774 -- 8759 --9570 -- 10372 
+JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename;--1322 --2455 -- 3518 --4940 -5660 --6195 --6234--7082 -- 7774 -- 8759 --9570 -- 10372 --11290
 
 /*
 ##################################
@@ -280,9 +281,9 @@ FROM   t_didsonfiles_dsf  dsf
 JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
 ORDER BY countdsr, dsf_id desc) sub
-WHERE dsf_season='2022-2023'
+WHERE dsf_season='2023-2024'
 AND countdrr>1
-; --128 2015 4 2016 8 2017 44 2018 0 2019 0 2020 0 2021 0 2022 4 2023
+; --128 2015 4 2016 8 2017 44 2018 0 2019 0 2020 0 2021 0 2022 4 2023 32 2024
 
 
 /*
@@ -340,13 +341,13 @@ SELECT drr_id,dsr_eelplus, dsr_eelminus,dsr_eelplus-dsr_eelminus AS total,drr_to
 FROM t_didsonfiles_dsf  dsf JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
 WHERE drr_totalfish!=(dsr_eelplus-dsr_eelminus)
-AND dsf_season='2022-2023'
-ORDER BY drr_id; --319  -- 12 2016-2017 --5 2017-2018 --6 2018-2019 --5 2019-2020 --17 2020-2021 13 2021-2022 98 2022-2023
+AND dsf_season='2023-2024'
+ORDER BY drr_id; --319  -- 12 2016-2017 --5 2017-2018 --6 2018-2019 --5 2019-2020 --17 2020-2021 13 2021-2022 98 2022-2023 195 2023-2024
 */
 
 /*
 Etape 0 mise a jour des dsf_id....
-Facile car clé primaire sur drr_id
+Facile car clé primaire sur drr_id, à partir du nom du ficher drr_id (FC_CSOT...) or récupère le dsf_id et on les mets dans t_didsonreadresult_drr
 */
 
 --UPDATE t_didsonreadresult_drr SET drr_dsr_id=NULL;
@@ -355,12 +356,12 @@ WITH dsf_drr AS
 (
 SELECT dsf_id,drr_id FROM   t_didsonfiles_dsf  dsf 
 JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 )
 UPDATE t_didsonreadresult_drr SET drr_dsf_id=dsf_drr.dsf_id FROM dsf_drr
 WHERE dsf_drr.drr_id=t_didsonreadresult_drr.drr_id 
 AND drr_dsf_id IS NULL
-;--1306	--2205 -- 3182 --5  --1420 (2016) --716 (2017) --477 2018 (+34 +4 + 38 2018) 848 2019 -- 690 + 2 2020 833 2022
+;--1306	--2205 -- 3182 --5  --1420 (2016) --716 (2017) --477 2018 (+34 +4 + 38 2018) 848 2019 -- 690 + 2 2020 833 2022 902 2023
 
 /*
 MISE A JOUR DES dsr_id
@@ -386,14 +387,14 @@ UPDATE t_didsonreadresult_drr SET (drr_dsr_id, drr_dsf_id)=(dsr_id, dsf_id) FROM
 	count (*) OVER (PARTITION BY drr_id)
 	FROM   t_didsonfiles_dsf  dsf 	JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 					JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
-					WHERE dsf_season='2022-2023')sub
+					WHERE dsf_season='2023-2024')sub
 	WHERE count=1)
 ) uqr	
 WHERE uqr.drr_id=t_didsonreadresult_drr.drr_id 
 AND drr_dsr_id IS NULL
 ;
 --1095	--868 --1418(2016) -- 712 (2017) --456 (2018) (+33 +4 + 37 2018) 847 2019 690 +2  
--- 2020 985 2021 811 2022 778 (+20) 2023
+-- 2020 985 2021 811 2022 778 (+20) 2023 885 (2024)
 
 /* pb 2014
 SELECT * FROM t_didsonreadresult_drr WHERE drr_dsr_id=23746
@@ -566,6 +567,47 @@ SELECT * FROM  did.t_didsonfiles_dsf WHERE dsf_filename='2019-01-26_040000_HF';
 BEGIN;
 UPDATE did.t_didsonfiles_dsf SET dsf_filename='2019-01-26_040001_HF'  WHERE dsf_filename='2019-01-26_040000_HF' ;--1
 COMMIT;
+
+-- pb 2024-2025
+
+
+
+  SELECT * FROM  t_didsonfiles_dsf  dsf 
+  JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
+  JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
+  WHERE dsf_id in (
+  SELECT dsf_id FROM (
+  SELECT dsf_id,
+  count (*) OVER (PARTITION BY drr_id)
+  FROM   t_didsonfiles_dsf  dsf   JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
+          JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
+          WHERE dsf_season='2023-2024')sub
+  WHERE count=1 AND dsr_id=79855)
+  
+WITH testUPDATE AS (
+
+  SELECT dsf_id,dsr_id,drr_id FROM  t_didsonfiles_dsf  dsf 
+  JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
+  JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
+  WHERE dsf_id in (
+  SELECT dsf_id FROM (
+  SELECT dsf_id,
+  count (*) OVER (PARTITION BY drr_id)
+  FROM   t_didsonfiles_dsf  dsf   JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
+          JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
+          WHERE dsf_season='2023-2024')sub
+  WHERE count=1)),
+  duplicatedsr as (
+     SELECT *, count (*) OVER (PARTITION BY dsr_id)  FROM testUPDATE WHERE  dsr_id=79855
+  )
+SELECT * from duplicatedsr where count>1
+  
+Deux fichiers de la meme anguille à 45 cm et 50 cm je garde la 50
+
+DELETE FROM t_poissonfile_psf WHERE psf_drr_id = 'FC_2023-11-18_220000_HF_P0911';
+
+DELETE FROM t_didsonreadresult_drr WHERE drr_id = 'FC_2023-11-18_220000_HF_P0911';
+
 */
 
 
@@ -580,15 +622,15 @@ SELECT * FROM t_didsonreadresult_drr where
 	drr_id in (
 	SELECT drr_id FROM t_didsonfiles_dsf 
 	JOIN t_didsonreadresult_drr ON drr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023'
-	); 
+	WHERE dsf_season='2023-2024'
+	) AND drr_csotminthreshold_db IS NULL; 
 
 UPDATE t_didsonreadresult_drr SET drr_csotminthreshold_db=0 WHERE drr_csotminthreshold_db IS NULL AND
 	drr_id in (
 	SELECT drr_id FROM t_didsonfiles_dsf 
 	JOIN t_didsonreadresult_drr ON drr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023'
-	); --98 --3 -- 67 --37 (2016) --36 (2017) --26 3(2018) -- 8 2 2020 0 2021 29 2022 1 2023
+	WHERE dsf_season='2023-2024'
+	); --98 --3 -- 67 --37 (2016) --36 (2017) --26 3(2018) -- 8 2 2020 0 2021 29 2022 1 2023 29 2024
 
 
 -- ci dessous j'ai viré un fichier qui avait pas DSR	
@@ -598,8 +640,8 @@ WHERE dsr_csotdb IS NULL and
  dsr_id in (
 	SELECT dsr_id FROM t_didsonfiles_dsf 
 	JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023'
-	); --2019 ---317 2020 804 2021 138 2022 7 2023 79
+	WHERE dsf_season='2023-2024'
+	); --2019 ---317 2020 804 2021 138 2022 7 2023 79 2024 112
 -- ci dessous deux fois des fichiers avec dsr_csot NULL (pas possible)
 -- SELECT * FROM t_didsonread_dsr WHERE dsr_dsf_id=133245
 -- DELETE FROM t_didsonread_dsr WHERE dsr_id = 46820	
@@ -610,17 +652,17 @@ UPDATE t_didsonread_dsr SET dsr_csotdb=0 WHERE dsr_csotdb IS NULL and
  dsr_id in (
 	SELECT dsr_id FROM t_didsonfiles_dsf 
 	JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023' AND dsr_complete
+	WHERE dsf_season='2023-2024' AND dsr_complete
 	);
 
-; --122 --4 (2016) --19 (2017)--30 (2018) --1(2018) 371 2019 801 + 0 2020 138 2021 7 2022 79 (0) 2023 
+; --122 --4 (2016) --19 (2017)--30 (2018) --1(2018) 371 2019 801 + 0 2020 138 2021 7 2022 79 (0) 2023 107 2024
 -- maintenant j'ai des csotdb partout et je peux faire la jointure à la fois sur csotdb et dsf_id
 -- parmis ceux qui ne se sont pas vu adressé de dsr, lesquels ont le même nom de fichier de dépouillement drr_filename et le même csotdb
 SELECT *  FROM   t_didsonfiles_dsf  dsf 
 JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON (drr_filename,drr_csotminthreshold_db)=(dsf_filename,dsr_csotdb)
 WHERE drr_dsr_id IS NULL
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 ORDER BY dsf_id; --2 (2016) 3 (2017) 21 (2018) 0 (2019) 0 (2020) 0 (2021) 0 (2022) 1 (0)(2023)
 
 /*
@@ -648,7 +690,7 @@ count (*) OVER (PARTITION BY dsr_id) AS countdsr FROM   t_didsonfiles_dsf  dsf
 JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON (drr_filename,drr_csotminthreshold_db)=(dsf_filename,dsr_csotdb)
 WHERE drr_dsr_id IS NULL
-AND dsf_season='2022-2023'),
+AND dsf_season='2023-2024'),
 dbr AS (  -- double rows
 SELECT * FROM sub
 WHERE  countdsr=1 -- un seul fichier texte
@@ -658,7 +700,7 @@ WHERE  countdsr=1 -- un seul fichier texte
 UPDATE t_didsonreadresult_drr SET drr_dsr_id=dsr_id FROM dbr
 WHERE dbr.drr_id=t_didsonreadresult_drr.drr_id 
 AND t_didsonreadresult_drr.drr_dsr_id IS NULL
-;--200 --20 -- 36 --2+1 rows 2016 -- 3 2017 --21 2018 (+1 2018) 0 + 0 2019 0 2020 0 2022 1 (0) 2023
+;--200 --20 -- 36 --2+1 rows 2016 -- 3 2017 --21 2018 (+1 2018) 0 + 0 2019 0 2020 0 2022 1 (0) 2023 5 (2024)
 
 /*
 Etape 3
@@ -688,11 +730,11 @@ JOIN t_didsonreadresult_drr drr ON (drr_filename,drr_csotminthreshold_db)=(dsf_f
 WHERE drr_dsr_id IS NULL
 AND drr_editorid='gerard'
 AND dsr_reader='Gerard'
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 ORDER BY dsf_id
 ) 
 UPDATE t_didsonreadresult_drr SET drr_dsr_id=dsr_id FROM dbr
-WHERE dbr.drr_id=t_didsonreadresult_drr.drr_id ;--11--0 -- 0(2016) --0 2018 --0 2019 --0 2020 0 2022 0 2023
+WHERE dbr.drr_id=t_didsonreadresult_drr.drr_id ;--11--0 -- 0(2016) --0 2018 --0 2019 --0 2020 0 2022 0 2023 0 2024
 
 
 /*
@@ -720,10 +762,10 @@ JOIN t_didsonreadresult_drr drr ON (drr_filename,drr_csotminthreshold_db)=(dsf_f
 WHERE drr_dsr_id IS NULL
 AND drr_editorid='brice'
 AND dsr_reader='Brice'
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 ORDER BY dsf_id
 ) dbr -- double rows
-WHERE dbr.drr_id=t_didsonreadresult_drr.drr_id ;--11	--0	--0(2016) --0 2018 --0 2019 --0 2020 0 2022
+WHERE dbr.drr_id=t_didsonreadresult_drr.drr_id ;--11	--0	--0(2016) --0 2018 --0 2019 --0 2020 0 2022 0 2024
 
 /*
 UPDATE t_didsonreadresult_drr SET (drr_dsr_id)=(dsr_id) FROM (
@@ -776,7 +818,7 @@ count (*) OVER (PARTITION BY dsr_id) AS countdsr FROM   t_didsonfiles_dsf  dsf
 JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON (drr_filename,drr_csotminthreshold_db)=(dsf_filename,dsr_csotdb)
 WHERE drr_dsr_id IS NULL
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 ORDER BY dsf_id; -- 0 lignes
 
 
@@ -801,17 +843,18 @@ count (*) OVER (PARTITION BY dsr_id) AS countdsr FROM   t_didsonfiles_dsf  dsf
 JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON (drr_filename)=(dsf_filename)
 WHERE drr_dsr_id IS NULL
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 ),
 dbr AS (
 SELECT * FROM sub
 WHERE  countdsr=1 -- un seul fichier texte
 AND dsr_csotismin
-) -- double rows
+) -- double ROWS
 UPDATE t_didsonreadresult_drr SET drr_dsr_id=dsr_id FROM dbr
 WHERE dbr.drr_id=t_didsonreadresult_drr.drr_id
 ;--0--0--0 (2017)--0 (2018) 
---1 2019 (après changement du nom du fichier eg 0001') 0 + 0 2020 1 2023
+--1 2019 (après changement du nom du fichier eg 0001') 0 + 0 2020 1 2023 0 2024
+
 /*
 Etape 4
 ON VERIFIE SI IL RESTE DES drr_dsr_id nON affectés. 
@@ -821,7 +864,7 @@ drr_filename <--> dsf_filename (nom du fichier)
 pour lequel drr_dsr_id reste nul.
 */
 
-SELECT * FROM t_didsonreadresult_drr WHERE drr_dsr_id IS NULL ORDER BY drr_dsf_id; --27  1 2017 24 2018  --0 2019 --0 2020 --0 2021 --0 2023
+SELECT * FROM t_didsonreadresult_drr WHERE drr_dsr_id IS NULL ORDER BY drr_dsf_id; --27  1 2017 24 2018  --0 2019 --0 2020 --0 2021 --0 2023 12 2024
 
 
 -- TODO si besoin passer en sous requète, la syntaxe ne marche plus, voir script précédent
@@ -848,7 +891,7 @@ count (*) OVER (PARTITION BY dsr_id) AS countdsr FROM   t_didsonfiles_dsf  dsf
 JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON (drr_filename)=(dsf_filename)
 WHERE drr_dsr_id IS NULL
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 ) dbr -- double rows
 WHERE dbr.drr_id=t_didsonreadresult_drr.drr_id ;--6 -- 0 (2016) --1 2017 --0 2018
 */
@@ -860,7 +903,7 @@ Etape 5
 
 SELECT * FROM  t_didsonfiles_dsf  dsf JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id WHERE dsf_id in 
 (SELECT drr_dsf_id FROM t_didsonreadresult_drr WHERE drr_dsr_id IS NULL )
-AND dsf_season='2022-2023';--0 --0 2016 --0 2017 --0 2018 --0 2020 --0 2021 --0 2023
+AND dsf_season='2023-2024';--0 --0 2016 --0 2017 --0 2018 --0 2020 --0 2021 --0 2023 22 2024
 
 SELECT * FROM  t_didsonfiles_dsf  dsf  WHERE dsf_id in 
 (SELECT drr_dsf_id FROM t_didsonreadresult_drr WHERE drr_dsr_id IS NULL); -- 0(2016) 0 (2017) si zéro ça veut dire que tous les drr_dsr_id sont affectés
@@ -877,7 +920,7 @@ SELECT * FROM did.t_didsonreadresult_drr WHERE drr_dsr_id in (
     				JOIN did.t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id
     				group by drr_dsr_id) sub
     				WHERE count>1)
-            AND drr_dsf_id in (SELECT dsf_id FROM t_didsonfiles_dsf WHERE dsf_season='2022-2023')				
+            AND drr_dsf_id in (SELECT dsf_id FROM t_didsonfiles_dsf WHERE dsf_season='2023-2024')				
 ORDER BY drr_filename;--0 (2016)
 
 
@@ -888,13 +931,13 @@ SELECTION DES FICHIERS AVEC MEILLEUR CSOT
 /*
 select t_didsonread_dsr.* FROM  t_didsonfiles_dsf 
 	LEFT JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id
- WHERE dsf_season='2022-2023'
+ WHERE dsf_season='2023-2024'
  */
  -- ON COMMENCE PAR METTRE FALSE A TOUT LE MONDE
 
 UPDATE t_didsonread_dsr SET dsr_csotismin=FALSE WHERE dsr_id in
-(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE dsf_season='2022-2023'); 
---4200 --3110 (2016) 1780 (2017) 2161 2018 3366 2019 2402 2020 3594 2021 4201 2022 3194 2023 3194
+(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE dsf_season='2023-2024'); 
+--4200 --3110 (2016) 1780 (2017) 2161 2018 3366 2019 2402 2020 3594 2021 4201 2022 3194 2023 3194 2024 3009
 
  -- CEUX POUR LESQUELS IL N'Y A QU'UNE SEULE LECTURE SON MIN
  
@@ -904,11 +947,11 @@ SELECT dsr_id from(
 	dsr_id from
 	t_didsonfiles_dsf  dsf 	
 	JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
-	 WHERE dsf_season='2022-2023'
+	 WHERE dsf_season='2023-2024'
 	ORDER BY dsr_id) sub
 WHERE c=1); 
 --3557 -6814 -- 9723 lignes pour lesquelles il n'y a qu'une valeur --3072 (2016) 
---1767 (2017) -- 2110 2018 --3364 (2019) --2402 (2020) -- 3597 (2021) -- 4021 (2022) 3192 (2023)
+--1767 (2017) -- 2110 2018 --3364 (2019) --2402 (2020) -- 3597 (2021) -- 4021 (2022) 3192 (2023) 2987 (2023-2024)
 
 
 -- CI DESSOUS ON MET A JOUR LES FICHIERS QUI ONT LE PLUS PETIT CSOT POUR LES FICHIERS DOUBLES (QUI SONT TOUS FALSE APRES L'ETAPE PRECEDENTE)
@@ -920,10 +963,10 @@ UPDATE t_didsonread_dsr SET dsr_csotismin=TRUE WHERE dsr_id in
 	(SELECT distinct  dsr_dsf_id,  min(dsr_csotdb) OVER (PARTITION BY dsr_dsf_id) AS dsr_csotdb
 	FROM t_didsonread_dsr 
 	WHERE dsr_csotismin=FALSE
-	AND dsr_id in (SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE dsf_season='2022-2023')
+	AND dsr_id in (SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE dsf_season='2023-2024')
 	) sub 
 	ON (sub.dsr_csotdb,sub.dsr_dsf_id)=(t_didsonread_dsr.dsr_csotdb,t_didsonread_dsr.dsr_dsf_id));
---329 --475 --378 --19 (2016) --6 (2017) --25 2018 --1 2019 --0 2020  --0 2021 0--2022 --1 2023
+--329 --475 --378 --19 (2016) --6 (2017) --25 2018 --1 2019 --0 2020  --0 2021 0--2022 --1 2023 0 2023-2024
 
 
 /*
@@ -964,7 +1007,7 @@ SELECT * FROM t_didsonread_dsr
 		WHERE c>1)
 	AND dsr_csotismin
 ORDER BY dsr_dsf_id
-;-- 0 lignes --0 lignes (2016) --0 2017 --0 2018 0 2022
+;-- 0 lignes --0 lignes (2016) --0 2017 --0 2018 0 2022 0 2023-2024
 -- ATTENTION SI IL Y DES LIGNES DES AUTRES ANNEES C'EST QUE LE SCRIPT A CREE UN PB SUR LES ANNEES PRECEDENTES
 -- NORMALEMENT CA NE DEVRAIT PLUS ARRIVER, LES ERREURS NE DOIVENT APPARAITRE QUE POUR L'ANNEE EN COURS
 
@@ -1067,7 +1110,7 @@ select * from t_poissonfile_psf  where psf_species ='0.00'
 */
 
 
-UPDATE t_poissonfile_psf SET psf_species='2038' WHERE psf_species=''; -- 2023 (2017) --1203 (2018) (+41+4 2018) --1737 2019 --1430 + 3 2020 1937 2022 1582 2023
+UPDATE t_poissonfile_psf SET psf_species='2038' WHERE psf_species=''; -- 2023 (2017) --1203 (2018) (+41+4 2018) --1737 2019 --1430 + 3 2020 1937 2022 1691 2023-2024
 
 
 
@@ -1113,7 +1156,7 @@ RECHERCHE D'INCOHERENCES ENTRE LE FICHIERS TEXTE POISSONS ET LE FICHIER DE LA BA
 SELECT count(*) FROM t_didsonfiles_dsf  dsf 	JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 					JOIN t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id;
 					--2117 --4629 (2016) --5345 (2017) --5860 (2018) --6746 (2019)  --7438 (2020) 
-					--8423 (2021) --9234 (2022) --10033 (2023)
+					--8423 (2021) --9234 (2022) --10033 (2023) -- 10924 (2024)
 
 
 /*
@@ -1134,7 +1177,7 @@ CORRECTIONS D'ERREURS DE CODAGE
 SELECT psf_move, count(*) FROM did.t_poissonfile_psf group by psf_move ;
 SELECT psf_motion, count(*) FROM did.t_poissonfile_psf group by psf_motion ;
 SELECT distinct psf_comment FROM did.t_poissonfile_psf ;
-
+-- ATTENTION NE PAS HESITER A CORRIGER LES Mo:Out
 
 
 /* 2016
@@ -1199,6 +1242,7 @@ UPDATE t_poissonfile_psf  SET (psf_motion,psf_move,psf_q)=('Running','<-->',3) W
 /*2024
  * 
  * select * from t_poissonfile_psf  where psf_move ='3'
+ * J'ai rajouté <--> et décalé vers la droite
  * select * from t_poissonfile_psf  where psf_drr_id like 'FC_CSOT_2023-01-17_180000_HF_P1646'
  * 1 correction manuelle
  * */
@@ -1211,7 +1255,8 @@ SELECT dsf_distancestart,drr_windowstart_m,dsf_incl,psf_tilt FROM did.t_didsonfi
 		JOIN did.t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id
 		JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 		WHERE psf_species!='2014'
-		AND drr_windowstart_m!=dsf_distancestart; --exactement inverse... 44 lignes 0lignes 2014 0 lignes 2015 0 lignes 2016 0 lignes 2017 0 lignes 2018 0 lignes 2019 0 2020 0 2021 0 2022 0 2023
+		AND drr_windowstart_m!=dsf_distancestart; --exactement inverse... 44 lignes 0lignes 2014 0 lignes 2015
+		-- 0 lignes 2016 0 lignes 2017 0 lignes 2018 0 lignes 2019 0 2020 0 2021 0 2022 0 2023 0 2024
 /*
 PROBLEMES D'ADEQUATION ENTRE LES dates du DRR et la date du fichier
 */		
@@ -1225,8 +1270,45 @@ SELECT psf_id, dsf_timeinit,
 		WHERE psf_species!='2014'
 		AND date(dsf_timeinit)::text!=psf_date; 
 		-- deux lignes en 2012 0 lignes 0 lignes(2017) 7 lignes 2018 mais le lendemain... 
-		--0 2019 0 2020 0 2021 109 2022 (pb arrondi de dates) 0 2023
+		--0 2019 0 2020 0 2021 109 2022 (pb arrondi de dates) 0 2023 0 (2023-2024)
     -- correction manuelle 2022-12-01 17:49:13 psf_id 81107 (décalage de ligne)
+    -- correction manuelle 2024-03-17 00:00:00 psf_id 85166 (décalage de ligne)
+
+   --SELECT * FROM did.t_poissonfile_psf WHERE psf_id = 85166
+   SELECT *
+    FROM did.t_didsonfiles_dsf  dsf   JOIN  did.t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
+    JOIN did.t_didsonreadresult_drr drr ON  drr_dsr_id=dsr_id
+    JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
+    WHERE psf_species!='2014'
+    AND date(dsf_timeinit)::text!=psf_date; -- 0 lignes après le changement en 2023-2024
+
+/*  
+-- En 2023 - 2024 j'ai 18 lignes qui font chier, ou la date ne correspond plus au fichier du didson (décalage).
+--  J'arrive à les identifier avec la requete ci-dessous, dsf_timeinit > newtime evite aussi les problèmes d'arrondi.
+
+  WITH settime AS (
+  SELECT (substring(dsf_filename,1,10)||' '||substring(dsf_filename,12,2)||':'||substring(dsf_filename,14,2)||':'||substring(dsf_filename,16,2))::timestamp AS newtime, * 
+    FROM did.t_didsonfiles_dsf WHERE dsf_season='2023-2024')
+    SELECT * FROM settime WHERE dsf_timeinit > newtime AND dsf_id >=238954
+    ORDER BY dsf_timeinit
+    
+  WITH settime AS (
+  SELECT (substring(dsf_filename,1,10)||' '||substring(dsf_filename,12,2)||':'||substring(dsf_filename,14,2)||':'||substring(dsf_filename,16,2))::timestamp AS newtime, * 
+    FROM did.t_didsonfiles_dsf WHERE dsf_season='2023-2024'),
+  tochange AS (  
+  SELECT 
+  dsf_id,
+  newtime AS new_dsf_timeinit,
+  newtime + (30 * interval '1 minute') AS new_dsf_timeend,
+  dsf_timeinit,
+  dsf_timeend
+  FROM settime WHERE dsf_timeinit > newtime AND dsf_id >=238954
+   ORDER BY dsf_timeinit)
+  UPDATE did.t_didsonfiles_dsf SET 
+  dsf_timeinit = new_dsf_timeinit,
+  dsf_timeend = new_dsf_timeend
+  FROM tochange WHERE tochange.dsf_id = t_didsonfiles_dsf.dsf_id; --18
+*/    
 
 /*
 PROBLEMES D'ADEQUATION ENTRE LES horodates du DRR et l'horodate du fichier
@@ -1248,7 +1330,7 @@ SELECT psf_id,
 		WHERE psf_species!='2014'
 		AND date_trunc('minute', (psf_date||' '||psf_time)::timestamp) < dsf_timeinit
 		or date_trunc('minute', (psf_date||' '||psf_time)::timestamp) > dsf_timeend
-		ORDER BY dsf_filename; -- 0 (après correction) 2020  --0 2021 --0 2022 0 (2023 après correction)
+		ORDER BY dsf_filename; -- 0 (après correction) 2020  --0 2021 --0 2022 0 (2023-2024 après correction) 
 
 -- deux lignes corrigées à la main en 2019 pb changement d'heure donc horaire décalé de 30 mon
 	
@@ -1311,7 +1393,7 @@ with countfromdsf as(
 	)
 SELECT * FROM countfromdsf FULL OUTER JOIN t_didsonreadresult_drr drr ON psf_drr_id=drr_id
 WHERE drr_upstream!=up; -- Il faut modifier les entrées si des lignes exsitent --0 2016 
---0 2017 --0 2018  --0 2019 2=>0 (2020) 0 2021 -- 2 (2022) 0 (2023)
+--0 2017 --0 2018  --0 2019 2=>0 (2020) 0 2021 -- 2 (2022) 0 (2023-2024)
 
 /* 2022
 UPDATE t_didsonreadresult_drr SET (drr_upstream,drr_downstream)=(17,0) WHERE drr_id='FC_CSOT_2021-12-30_040000_HF_P1359';
@@ -1334,7 +1416,7 @@ FULL OUTER join
 ON up.psf_drr_id=dn.psf_drr_id)
 SELECT * FROM countfromdsf FULL OUTER JOIN t_didsonreadresult_drr drr ON psf_drr_id=drr_id
 WHERE drr_downstream!=dn; --0 pas de problème  (2016 un problème en avril 2015) 
---0 2017 0 2020 -- 0 2021 -- 0 2022 --0 2023
+--0 2017 0 2020 -- 0 2021 -- 0 2022 --0 2023-2024
 
 
 /* 2016
@@ -1428,15 +1510,15 @@ CREATE TABLE tempcountfromdsf AS (
 ON
     up.psf_drr_id = dn.psf_drr_id
 );--1272 -- 3090 --5114 (2017) 5628 (2018) 6514 (2019) 7202 (2020) 8182 (2021) 
--- 8989 (2022) 9740 (2023)
+-- 8989 (2022) 10508 (2023-2024)
 -- SELECT * FROM tempcountfromdsf;
 
 -- On commence par remettre à zéro
 UPDATE t_didsonreadresult_drr SET drr_eelplus =0 WHERE drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023'); 
+	WHERE dsf_season='2023-2024'); 
 	--1420 (2016) --716 2017 -- 553 (2018) --848 (2019) 692 (2020) 8182 (2021)
-	-- 811 (2022) 799 (2023)
+	-- 811 (2022) 890 (2023-2024)
 	
 -- ci dessous il peut y avoir moins de lignes, correspond aux lamproies
 UPDATE t_didsonreadresult_drr SET drr_eelplus= up 
@@ -1444,36 +1526,36 @@ UPDATE t_didsonreadresult_drr SET drr_eelplus= up
 	WHERE psf_drr_id=drr_id
 	AND drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023');
+	WHERE dsf_season='2023-2024');
 	--1381 (2016) => 1336 après changement lamproies 714 2017 552 (2018) 848 (2019) 
-	-- 6891 (2020) 981 (2021) 807 (2022) 750 (2023)
+	-- 6891 (2020) 981 (2021) 807 (2022) 761 (2023-2024)
 	
 UPDATE t_didsonreadresult_drr SET drr_eelminus=0 WHERE drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023'); 
+	WHERE dsf_season='2023-2024'); 
 	-- 1420 (2016) 716 (2017) 553 (2018) 848 (2019) 
-	-- 692 (2020) 985 (2021) 811 (2022) 799 (2023)
+	-- 692 (2020) 985 (2021) 811 (2022) 890 (2023)
 	
 UPDATE t_didsonreadresult_drr SET drr_eelminus= dn 
 	FROM tempcountfromdsf
 	WHERE psf_drr_id=drr_id AND drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023'); 
+	WHERE dsf_season='2023-2024'); 
 	--1336 (2016) 714 552 (2018) 848 (2019) 
-	--691 (2020) 980 (2021) 811 (2022) 750 (2023)
+	--691 (2020) 980 (2021) 811 (2022) 761 (2023)
 	
 UPDATE t_didsonreadresult_drr SET drr_eelminus=0 WHERE drr_eelminus IS NULL AND drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023');
+	WHERE dsf_season='2023-2024');
 	--1062 --1062 --991 (2016) --477 (2017) 479(2018) 636 (2019)
-	-- 632 (2020) 807 (2021) 659 (2022) 640 (2023)
+	-- 632 (2020) 807 (2021) 659 (2022) 722 (2023-2024)
 	
 UPDATE t_didsonreadresult_drr SET drr_eelplus=0 WHERE drr_eelplus IS NULL AND drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2022-2023');
+	WHERE dsf_season='2023-2024');
 	
 	--115--187 --93 (2016) -- 83 (2017) -- 25 (2018) 109 (2019) 
-	--32 (2020) 98 (2021) 90 (2022) 67 (2023)
+	--32 (2020) 98 (2021) 90 (2022) 19 (2023-2024)
 
 
 /*
@@ -1614,24 +1696,53 @@ SELECT * FROM t_didsonread_dsr where dsr_dsf_id = 230931; --correction dsr_eelpl
 UPDATE did.t_didsonreadresult_drr
   SET drr_eelplus=2,drr_eelminus=0
   WHERE drr_id='FC_2023-01-28_000000_HF_P1111'
-
+UPDATE did.t_didsonread_dsr
+  SET dsr_eelplus=3, dsr_eelminus=0
+  WHERE dsr_dsf_id=234296;
+UPDATE did.t_didsonread_dsr
+  SET dsr_eelplus=3, dsr_eelminus=0
+  WHERE dsr_dsf_id=234414;
+UPDATE did.t_didsonread_dsr
+  SET dsr_eelplus=3, dsr_eelminus=0
+  WHERE dsr_dsf_id=234414;
+UPDATE did.t_didsonread_dsr
+  SET dsr_eelplus=2, dsr_eelminus=0
+  WHERE dsr_dsf_id=235392;
+UPDATE did.t_didsonread_dsr
+  SET dsr_eelplus=0, dsr_eelminus=0
+  WHERE dsr_dsf_id=237414;  -- silure
+UPDATE did.t_didsonread_dsr
+  SET dsr_eelplus=0, dsr_eelminus=0
+  WHERE dsr_dsf_id=237997;  -- silure  
+  
 VérificatiON des fichiers nON importés
 GROSSE VERIFICATION PAR AN, POUR REMETTRE LES FICHIERS DROITS
 */
 
-SELECT dsr_id,  drr_id, dsf_timeinit, dsf_filename, dsr_eelplus+dsr_eelminus-drr_eelplus-drr_eelminus  AS diff, 
+SELECT dsr_id,  dsr_csotismin, drr_id, dsf_timeinit, dsf_filename, dsr_eelplus+dsr_eelminus-drr_eelplus-drr_eelminus  AS diff, 
 dsr_eelplus,drr_eelplus,dsr_eelminus,drr_eelminus FROM 
 t_didsonfiles_dsf join
 t_didsonread_dsr  ON dsr_dsf_id=dsf_id 
 LEFT JOIN 
 t_didsonreadresult_drr ON drr_dsr_id=dsr_id
 WHERE dsr_eelplus>0 AND drr_eelplus IS NULL
-AND (dsf_season='2022-2023' )
+AND (dsf_season='2023-2024' )
 ORDER BY dsf_timeinit;
 
-
-
-
+/*
+ 2023-2024
+SELECT * FROM did.t_didsonreadresult_drr WHERE drr_filename like '2024-02-08_203000_HF'
+UPDATE did.t_didsonreadresult_drr SET drr_dsr_id = 81367 WHERE drr_filename = '2024-02-08_203000_HF';
+SELECT * FROM did.t_didsonreadresult_drr WHERE drr_filename like '2024-02-08_213000_HF'
+UPDATE did.t_didsonreadresult_drr SET drr_dsr_id = 81370 WHERE drr_filename = '2024-02-08_213000_HF';
+SELECT * FROM did.t_didsonreadresult_drr WHERE drr_filename like '2024-02-09_013000_HF'
+UPDATE did.t_didsonreadresult_drr SET drr_dsr_id = 81379 WHERE drr_filename = '2024-02-09_013000_HF';
+UPDATE did.t_didsonreadresult_drr SET drr_dsr_id = 81385 WHERE drr_filename = '2024-02-09_193000_HF';
+SELECT * FROM did.t_didsonreadresult_drr WHERE drr_filename like '%2024-02-09_203000_HF%'; -- Le ficher FC a disparu ...
+DELETE FROM did.t_didsonread_dsr WHERE dsr_id = 80182;
+UPDATE did.t_didsonreadresult_drr SET drr_dsr_id = 81384 WHERE drr_filename ='FC_2024-02-09_193000_HF'; -- le dsr 
+UPDATE did.t_didsonreadresult_drr SET drr_dsr_id = 81387 WHERE drr_filename = '2024-02-09_203000_HF';
+UPDATE did.t_didsonreadresult_drr SET drr_dsr_id = 81389 WHERE drr_filename = '2024-02-09_210000_HF';
 */
 
 /*
@@ -1661,10 +1772,7 @@ Deux corrections manuelles de fichiers fait pour le meme cstot pour lequel j'ai 
  * 
  */
 
-/*
- * 
- * 2023 c'est le fichier fait avec deux csot, je corrige les drr_id et je remets le drr_dsr_id.... C'est normal qu'ils manquent pas grave
- */
+
 
 SELECT dsf_timeinit, dsf_filename, dsr_eelplus+dsr_eelminus-drr_eelplus-drr_eelminus  AS diff, dsr_id,drr_id, 
 dsr_eelplus,drr_eelplus,dsr_eelminus,drr_eelminus FROM 
@@ -1673,7 +1781,7 @@ t_didsonread_dsr  ON dsr_dsf_id=dsf_id
 LEFT JOIN 
 t_didsonreadresult_drr ON drr_dsr_id=dsr_id
 WHERE dsr_eelplus+dsr_eelminus>0 AND drr_eelminus IS NULL
-AND dsf_season='2022-2023'
+AND dsf_season='2023-2024'
 ORDER BY dsf_timeinit;
 
 
@@ -1726,6 +1834,23 @@ LEFT JOIN t_didsonreadresult_drr drr ON drr_dsr_id=dsr_id) sub
 WHERE drr_total!=dsr_total; -- 15 lignes dont une en 2013 => 0 lignes après correctiON 0 après correctiON 
 --2019 =>0 lignes après correctiON 2020 0 lignes 2021
 --2022 7 lignes corrigées (voir ce dessous)
+
+/*
+2023
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(6,1) WHERE dsr_id=76894;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=77077;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=79162;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,1) WHERE dsr_id=79260; -- verif manu
+UPDATE t_didsonreadresult_drr SET (drr_totalfish, drr_upstream, drr_downstream, drr_eelplus, drr_eelminus)=(2,1,1,1,1) WHERE drr_dsr_id=79260; -- verif manu
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(7,0) WHERE dsr_id=79313; -- lpm
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,0) WHERE dsr_id=79379; --lpm
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,0) WHERE dsr_id=79406; 
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=79407;
+UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(3,1) WHERE dsr_id=80069;
+correction avec interface (utiliser la case avec le nombre de lignes pour se déplacer)
+*/
+
+
 /*
 2019
 UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=47635;
@@ -1745,20 +1870,9 @@ UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(10,1) WHERE dsr_id=7396
 UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,1) WHERE dsr_id=75887;
 UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(2,0) WHERE dsr_id=76023;
 */
-select * from t_didsonreadresult_drr where drr_dsr_id = 79260
 
-/*
-2023
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(6,1) WHERE dsr_id=76894;
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=77077;
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=79162;
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,1) WHERE dsr_id=79260; -- verif manu
-UPDATE t_didsonreadresult_drr SET (drr_totalfish, drr_upstream, drr_downstream, drr_eelplus, drr_eelminus)=(2,1,1,1,1) WHERE drr_dsr_id=79260; -- verif manu
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(7,0) WHERE dsr_id=79313; -- lpm
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,0) WHERE dsr_id=79379; --lpm
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(0,0) WHERE dsr_id=79406; 
-UPDATE t_didsonread_dsr SET (dsr_eelplus, dsr_eelminus)=(1,0) WHERE dsr_id=79407;
-*/
+
+
 
 
 /* 
@@ -1782,7 +1896,7 @@ SELECT distinct ON (dsf_timeinit) * FROM did.t_didsonfiles_dsf  dsf 	JOIN  did.t
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species!='2014'
 				AND dsr_csotismin
-		    AND dsf_season = '2022-2023';
+		    AND dsf_season = '2023-2024';
 
 
 
@@ -1807,6 +1921,7 @@ SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) count FROM t_didsonfiles_ds
 2020-2021 1985
 2021-2022 1937
 2022-2023 1582
+2023-2024 1690
 */
 -- ENSEMBLE DES POISSONS COMPTES (DANS LES TABLES POISSONS (DRR)) Y COMPRIS LES COMPTAGES MULTIPLES
 SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) FROM t_didsonfiles_dsf 
@@ -1826,6 +1941,7 @@ SELECT dsf_season,sum(drr_eelplus)+sum(drr_eelminus) FROM t_didsonfiles_dsf
 2020-2021 1985
 2021-2022 1937
 2022-2023 1582
+2023-2024 1690
 */
 -- ENSEMBLE DES POISSONS COMPTES (DANS LES TABLES EXCEL (DSR)) Y COMPRIS LES COMPTAGES MULTIPLES
 -- ET AUSSI AVANT QU'ON PASSE EN LAMPROIES
@@ -1846,6 +1962,7 @@ FROM  t_didsonfiles_dsf
 2020-2021 1985
 2021-2022 1937
 2022-2023 1582
+2023-2024 1691
 */
 
 
@@ -1871,10 +1988,11 @@ dsf_season;count
 2020-2021 1985
 2021-2022 1937
 2022-2023 1581
+2023-2024 1685
 
 */
 
--- ENSEMBLE DES lignes du fichier poissON correspondant à CSOTISMIN
+-- ENSEMBLE DES lignes du fichier poisson correspondant à CSOTISMIN
 SELECT dsf_season,count(*) 
 FROM  t_didsonfiles_dsf 
 	JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id
@@ -1897,6 +2015,7 @@ FROM  t_didsonfiles_dsf
 2020-2021 1985
 2021-2022 1937
 2022-2023 1581
+2023-2024 1685
 */
 
 /* ci dessous la requête est lancée pour permettre de voir les jours ou il n'y a pas le même nombre
@@ -1948,11 +2067,11 @@ SELECT distinct psf_species FROM t_poissonfile_psf ;
 SELECT drr_id FROM v_ddde except (SELECT drr_id FROM v_dddpall); -- rien
 
 
-SELECT * FROM t_poissonfile_psf WHERE psf_species!='2014' AND psf_species!='2038'; --4 2238
+SELECT * FROM t_poissonfile_psf WHERE psf_species!='2014' AND psf_species!='2038'; --213 2238
 
 --3343
 SELECT count(*) FROM did.t_poissonfile_psf WHERE psf_species='2038' AND  psf_dir='Up'; 
---6171 --9583 --12345 (2018) --15276 (2020) --17063 (2021) 18844 (2022) 20301 (2023)
+--6171 --9583 --12345 (2018) --15276 (2020) --17063 (2021) 18844 (2022) 21949 (2023-2024)
 
 
 
@@ -1962,14 +2081,14 @@ SELECT count(*) FROM did.t_didsonfiles_dsf  dsf
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species!='2014'
 				AND  psf_species!='2338'
-				AND dsr_csotismin; --6701 --10624 --13720 --15546 --16977 --18965 --20902 --22483
+				AND dsr_csotismin; --6701 --10624 --13720 --15546 --16977 --18965 --20902 --22483 --24365 (2023-2024)
 -- lamproies
 SELECT count(*) FROM did.t_didsonfiles_dsf  dsf 	
 				JOIN  did.t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 				JOIN did.t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species='2014'
-				AND dsr_csotismin; --2592 --657 -- 799 --1614 --1896 --1898 --1899 --1957 --1962 --2874 (2023)
+				AND dsr_csotismin; --2592 --657 -- 799 --1614 --1896 --1898 --1899 --1957 --1962 --2874 (2023) 3020 (2023-2024)
 
 SELECT count(*),  psf_species FROM t_poissonfile_psf group by psf_species
 /* (2020)
@@ -1989,16 +2108,21 @@ count;psf_species
 2896  2014
 22689 2038
 4 2238
+(2023-2024)
+3074  2014
+24380 2038
+213 2238
 */
 
 -- anguilles qui  ne sont pas dans les fichiers drr
 SELECT * FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE (dsr_eelplus>0 or dsr_eelminus>0) and
-dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr) AND dsr_csotismin ORDER BY dsf_timeinit;-- 0 2018 --0 2019 --0 2020 --0 2022 --0 2023
+dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr) AND dsr_csotismin ORDER BY dsf_timeinit;
+-- 0 2018 --0 2019 --0 2020 --0 2022 --0 2023 --0 (2023-2024)
 
 
 SELECT * FROM t_didsonread_dsr RIGHT JOIN t_didsonreadresult_drr ON drr_dsr_id=dsr_id 
 WHERE dsr_eelplus != drr_eelplus
-or dsr_eelminus !=drr_eelminus --0 2018 --0 2020 --0 2022 --0 2023
+or dsr_eelminus !=drr_eelminus --0 2018 --0 2020 --0 2022 --0 2023 --0 (2023-2024)
 /* Je n'ose pas lancer celui-là
 UPDATE t_didsonread_dsr SET (dsr_eelplus,dsr_eelminus)=(0,0) WHERE dsr_id in 
 (SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE (dsr_eelplus>0 or dsr_eelminus>0) and
