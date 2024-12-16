@@ -2089,6 +2089,14 @@ SELECT count(*) FROM did.t_didsonfiles_dsf  dsf
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species='2014'
 				AND dsr_csotismin; --2592 --657 -- 799 --1614 --1896 --1898 --1899 --1957 --1962 --2874 (2023) 3020 (2023-2024)
+				
+SELECT count(*), dsf_season, psf_dir FROM did.t_didsonfiles_dsf  dsf   
+        JOIN  did.t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
+        JOIN did.t_didsonreadresult_drr drr ON  drr_dsr_id=dsr_id
+        JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
+        WHERE psf_species='2014'        
+        AND dsr_csotismin
+       GROUP BY dsf_season, psf_dir;
 
 SELECT count(*),  psf_species FROM t_poissonfile_psf group by psf_species
 /* (2020)
@@ -2113,6 +2121,9 @@ count;psf_species
 24380 2038
 213 2238
 */
+
+SELECT count(*),  psf_species FROM t_poissonfile_psf group by psf_species, dsf_season;
+
 
 -- anguilles qui  ne sont pas dans les fichiers drr
 SELECT * FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE (dsr_eelplus>0 or dsr_eelminus>0) and

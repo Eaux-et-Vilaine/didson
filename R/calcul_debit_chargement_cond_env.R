@@ -23,8 +23,8 @@ load_library("getPass")
 load_library("pool")
 library(SIVA)
 
-CY<-2023
-label<-2023# season is CY-1 - CY
+CY<-2024
+label<-2024# season is CY-1 - CY
 # adaptation : le script n'est pas lancer avec les params passés par le Rmarkdown
 params <-list()
 params$work_with_db <- TRUE
@@ -114,7 +114,8 @@ datawd<-"C:/workspace/didson/data/"
 datawdy<-str_c(datawd,CY,"/")
 imgwd<-"C:/workspace/didson/image/"
 imgwdy<-str_c(imgwd,CY,"/")
-
+dir.create(imgwdy,showWarnings = FALSE)
+dir.create(datawdy,showWarnings = FALSE)
 Sys.setenv(TZ='GMT') # pour prendre en compte le format des heures au barrage
 
 
@@ -139,7 +140,7 @@ if (!params$work_with_db){
 debit_barrage <- traitement_siva(debit_barrage)
 
 
-debit_barrage$tot_vol_vanne[debit_barrage$tot_vol_vanne > 480000 & !is.na(debit_barrage$tot_vol_vanne)]
+# debit_barrage$tot_vol_vanne[debit_barrage$tot_vol_vanne > 480000 & !is.na(debit_barrage$tot_vol_vanne)]
 
 
 ###############################
@@ -187,6 +188,9 @@ getdatefromlocator <- function(){
 plot(dat$horodate, dat$niveauvilaineb)
 getdatefromlocator()
 
+
+plot(dat$horodate, dat$niveaumer)
+getdatefromlocator()
 # SOLUTION 3 
 #identify(dat$horodate,dat$niveauvilaineb, labels=row.names(dat)) 
 
@@ -300,18 +304,31 @@ while(length(w>0)){
 
 # change 2023
 
-dat$niveauvilaineb[dat$horodate<'2022-12-23 00:00:00' & dat$horodate>='2022-12-22 00:00:00'
-& dat$niveauvilaineb<0]<-1.34
+#dat$niveauvilaineb[dat$horodate<'2022-12-23 00:00:00' & dat$horodate>='2022-12-22 00:00:00'
+#& dat$niveauvilaineb<0]<-1.34
+#
+#
+#plot(dat$niveauvilaineb[dat$horodate<'2023-03-25 00:00:00' & dat$horodate>='2023-03-24 00:00:00'])
+#dat$niveauvilaineb[dat$horodate<'2023-03-25 00:00:00' & dat$horodate>='2023-03-24 00:00:00'
+#        & dat$niveauvilaineb<1] <-1.9
 
-plot(dat$niveauvilaineb[dat$horodate<'2023-03-25 00:00:00' & dat$horodate>='2023-03-24 00:00:00'])
-dat$niveauvilaineb[dat$horodate<'2023-03-25 00:00:00' & dat$horodate>='2023-03-24 00:00:00'
-        & dat$niveauvilaineb<1] <-1.9
+# change 2024
+#dat$niveauvilaineb[dat$horodate<'2023-12-07 00:00:00' & dat$horodate>='2023-10-07 00:00:00'
+#& dat$niveauvilaineb<0.3] <- 0.5
+#
+#dat$niveauvilaineb[dat$horodate<'2024-04-05 00:00:00' & dat$horodate>='2023-04-04 00:00:00'
+#        & dat$niveauvilaineb<0.3] <- NA
+#
+#dat$niveaumer[dat$horodate<'2023-09-21 00:00:00' & dat$horodate>='2023-09-20 00:00:00'
+#        & dat$niveaumer< -1.9] <- -1.7
+
 
 plot(dat$horodate,dat$volet1)
 plot(dat$horodate,dat$volet2)
 plot(dat$horodate,dat$volet3) 
 plot(dat$horodate,dat$volet4)
 plot(dat$horodate,dat$volet5)
+dat$volet5[dat$volet5<4.030 & dat$volet5>1.380 & dat$horodate < '2023-09-10 00:00:00 '] <- 4.030
 #dat$deltav5[2:nrow(dat)] <- diff(dat$volet5)
 #with(subset(dat,dat$volet5>3.8 & dat$volet5<4.030 & abs(deltav5)<0.2), points(horodate, volet5, col="red"))
 #dat$volet5[dat$volet5>3.8 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
@@ -423,7 +440,10 @@ ggplot(mQ12345,aes(x=horodate,y=Qvanne,col=typecalc))+geom_jitter(size=0.6)+
     scale_colour_manual("Formule",values=c(
             "canal ifsw (libre)"="red","canal ifsw (noye)"="orange","hmer>hvilaine"=rouille,"orifice noye (ifws) sup1.5"=turquoise,"orifice noye (ifws) inf1.5"="turquoise","vanne fermee"="grey10"))+
     facet_wrap(~vanne)+
-    theme(legend.justification=c(1,0), legend.position=c(1,0))
+    guides(
+        colour = guide_legend(position = "inside")
+    )+
+    theme(legend.justification=c(1,0), legend.position.inside=c(1,0))
 dev.off()
 
      
@@ -645,6 +665,7 @@ t_env_env_temp <- cbind(
             "qvolet4",
             "qvolet5"
         )])
+
 colnames(t_env_env_temp) <- c(
   "env_time",
   "env_volet1",
@@ -681,7 +702,7 @@ colnames(t_env_env_temp) <- c(
   "env_qvolet4",
   "env_qvolet5")
     
-dbAppendTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp2"),t_env_env_temp) 
+dbAppendTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp"),t_env_env_temp) 
         
 #t_env_env_21102021 <- t_env_env_temp[strftime(t_env_env_temp$env_time, "%Y-%m-%d")=="2021-10-21",]
 # dbWriteTable(pooldidson,DBI::Id(schema="did",table="t_env_env_21102021"),t_env_env_21102021, overwrite=TRUE) 
@@ -690,4 +711,29 @@ dbAppendTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp2"),t_env_env
 # INTEGRATION DES DONNEES DE did.t_env_env_temp DANS t_env_env ;
 # PUIS INTEGRATION DE debitjour dans did.t_envjour_enj
 ##########################################################
+
+
+#####################################################
+# integration données barrage dans la table archive
+#####################################################
+
+
+Qi_insert<-data.frame("Tag"=9561,"HoroDate"=Q12345$horodate,"Valeur"=Q12345$Qvanne)
+###################################
+# Suppression des données existantes
+###################################
+
+dbExecute(poolsiva, str_c("DELETE FROM archive_IAV.calc_barrage_debit WHERE Horodate >='",
+        min(Qi_insert$HoroDate),
+        "' AND Horodate <= '",
+        max(Qi_insert$HoroDate),"'"))
+Qi_insert$HoroDate<-sQuote(strftime(Qi_insert$HoroDate,format="%Y-%m-%d %H:%M:%S"))
+
+Qi_insert$Valeur<-round(Qi_insert$Valeur,3)
+
+dbWriteTable(poolsiva, "archive_IAV.temp_calc_barrage_debit",Qi_insert)
+dbExecute(poolsiva, "INSERT INTO archive_iav.calc_barrage_debit SELECT * FROM archive_IAV.temp_calc_barrage_debit;")
+dbExecute(poolsiva, "SELECT * FROM archive_IAV.temp_calc_barrage_debit")
+dbExecute(poolsiva, "DROP TABLE IF EXISTS archive_IAV.temp_calc_barrage_debit;")
+
 
