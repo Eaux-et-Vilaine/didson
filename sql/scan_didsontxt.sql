@@ -954,20 +954,83 @@ WHERE c=1);
 --1767 (2017) -- 2110 2018 --3364 (2019) --2402 (2020) -- 3597 (2021) -- 4021 (2022) 3192 (2023) 2987 (2023-2024)
 
 
+-- 2023-2024 petite correction pour mettre à zero les csotdb nulls quand le fichier est complet.
+
+SELECT * FROM did.t_didsonread_dsr WHERE dsr_csotdb >0 AND dsr_complete
+
+
+UPDATE did.t_didsonread_dsr SET dsr_complete =FALSE  WHERE dsr_csotdb >0 AND dsr_complete
+AND dsr_dsf_id IN (
+   SELECT dsf_id FROM did.t_didsonfiles_dsf WHERE dsf_season = '2023-2024');
+
+UPDATE did.t_didsonread_dsr SET dsr_csotdb=0 WHERE dsr_complete 
+AND dsr_dsf_id IN (
+   SELECT dsf_id FROM did.t_didsonfiles_dsf WHERE dsf_season = '2023-2024'); --107
+
+
 -- CI DESSOUS ON MET A JOUR LES FICHIERS QUI ONT LE PLUS PETIT CSOT POUR LES FICHIERS DOUBLES (QUI SONT TOUS FALSE APRES L'ETAPE PRECEDENTE)
 -- le SELECT min over partitiON by SELECTionne un enregistrement avec dsr_dsf_id et dsr_csotdb correspondant au CSOT le plus base
 -- ON fait ensuite le UPDATEen SELECTionnant à la fois le csot et le dsf_id dans le pivot (sub.dsr_csotdb,sub.dsr_dsf_id)
 
+
+
+
 UPDATE t_didsonread_dsr SET dsr_csotismin=TRUE WHERE dsr_id in
- (SELECT dsr_id FROM t_didsonread_dsr JOIN 
-	(SELECT distinct  dsr_dsf_id,  min(dsr_csotdb) OVER (PARTITION BY dsr_dsf_id) AS dsr_csotdb
+ (SELECT dsr_id FROM 
+ t_didsonread_dsr JOIN 
+	(SELECT distinct  dsr_dsf_id,  
+	min(dsr_csotdb) OVER (PARTITION BY dsr_dsf_id) AS dsr_csotdb
 	FROM t_didsonread_dsr 
-	WHERE dsr_csotismin=FALSE
-	AND dsr_id in (SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE dsf_season='2023-2024')
+	WHERE dsr_csotismin=FALSE OR dsr_csotismin IS NULL
+	AND dsr_id in (SELECT dsr_id FROM t_didsonfiles_dsf 
+	JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
+	WHERE dsf_season='2023-2024')
 	) sub 
 	ON (sub.dsr_csotdb,sub.dsr_dsf_id)=(t_didsonread_dsr.dsr_csotdb,t_didsonread_dsr.dsr_dsf_id));
---329 --475 --378 --19 (2016) --6 (2017) --25 2018 --1 2019 --0 2020  --0 2021 0--2022 --1 2023 0 2023-2024
+--329 --475 --378 --19 (2016) --6 (2017) --25 2018 --1 2019 --0 2020  --0 2021 0--2022 --1 2023 632 2023-2024
 
+	
+-- Tous les fichiers avec la valeur la plus faible ont mincsotdb +> OK
+WITH sub AS (
+SELECT  dsr_dsf_id,
+  dsr_id,
+  dsr_csotdb,
+  min(dsr_csotdb) OVER (PARTITION BY dsr_dsf_id) AS mincsot,
+  dsr_csotismin
+  FROM t_didsonread_dsr)
+SELECT * FROM sub  WHERE mincsot = dsr_csotdb
+AND dsr_csotismin= FALSE OR dsr_csotismin =NULL;
+
+SELECT * FROM did.t_didsonread_dsr WHERE dsr_dsf_id IS NULL;
+DELETE FROM did.t_didsonread_dsr WHERE dsr_dsf_id IS NULL; -- une valeur virée en 2013
+
+WITH sub AS (
+SELECT  dsr_dsf_id,
+  dsr_id,
+  dsr_csotdb,
+  min(dsr_csotdb) OVER (PARTITION BY dsr_dsf_id) AS mincsot,
+  dsr_csotismin
+  FROM t_didsonread_dsr)
+SELECT * FROM sub  WHERE mincsot <> dsr_csotdb
+AND dsr_csotismin= TRUE OR dsr_csotismin =NULL;
+
+-- tableau avec une colonne avec le csot actuel et une avec le min
+-- Normament pour les valeurs differentes du min le csotismin est FALSE
+WITH sub AS (
+SELECT  dsr_dsf_id,
+  dsr_id,
+  dsr_csotdb,
+  min(dsr_csotdb) OVER (PARTITION BY dsr_dsf_id) AS mincsot,
+  dsr_csotismin
+  FROM t_didsonread_dsr),
+sub2 AS (
+SELECT * FROM sub  WHERE mincsot <> dsr_csotdb
+AND (dsr_csotismin= TRUE OR dsr_csotismin =NULL))
+UPDATE t_didsonread_dsr SET dsr_csotismin = FALSE
+WHERE dsr_id IN (SELECT dsr_id FROM sub2); --327
+
+UPDATE t_didsonread_dsr SET dsr_csotismin =FALSE WHERE dsr_csotismin = TRUE AND dsr_pertefichiertxt; --141
+SELECT * FROM t_didsonread_dsr WHERE dsr_dsf_id = 6209
 
 /*
 CERTAINS FICHIERS ONT ETE LUS DEUX FOIS AU MEME CSOT MAIS GERARD EST TOUJOURS LE MEILLEUR !
@@ -991,7 +1054,7 @@ SELECT * FROM t_didsonread_dsr
 	AND dsr_reader!='Gerard'
 ORDER BY dsr_dsf_id
 --==============================================
-)subsub) --88 -- 393
+)subsub) --88 -- 393 --83
 */
 --verif qu'il n'y a plus de problème
 -- si il reste des problèmes mettre à la main un FALSE pour certaines lignes (voir exemple ci-dessous)
@@ -1528,13 +1591,13 @@ UPDATE t_didsonreadresult_drr SET drr_eelplus= up
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
 	WHERE dsf_season='2023-2024');
 	--1381 (2016) => 1336 après changement lamproies 714 2017 552 (2018) 848 (2019) 
-	-- 6891 (2020) 981 (2021) 807 (2022) 761 (2023-2024)
+	-- 6891 (2020) 981 (2021) 807 (2022) 896 (2023-2024)
 	
 UPDATE t_didsonreadresult_drr SET drr_eelminus=0 WHERE drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
 	WHERE dsf_season='2023-2024'); 
 	-- 1420 (2016) 716 (2017) 553 (2018) 848 (2019) 
-	-- 692 (2020) 985 (2021) 811 (2022) 890 (2023)
+	-- 692 (2020) 985 (2021) 811 (2022) 896 (2023-2024)
 	
 UPDATE t_didsonreadresult_drr SET drr_eelminus= dn 
 	FROM tempcountfromdsf
@@ -1542,20 +1605,20 @@ UPDATE t_didsonreadresult_drr SET drr_eelminus= dn
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
 	WHERE dsf_season='2023-2024'); 
 	--1336 (2016) 714 552 (2018) 848 (2019) 
-	--691 (2020) 980 (2021) 811 (2022) 761 (2023)
+	--691 (2020) 980 (2021) 811 (2022) 761 (2023) 767 2024
 	
 UPDATE t_didsonreadresult_drr SET drr_eelminus=0 WHERE drr_eelminus IS NULL AND drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
 	WHERE dsf_season='2023-2024');
 	--1062 --1062 --991 (2016) --477 (2017) 479(2018) 636 (2019)
-	-- 632 (2020) 807 (2021) 659 (2022) 722 (2023-2024)
+	-- 632 (2020) 807 (2021) 659 (2022) 727 (2023-2024)
 	
 UPDATE t_didsonreadresult_drr SET drr_eelplus=0 WHERE drr_eelplus IS NULL AND drr_dsr_id in 
 	(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
 	WHERE dsf_season='2023-2024');
 	
 	--115--187 --93 (2016) -- 83 (2017) -- 25 (2018) 109 (2019) 
-	--32 (2020) 98 (2021) 90 (2022) 19 (2023-2024)
+	--32 (2020) 98 (2021) 90 (2022) 0 (2023-2024)
 
 
 /*
@@ -1719,15 +1782,19 @@ VérificatiON des fichiers nON importés
 GROSSE VERIFICATION PAR AN, POUR REMETTRE LES FICHIERS DROITS
 */
 
-SELECT dsr_id,  dsr_csotismin, drr_id, dsf_timeinit, dsf_filename, dsr_eelplus+dsr_eelminus-drr_eelplus-drr_eelminus  AS diff, 
+SELECT dsf_id, dsr_id,  dsr_csotismin, drr_id, dsf_timeinit, dsf_filename,
+dsr_eelplus+dsr_eelminus-drr_eelplus-drr_eelminus  AS diff, 
 dsr_eelplus,drr_eelplus,dsr_eelminus,drr_eelminus FROM 
 t_didsonfiles_dsf join
 t_didsonread_dsr  ON dsr_dsf_id=dsf_id 
 LEFT JOIN 
 t_didsonreadresult_drr ON drr_dsr_id=dsr_id
 WHERE dsr_eelplus>0 AND drr_eelplus IS NULL
+AND NOT dsr_pertefichiertxt
 AND (dsf_season='2023-2024' )
 ORDER BY dsf_timeinit;
+
+
 
 /*
  2023-2024
@@ -1782,6 +1849,7 @@ LEFT JOIN
 t_didsonreadresult_drr ON drr_dsr_id=dsr_id
 WHERE dsr_eelplus+dsr_eelminus>0 AND drr_eelminus IS NULL
 AND dsf_season='2023-2024'
+AND NOT dsr_pertefichiertxt
 ORDER BY dsf_timeinit;
 
 

@@ -516,9 +516,12 @@ makeTransparent<-function(someColor, alpha=100)
 #' FONCTION DE TRACAGE ET CALCUL DU didson
 #' l'angle beta est négatif vers le bas, l'angle alpha est positif vers le bas.
 #' alpha en degrés
-#'fond  Paramètre fixant la profondeur du fond
-#' profdid profondeur didson
-#' dist distance de l'intercept sur l'axe des X, beta l'angle, donner l'un ou l'autre
+#' fond  Paramètre fixant la profondeur du fond
+#' profdid Profondeur du didson
+#' dist distance de l'intercept sur l'axe des X, donner cette valeur ou betadegre, l'un ou l'autre
+#' betadegres l'angle, donner l'un ou l'autre
+#' d1 distance de détection au didson min
+#' d2 distance de détection au didson max
 #' hpas parametre donnant la hauteur de la colonne d'eau dans laquelle passent les anguilles
 #' hvan hauteur de la vanne
 #' print faut il donner les valeurs de l'angle ou de l'intercept (en fonction de l'un et l'autre)
@@ -550,6 +553,7 @@ drawdi<-function(
     vectdist=NA, 
     vectdir=NA,
     couleur=rainbow(length(detection_frames),alpha=0.3)){
+  
   hautvolet<-1.38
   if (is.na(chargevolet)) chargevolet<-0.3
   if (is.na(hvan)) hvan=hpas
@@ -572,6 +576,7 @@ drawdi<-function(
   pentesup <- tan(beta+alpha/2) # pente de la limite de la zone de détection vers la surface
   penteinf <- tan(beta-alpha/2) # pente de la limite de la zone de détection vesr le fond
   perpslope <- -1/slopebeta # pente de la droite perpendiculaire à l'axe de détection, le produit des
+
   # coefficients directeurs vaut -1
   # ou
   #perpslope<-tan(beta+pi/2)
@@ -585,15 +590,27 @@ drawdi<-function(
     d2infx=(d2/cos(-alpha/2))*cos(beta-alpha/2)
     d2supy=pentesup*d2supx+profdid  # a partir de l'équation de la droite
     d2infy=penteinf*d2infx+profdid  # a partir de l'équation de la droite
-    poly<-cbind(c(d1supx,d2supx,d2infx,d1infx),c(d1supy,d2supy,d2infy,d1infy))
+    poly<-cbind(c(d1supx,d2supx,d2infx,d1infx, d1supx),c(d1supy,d2supy,d2infy,d1infy, d1supy))
     #polygon(poly2,col="red")
-    detection_frame <- as(poly, "gpc.poly")
+    detection_frame <- st_polygon(list(poly))
     return(detection_frame)
   }
   detection_frame<-calculate_poly(d1,d2)
-  poly2<-	cbind(c(18,18,retrait,retrait),c(fond,fond+hpas,fond+hpas,fond))
-  if (volet) poly2<-	cbind(c(18,18,retrait,retrait),c(hautvolet+chargevolet-hpas,hautvolet+chargevolet,hautvolet+chargevolet,hautvolet+chargevolet-hpas))
-  migration_frame <- as(poly2, "gpc.poly")	
+  
+  poly2<-	cbind(c(18,18,retrait,retrait,18),c(fond,fond+hpas,fond+hpas,fond, fond))
+  if (volet) poly2<-	cbind(c(
+            18,
+            18,
+            retrait,
+            retrait,
+            18),
+        c(
+            hautvolet+chargevolet-hpas,
+            hautvolet+chargevolet,
+            hautvolet+chargevolet,
+            hautvolet+chargevolet-hpas,
+            hautvolet+chargevolet-hpas))
+  migration_frame <- st_polygon(list(poly2))
   # CALCUL D'UN DECOUPAGE DE POLYGONES
   # si divide différent de NA on calcule les detection_frame pour chaque distance 
   if (!is.na(divide[1])){
@@ -619,8 +636,9 @@ drawdi<-function(
     
     
     detection_frames_range <- sapply(detection_frames,function(X) X$range)	
+    
     detection_frames_intersect_area <- sapply(detection_frames,
-        function(X) round(gpclib::area.poly(gpclib::intersect(X$poly,migration_frame)),2))
+        function(X) round(st_area(st_intersection(X$poly,migration_frame)),2))
   } else {
     detection_frames_range<- NA	
     detection_frames_intersect_area <- NA
@@ -637,21 +655,25 @@ drawdi<-function(
     
     #polygon(x=c(19,19,18,18,0,0,-1,-1),y=c(fond-2,4.63,4.63,fond,fond,4.63,4.63,fond-2),col="grey20") # fond
     
-    plot(migration_frame,poly.args = list(col=makeTransparent("yellow",alpha=100)),add=TRUE)
+    plot(migration_frame,col=makeTransparent("yellow",alpha=100),add=TRUE)
     if(volet){
       rect(xleft=18,ybottom=hautvolet,xright=retrait,ytop=hautvolet+chargevolet,col="aquamarine3")			
     }
-    if (is.na(divide)){
+    if (is.na(divide[1])){
       # affichage si le polygone de détection n'est pas découpé
-      plot(detection_frame,poly.args = list(col = makeTransparent("yellow",alpha=100)), add = TRUE)
+      plot(detection_frame,col = makeTransparent("yellow",alpha=100), add = TRUE)
     }
-    plot(gpclib::intersect(migration_frame,detection_frame),poly.args = list(col = makeTransparent("white",alpha=80)), add = TRUE)
+    plot( st_intersection(migration_frame,detection_frame),col = makeTransparent("white",alpha=80), add = TRUE)
     points(0,profdid,col="green",cex=2,pch=16) # didson
     # pour une droite bx+a, tracé des lignes
     abline(a=profdid,b=slopebeta,col="red") # pour un intercept à la distance de dist, on touche le fond et il faut rajouter l'intercept x=(Y-b)/a
     abline(a=profdid,b=pentesup,lty=2) # droite supérieure
     abline(a=profdid,b=penteinf,lty=2) # droite inférieure
-    abline(b=perpslope,a=fond-perpslope*dist,lty=3) # perpendiculaire au point ou le centre touche le fond
+    if (is.infinite(perpslope)){
+     abline(v=c(d1,d2),lty=3, col = "white")
+    } else {
+    abline(b=perpslope,a=fond-perpslope*dist,lty=3, col="white") # perpendiculaire au point ou le centre touche le fond
+    }
     # fonction pour tracer les droites perpendiculaires à l'axe du didson
     fperp<-function(newdist,col){
       y=profdid+newdist*sin(beta)
@@ -662,17 +684,17 @@ drawdi<-function(
     }
     fperp(d1,"white")
     fperp(d2,"white")
-    if (!is.na(divide)){
+    if (!is.na(divide[1])){
       couleurs<-couleur
       for (i in 1:length(detection_frames)){
-        plot(detection_frames[[i]]$poly,poly.args = list(col = couleurs[i]), add = TRUE)
+        plot(detection_frames[[i]]$poly,col = couleurs[i], add = TRUE)
       }
     }
     
     # ci dessous pour mettre les anguilles vues à un vecteur de dist du didson
     # et pour un bruit (le long de la droite perpendiculaire) de distnoise
     if (!is.na(vectdist[1])){
-      fpointperp<-function(vectdist,vectdir){
+      fpointperp <- function(vectdist,vectdir){
         # au max on met des points jusqu'à 0.6 le bord
         noise<-runif(length(vectdist),-d1*0.6*tan(alpha/2),d1*0.6*tan(alpha/2))
         noise<-noise*vectdist/d1
@@ -685,8 +707,8 @@ drawdi<-function(
       fpointperp(vectdist,vectdir)
     }
   }
-  return(list("area_intersect"=round(area.poly(gpclib::intersect(detection_frame,migration_frame)),2),
-          "area_migration_frame"=area.poly(migration_frame),
+  return(list("area_intersect"=round(st_area(st_intersection(detection_frame,migration_frame)),2),
+          "area_migration_frame"=st_area(migration_frame),
           "det_frames_int_area"=detection_frames_intersect_area,
           "det_frames_range"=detection_frames_range))
 }
@@ -1113,7 +1135,7 @@ cat("dd (didsonfile + didsonread) \n")# ----------------------------------------
 # dd c'est juste didsonfiles et didsonread
 req@sql <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
         join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-        where dsr_csotismin and dsf_timeinit>'",toutdebut,
+        where dsr_csotismin and NOT dsr_pertefichiertxt AND dsf_timeinit>'",toutdebut,
     "' and dsf_timeinit<'",fin,
     "'") # dsf_dsr_drr_psf    
 dd <- query(req, base) %>% getquery() 
@@ -1123,7 +1145,7 @@ cat("ddall (didsonfile + didsonread) toutes les saisons \n")# ------------------
 # dd c'est juste didsonfiles et didsonread
 req@sql <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
         join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-        where dsr_csotismin and dsf_timeinit>'",debut,
+        where dsr_csotismin and NOT dsr_pertefichiertxt AND dsf_timeinit>'",debut,
     "' and dsf_timeinit<'",fin,
     "'") # dsf_dsr_drr_psf    
 dd <- query(req, base) %>% getquery() 
@@ -1188,6 +1210,7 @@ reqnblpm <- str_c("select count(*), psf_dir from did.t_didsonfiles_dsf  dsf
         join did.t_poissonfile_psf on psf_drr_id=drr_id
         where psf_species='2014'
         and dsr_csotismin
+        and NOT dsr_pertefichiertxt
         and dsf_timeinit>'",debut,
     "' and dsf_timeinit<'",fin,
     "' group by psf_dir " )
@@ -1200,6 +1223,7 @@ reqlpm <- str_c("select * from did.t_didsonfiles_dsf  dsf
         join did.t_poissonfile_psf on psf_drr_id=drr_id
         where psf_species='2014' 
         and dsr_csotismin 
+        and NOT dsr_pertefichiertxt
         and dsf_timeinit>'",debut,
     "' and dsf_timeinit<'",fin,
     "'")
@@ -1568,9 +1592,9 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 
 <<didson2, echo=FALSE, eval=FALSE,results=hide >>=
 # Les mêmes mais sans limitation de la taille de la fenêtre pour le ratio des surfaces
-volet<-drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=-7,d1=5,d2=15,hvan=0,hpas=5,print=FALSE,graph=FALSE,divide=2,volet=TRUE)
-f3<-drawdi(fond=-7.72,profdid=-6.00,alphadegres=14,dist=NA,betadegres=0,d1=2,d2=12, hpas=3,hvan=3,graph=TRUE,divide=c(3,2,2,2,2)) # ici on passe l'angle
-f5<-drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=NA,betadegres=6,d1=5,d2=15,hpas=5,hvan=3,print=FALSE,graph=TRUE,divide=2)
+volet <- drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=-7,d1=5,d2=15,hvan=0,hpas=5,print=FALSE,graph=TRUE,divide=2,volet=TRUE)
+f3 <- drawdi(fond=-7.72,profdid=-6.00,alphadegres=14,dist=NA,betadegres=0,d1=2,d2=12, hpas=3,hvan=3,graph=TRUE,divide=c(2,2,2,2,2)) # ici on passe l'angle
+f5 <- drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=NA,betadegres=6,d1=5,d2=15,hpas=5,hvan=3,print=FALSE,graph=TRUE,divide=2)
 vvv$volet<-volet
 vvv$f5<-f5
 vvv$f3<-f3
@@ -3169,9 +3193,9 @@ ggplot(subset(dddp,dddp$mois%in%c("11","12","01","02","03","04") &	dddp$date>dat
     coord_flip()+theme_bw()+
     xlab("Taille (mm)")+ylab("classes de distance (densite)")+
     theme(
-        axis.line = element_line(colour = "black", size = 0.2), 
+        axis.line = element_line(colour = "black", linewidth = 0.2), 
         axis.text.x = element_text(size = 12 * 0.8, colour = 'white', lineheight = 0.9, vjust = 1), 
-        axis.ticks = element_line(colour = "white", size = 0.2))
+        axis.ticks = element_line(colour = "white", linewidth = 0.2))
 dev.off()
 
 
@@ -5025,7 +5049,7 @@ D0 <- D0 %>%
             case_when(day<250 & !leap_year ~ day + 365,
                 day<250 & leap_year ~ day + 366,
                 TRUE ~day),
-           ndays =  ndays - min(ndays)+1) 
+        ndays =  ndays - min(ndays)+1) 
 
 
 
@@ -5083,13 +5107,14 @@ D2 <- D1 %>%
 D2$N[D2$vol4==0] <- NA
 D2$N4[D2$vol4==0] <- NA
 # test
-sum(D2$N[D2$indexOK==1], na.rm=TRUE) #889654.6
-sum(D2$N4[D2$indexOK==1]) 
+sum(D2$N[D2$indexOK==1], na.rm=TRUE) #945973.7
+sum(D2$N4[D2$indexOK==1], na.rm=TRUE) # 279189
 
 D2$N[D2$indexOK==0] <- NA
 D2$N4[D2$indexOK==0] <- NA
 
-#open_in_excel(D2)
+#open_in_excel(D2) 
+D2[duplicated(D2$dsf_id),]
 stopifnot(sum(duplicated(D2$dsf_id))==0)
 
 
