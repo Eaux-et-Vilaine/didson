@@ -625,14 +625,17 @@ SELECT * FROM t_didsonreadresult_drr where
 	WHERE dsf_season='2023-2024'
 	) AND drr_csotminthreshold_db IS NULL; 
 
-UPDATE t_didsonreadresult_drr SET drr_csotminthreshold_db=0 WHERE drr_csotminthreshold_db IS NULL AND
+UPDATE t_didsonreadresult_drr SET drr_csotminthreshold_db=0 
+WHERE drr_csotminthreshold_db IS NULL AND
 	drr_id in (
 	SELECT drr_id FROM t_didsonfiles_dsf 
 	JOIN t_didsonreadresult_drr ON drr_dsf_id=dsf_id 
 	WHERE dsf_season='2023-2024'
 	); --98 --3 -- 67 --37 (2016) --36 (2017) --26 3(2018) -- 8 2 2020 0 2021 29 2022 1 2023 29 2024
 
-
+/* 2023 -2024 grosses corrections
+ * 
+ */
 -- ci dessous j'ai viré un fichier qui avait pas DSR	
 SELECT dsf_filename, dsr.* FROM t_didsonread_dsr dsr
 join t_didsonfiles_dsf  dsf on dsf_id=dsr_dsf_id
@@ -646,7 +649,7 @@ WHERE dsr_csotdb IS NULL and
 -- SELECT * FROM t_didsonread_dsr WHERE dsr_dsf_id=133245
 -- DELETE FROM t_didsonread_dsr WHERE dsr_id = 46820	
 -- SELECT * FROM t_didsonread_dsr WHERE dsr_dsf_id=131016
--- UPDATE t_didsonread_dsr SET dsr_complete=TRUE WHERE dsr_id=47629; --1
+
 
 UPDATE t_didsonread_dsr SET dsr_csotdb=0 WHERE dsr_csotdb IS NULL and
  dsr_id in (
@@ -901,7 +904,8 @@ Etape 5
 
 */
 
-SELECT * FROM  t_didsonfiles_dsf  dsf JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id WHERE dsf_id in 
+SELECT * FROM  t_didsonfiles_dsf  dsf JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id WHERE 
+dsf_id in 
 (SELECT drr_dsf_id FROM t_didsonreadresult_drr WHERE drr_dsr_id IS NULL )
 AND dsf_season='2023-2024';--0 --0 2016 --0 2017 --0 2018 --0 2020 --0 2021 --0 2023 22 2024
 
@@ -936,7 +940,10 @@ select t_didsonread_dsr.* FROM  t_didsonfiles_dsf
  -- ON COMMENCE PAR METTRE FALSE A TOUT LE MONDE
 
 UPDATE t_didsonread_dsr SET dsr_csotismin=FALSE WHERE dsr_id in
-(SELECT dsr_id FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE dsf_season='2023-2024'); 
+(SELECT dsr_id FROM t_didsonfiles_dsf 
+JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
+WHERE dsf_season='2023-2024'
+); 
 --4200 --3110 (2016) 1780 (2017) 2161 2018 3366 2019 2402 2020 3594 2021 4201 2022 3194 2023 3194 2024 3009
 
  -- CEUX POUR LESQUELS IL N'Y A QU'UNE SEULE LECTURE SON MIN
@@ -953,10 +960,11 @@ WHERE c=1);
 --3557 -6814 -- 9723 lignes pour lesquelles il n'y a qu'une valeur --3072 (2016) 
 --1767 (2017) -- 2110 2018 --3364 (2019) --2402 (2020) -- 3597 (2021) -- 4021 (2022) 3192 (2023) 2987 (2023-2024)
 
-
+------------------------------------------------------------------------------------------------
 -- 2023-2024 petite correction pour mettre à zero les csotdb nulls quand le fichier est complet.
+-------------------------------------------------------------------------------------------------
 
-SELECT * FROM did.t_didsonread_dsr WHERE dsr_csotdb >0 AND dsr_complete
+SELECT * FROM did.t_didsonread_dsr WHERE dsr_csotdb >0 AND dsr_complete;
 
 
 UPDATE did.t_didsonread_dsr SET dsr_complete =FALSE  WHERE dsr_csotdb >0 AND dsr_complete
@@ -971,9 +979,6 @@ AND dsr_dsf_id IN (
 -- CI DESSOUS ON MET A JOUR LES FICHIERS QUI ONT LE PLUS PETIT CSOT POUR LES FICHIERS DOUBLES (QUI SONT TOUS FALSE APRES L'ETAPE PRECEDENTE)
 -- le SELECT min over partitiON by SELECTionne un enregistrement avec dsr_dsf_id et dsr_csotdb correspondant au CSOT le plus base
 -- ON fait ensuite le UPDATEen SELECTionnant à la fois le csot et le dsf_id dans le pivot (sub.dsr_csotdb,sub.dsr_dsf_id)
-
-
-
 
 UPDATE t_didsonread_dsr SET dsr_csotismin=TRUE WHERE dsr_id in
  (SELECT dsr_id FROM 
@@ -990,7 +995,7 @@ UPDATE t_didsonread_dsr SET dsr_csotismin=TRUE WHERE dsr_id in
 --329 --475 --378 --19 (2016) --6 (2017) --25 2018 --1 2019 --0 2020  --0 2021 0--2022 --1 2023 632 2023-2024
 
 	
--- Tous les fichiers avec la valeur la plus faible ont mincsotdb +> OK
+-- Tous les fichiers avec la valeur la plus faible ont mincsotdb => OK
 WITH sub AS (
 SELECT  dsr_dsf_id,
   dsr_id,
@@ -1029,8 +1034,10 @@ AND (dsr_csotismin= TRUE OR dsr_csotismin =NULL))
 UPDATE t_didsonread_dsr SET dsr_csotismin = FALSE
 WHERE dsr_id IN (SELECT dsr_id FROM sub2); --327
 
+
+SELECT * FROM t_didsonread_dsr WHERE dsr_csotismin IS NULL; --0 lignes
 UPDATE t_didsonread_dsr SET dsr_csotismin =FALSE WHERE dsr_csotismin = TRUE AND dsr_pertefichiertxt; --141
-SELECT * FROM t_didsonread_dsr WHERE dsr_dsf_id = 6209
+
 
 /*
 CERTAINS FICHIERS ONT ETE LUS DEUX FOIS AU MEME CSOT MAIS GERARD EST TOUJOURS LE MEILLEUR !
@@ -1401,7 +1408,7 @@ SELECT psf_id,
  * 2023
  * 
  * Il y a bien un poisson compté, l'heure est mise à 01:00:00 c'est faut je corrige  21:31:00
- 
+ SELECT * FROM t_didsonreadresult_drr where drr_filename = '2024-02-09_193000_HF'
  **/		
 		
 		

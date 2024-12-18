@@ -442,77 +442,83 @@ Eriau}}}
 <<init, echo=FALSE, eval=TRUE,results=hide >>=
 # ATTENTION LE LANCEMENT DE CHUNKS CONTENANT DPLYR FAIT PLANTER LE CALCUL DE INTERSECT POUR LES POLYGONES
 # CHUNKS d3ej d3ejperiodes d3ejfinal didson... tout ce qui utilise la fonction drawdi !
-#options("encoding" = "UTF-8")
-obj<-ls(all=TRUE)
-obj<-obj[!obj%in%c("passworddistant","passwordlocal","userdistant","hostdistant","mainpass")]
+# options("encoding" = "UTF-8")
+# options(error = recover) # super usefull
+obj <- ls(all = TRUE)
+obj <- obj[!obj %in% c("passworddistant", "passwordlocal", "userdistant", "hostdistant", "mainpass")]
 
-rm(list=obj) # nettoyage complet sauf passwords
-load_library=function(necessary) {
-  if(!all(necessary %in% installed.packages()[, 'Package']))
-    install.packages(necessary[!necessary %in% installed.packages()[, 'Package']], dep = T)
-  for(i in 1:length(necessary))
+rm(list = obj) # nettoyage complet sauf passwords
+load_library <- function(necessary) {
+  if (!all(necessary %in% installed.packages()[, "Package"])) {
+    install.packages(necessary[!necessary %in% installed.packages()[, "Package"]], dep = T)
+  }
+  for (i in 1:length(necessary)) {
     library(necessary[i], character.only = TRUE)
+  }
 }
-load_library('stringr') # text handling
-CY=2024
-saison <- str_c((CY-1),"-",CY)
-debut <- str_c(CY-1,"-09-01 00:00:00")
-fin <- str_c(CY,"-05-01 00:00:00")
-toutdebut <- str_c(2012,"-09-01 00:00:00")
-datedebut <- str_c(CY-1,"-09-01")
-datefin <- str_c(CY,"-05-01")
+load_library("stringr") # text handling
+CY <- 2024
+saison <- str_c((CY - 1), "-", CY)
+debut <- str_c(CY - 1, "-09-01 00:00:00")
+fin <- str_c(CY, "-05-01 00:00:00")
+toutdebut <- str_c(2012, "-09-01 00:00:00")
+datedebut <- str_c(CY - 1, "-09-01")
+datefin <- str_c(CY, "-05-01")
 graphics.off()
 setwd("C:/workspace/didson/report")
-datawd<-"C:/workspace/didson/data/" 
-datawdy<-str_c(datawd,CY,"/")
-imgwd<-"C:/workspace/didson/image/"
-imgwdy<-str_c(imgwd,CY,"/")
-tabwdy<-str_c("C:/workspace/didson/table/",CY,"/")
+datawd <- "C:/workspace/didson/data/"
+datawdy <- str_c(datawd, CY, "/")
+imgwd <- "C:/workspace/didson/image/"
+imgwdy <- str_c(imgwd, CY, "/")
+tabwdy <- str_c("C:/workspace/didson/table/", CY, "/")
 
-#load_library('RODBC') # odbc connector
-load_library('stacomirtools') # connection tools
-load_library('grDevices') # star symbol
-#load_library('sqldf') # mimict sql queries in a data.frame #citation("sqldf")
-load_library('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
+# load_library('RODBC') # odbc connector
+load_library("stacomirtools") # connection tools
+load_library("grDevices") # star symbol
+# load_library('sqldf') # mimict sql queries in a data.frame #citation("sqldf")
+load_library("RPostgres") # one can use RODBC, here I'm using direct connection via the sqldf package
 # loading RPostgresSQL ensures that postgres is used as a default driver by sqldf
 # setting options to access postgres using sqldf
-#load_library('plyr')# join fuction
-load_library('ggplot2')# join fuction
-load_library('gpclib') # to calculate polygons intersections
-load_library('Hmisc')
-load_library('png')
-load_library('car')
-load_library('grid')
-load_library('vcd')
-load_library('lubridate')
-load_library('circular')
-load_library('reshape2')
-load_library('stargazer')
-load_library('mgcv')
-load_library('MASS')
-load_library('xtable')
-load_library('tidyverse') # conflict with intersect ... fixed
-#'==========================================================
+# load_library('plyr')# join fuction
+load_library("ggplot2") # join fuction
+load_library("sf") # to calculate polygons intersections
+load_library("Hmisc")
+load_library("png")
+load_library("car")
+load_library("grid")
+load_library("vcd")
+load_library("lubridate")
+load_library("circular")
+load_library("reshape2")
+load_library("stargazer")
+load_library("mgcv")
+load_library("MASS")
+load_library("xtable")
+load_library("tidyverse") # conflict with intersect ... fixed
+#' ==========================================================
 #' fonction de nettoyage du code latex
-#'==========================================================
+#' ==========================================================
 
 sanitizeLatexS <- function(str) {
-  gsub('([#$%&~_\\^\\\\{}])', '\\\\\\\\\\1', str, perl = TRUE);
+  gsub("([#$%&~_\\^\\\\{}])", "\\\\\\\\\\1", str, perl = TRUE)
 }
 
-#'==========================================================
+#' ==========================================================
 #' fonction d'impression des nombres
-#'==========================================================
-#'==========================================================
+#' ==========================================================
+#' ==========================================================
 #' fonction d'application de la transparence à des couleurs.
-#'==========================================================
-makeTransparent<-function(someColor, alpha=100)
-{
-  newColor<-col2rgb(someColor)
-  apply(newColor, 2, function(curcoldata){rgb(red=curcoldata[1], green=curcoldata[2],
-            blue=curcoldata[3],alpha=alpha, maxColorValue=255)})
-}	#note: always pass alpha on the 0-255 scale
-#'==========================================================
+#' ==========================================================
+makeTransparent <- function(someColor, alpha = 100) {
+  newColor <- col2rgb(someColor)
+  apply(newColor, 2, function(curcoldata) {
+        rgb(
+            red = curcoldata[1], green = curcoldata[2],
+            blue = curcoldata[3], alpha = alpha, maxColorValue = 255
+        )
+      })
+} # note: always pass alpha on the 0-255 scale
+#' ==========================================================
 #' FONCTION DE TRACAGE ET CALCUL DU didson
 #' l'angle beta est négatif vers le bas, l'angle alpha est positif vers le bas.
 #' alpha en degrés
@@ -526,200 +532,249 @@ makeTransparent<-function(someColor, alpha=100)
 #' hvan hauteur de la vanne
 #' print faut il donner les valeurs de l'angle ou de l'intercept (en fonction de l'un et l'autre)
 #' graph faut il produire un graphique ?
-#' divide si une valeur autre que NA est donnée, vecteur de distance en m le long de l'axe du faisceau, 
+#' divide si une valeur autre que NA est donnée, vecteur de distance en m le long de l'axe du faisceau,
 #' divide nombre en mètres, correspond aux distances pas aux limites
 #' vectdist vecteur des distances d'observations au didson (correspond à des anguilles)
 #' vectdir direction des anguilles
 #' distnoise bruit sur la droite perpendiculaire
 #' fond=-7.72;profdid=-6.92;alphadegres=14;dist=6;betadegres=NA;d1=2.5;d2=d1+10;hpas=2;print=FALSE;graph=FALSE;divide=NA;hvan=NA
 #'  Attention la surface de la zone de migration est surestimée de 0.2 pour des raisons graphiques, le calcul n'est pas repris dans le script....
-#'==========================================================
-drawdi<-function(
-    fond=-7.72, 
-    profdid=-6.92, 
-    alphadegres=14, 
-    dist=6, 
-    betadegres=NA, 
-    d1=2.5,
-    d2=d1+10, 
-    hvan=NA, 
-    hpas=2,
-    print=FALSE,
-    graph=FALSE, 
-    divide=NA, 
-    volet=FALSE, 
-    chargevolet=NA, 
-    retrait=0.2, 
-    vectdist=NA, 
-    vectdir=NA,
-    couleur=rainbow(length(detection_frames),alpha=0.3)){
-  
-  hautvolet<-1.38
-  if (is.na(chargevolet)) chargevolet<-0.3
-  if (is.na(hvan)) hvan=hpas
-  alpha= alphadegres*pi/180# conversion de degrés en radians (180°=Pi)
-  slopealpha=tan(alpha) # pente de l'angle par rapport à l'axe 0x
-  if (is.na(dist)&is.na(betadegres)|!is.na(dist)&!is.na(betadegres)) {
-    stop ("il faut dist ou béta, l'un des deux")
-  } else if (is.na(dist)){ # on donne un angle
-    beta=betadegres*pi/180
-    dist=(fond-profdid)/tan(beta) #H/dist=cos(pi/2-beta)
-    slopebeta=tan(beta)
-    if (print) cat ("la distance d'interception est de ", dist,"m \n")
-  } else { # on donne une distance 
+#' ==========================================================
+drawdi <- function(
+    fond = -7.72,
+    profdid = -6.92,
+    alphadegres = 14,
+    dist = 6,
+    betadegres = NA,
+    d1 = 2.5,
+    d2 = d1 + 10,
+    hvan = NA,
+    hpas = 2,
+    print = FALSE,
+    graph = FALSE,
+    divide = NA,
+    volet = FALSE,
+    chargevolet = NA,
+    retrait = 0.2,
+    vectdist = NA,
+    vectdir = NA,
+    couleur = rainbow(length(detection_frames), alpha = 0.3)) {
+  if (is.na(hpas) | is.na(profdid)){
+    return(list(
+            "area_intersect" = 0,
+            "area_migration_frame" = NA,
+            "det_frames_int_area" = NA,
+            "det_frames_range" = NA
+        ))
     
-    slopebeta=(fond-profdid)/dist
-    beta=atan(slopebeta)		
-    betadegres<-beta*180/pi
-    if (print) cat ("l'angle est de ",round(betadegres,2),"degrés \n")
   }
-  pentesup <- tan(beta+alpha/2) # pente de la limite de la zone de détection vers la surface
-  penteinf <- tan(beta-alpha/2) # pente de la limite de la zone de détection vesr le fond
-  perpslope <- -1/slopebeta # pente de la droite perpendiculaire à l'axe de détection, le produit des
-
+  hautvolet <- 1.38
+  if (is.na(chargevolet)) chargevolet <- 0.3
+  if (is.na(hvan)) hvan <- hpas
+  alpha <- alphadegres * pi / 180 # conversion de degrés en radians (180°=Pi)
+  slopealpha <- tan(alpha) # pente de l'angle par rapport à l'axe 0x
+  if (is.na(dist) & is.na(betadegres) | !is.na(dist) & !is.na(betadegres)) {
+    stop("il faut dist ou béta, l'un des deux")
+  } else if (is.na(dist)) { # on donne un angle
+    beta <- betadegres * pi / 180
+    dist <- (fond - profdid) / tan(beta) # H/dist=cos(pi/2-beta)
+    slopebeta <- tan(beta)
+    if (print) cat("la distance d'interception est de ", dist, "m \n")
+  } else { # on donne une distance
+    
+    slopebeta <- (fond - profdid) / dist
+    beta <- atan(slopebeta)
+    betadegres <- beta * 180 / pi
+    if (print) cat("l'angle est de ", round(betadegres, 2), "degrés \n")
+  }
+  pentesup <- tan(beta + alpha / 2) # pente de la limite de la zone de détection vers la surface
+  penteinf <- tan(beta - alpha / 2) # pente de la limite de la zone de détection vesr le fond
+  perpslope <- -1 / slopebeta # pente de la droite perpendiculaire à l'axe de détection, le produit des
+  
   # coefficients directeurs vaut -1
   # ou
-  #perpslope<-tan(beta+pi/2)
+  # perpslope<-tan(beta+pi/2)
   # CALCUL DES POLYGONES DE DETECTION ET MIGRATION
-  calculate_poly<-function(d1,d2){
-    d1supx=(d1/cos(alpha/2))*cos(beta+alpha/2)
-    d1infx=(d1/cos(-alpha/2))*cos(beta-alpha/2)
-    d1supy=pentesup*d1supx+profdid  # a partir de l'équation de la droite
-    d1infy=penteinf*d1infx+profdid  # a partir de l'équation de la droite
-    d2supx=(d2/cos(alpha/2))*cos(beta+alpha/2)
-    d2infx=(d2/cos(-alpha/2))*cos(beta-alpha/2)
-    d2supy=pentesup*d2supx+profdid  # a partir de l'équation de la droite
-    d2infy=penteinf*d2infx+profdid  # a partir de l'équation de la droite
-    poly<-cbind(c(d1supx,d2supx,d2infx,d1infx, d1supx),c(d1supy,d2supy,d2infy,d1infy, d1supy))
-    #polygon(poly2,col="red")
+  calculate_poly <- function(d1, d2) {
+    d1supx <- (d1 / cos(alpha / 2)) * cos(beta + alpha / 2)
+    d1infx <- (d1 / cos(-alpha / 2)) * cos(beta - alpha / 2)
+    d1supy <- pentesup * d1supx + profdid # a partir de l'équation de la droite
+    d1infy <- penteinf * d1infx + profdid # a partir de l'équation de la droite
+    d2supx <- (d2 / cos(alpha / 2)) * cos(beta + alpha / 2)
+    d2infx <- (d2 / cos(-alpha / 2)) * cos(beta - alpha / 2)
+    d2supy <- pentesup * d2supx + profdid # a partir de l'équation de la droite
+    d2infy <- penteinf * d2infx + profdid # a partir de l'équation de la droite
+    poly <- cbind(c(d1supx, d2supx, d2infx, d1infx, d1supx), c(d1supy, d2supy, d2infy, d1infy, d1supy))
+    # polygon(poly2,col="red")
     detection_frame <- st_polygon(list(poly))
     return(detection_frame)
   }
-  detection_frame<-calculate_poly(d1,d2)
   
-  poly2<-	cbind(c(18,18,retrait,retrait,18),c(fond,fond+hpas,fond+hpas,fond, fond))
-  if (volet) poly2<-	cbind(c(
-            18,
-            18,
-            retrait,
-            retrait,
-            18),
+
+  
+  
+  
+  if (volet) {
+    poly2 <- cbind(
         c(
-            hautvolet+chargevolet-hpas,
-            hautvolet+chargevolet,
-            hautvolet+chargevolet,
-            hautvolet+chargevolet-hpas,
-            hautvolet+chargevolet-hpas))
-  migration_frame <- st_polygon(list(poly2))
+            18,
+            18,
+            retrait,
+            retrait,
+            18
+        ),
+        c(
+            hautvolet + chargevolet - ifelse(is.na(hpas), 0, hpas),
+            hautvolet + chargevolet,
+            hautvolet + chargevolet,
+            hautvolet + chargevolet - ifelse(is.na(hpas), 0, hpas),
+            hautvolet + chargevolet - ifelse(is.na(hpas), 0, hpas)
+        )
+    )
+  } else {
+    poly2 <- cbind(
+        c(
+            18,
+            18,
+            retrait,
+            retrait,
+            18
+        ),
+        c(
+            fond,
+            fond + ifelse(is.na(hpas), 0, hpas),
+            fond + ifelse(is.na(hpas), 0, hpas),
+            fond,
+            fond
+        )
+    )
+  }
+  
+    tryCatch(
+      {
+        detection_frame <- calculate_poly(d1, d2)
+        migration_frame <- st_polygon(list(poly2))
+      },
+      error = function(e) {
+        browser()
+      }
+  )
+
   # CALCUL D'UN DECOUPAGE DE POLYGONES
-  # si divide différent de NA on calcule les detection_frame pour chaque distance 
-  if (!is.na(divide[1])){
+  # si divide différent de NA on calcule les detection_frame pour chaque distance
+  if (!is.na(divide[1])) {
     detection_frames <- list()
-    if (sum(divide) > (d2-d1)) 
-      stop(sprintf("d2-d1= %s   > sum(divide) %s ",d2-d1,sum(divide)))
+    if (sum(divide) > (d2 - d1)) {
+      stop(sprintf("d2-d1= %s   > sum(divide) %s ", d2 - d1, sum(divide)))
+    }
     dist <- d1
     i <- 1
     dividev <- divide[1]
-    while (dist<d2-dividev){	
-      if (length(divide)>1)  dividev <- divide[i] 
+    while (dist < d2 - dividev) {
+      if (length(divide) > 1) dividev <- divide[i]
       detection_frames[[i]] <- list()
-      detection_frames[[i]][["range"]] <- str_c(dist,"-",dist+dividev)
-      detection_frames[[i]][["poly"]] <- calculate_poly(dist,dist+dividev)
+      detection_frames[[i]][["range"]] <- str_c(dist, "-", dist + dividev)
+      detection_frames[[i]][["poly"]] <- calculate_poly(dist, dist + dividev)
       # loop
-      dist <- dist+dividev
-      i=i+1
+      dist <- dist + dividev
+      i <- i + 1
     }
     # pour le dernier
-    detection_frames[[i]]<-list()
-    detection_frames[[i]][["range"]]<-str_c(dist,"-",d2)	
-    detection_frames[[i]][["poly"]]<-calculate_poly(dist,d2)
+    detection_frames[[i]] <- list()
+    detection_frames[[i]][["range"]] <- str_c(dist, "-", d2)
+    detection_frames[[i]][["poly"]] <- calculate_poly(dist, d2)
     
     
-    detection_frames_range <- sapply(detection_frames,function(X) X$range)	
+    detection_frames_range <- sapply(detection_frames, function(X) X$range)
     
-    detection_frames_intersect_area <- sapply(detection_frames,
-        function(X) round(st_area(st_intersection(X$poly,migration_frame)),2))
+    detection_frames_intersect_area <- sapply(
+        detection_frames,
+        function(X) round(st_area(st_intersection(X$poly, migration_frame)), 2)
+    )
   } else {
-    detection_frames_range<- NA	
+    detection_frames_range <- NA
     detection_frames_intersect_area <- NA
   }
   
   # GRAPHIQUE
-  if (graph){
-    plot(x=NA,xlim=c(20,-2),ylim=c(fond-3,4.63),ylab="profondeur (m NGF)",xlab="distance(m)")
-    im <- readPNG( str_c(imgwd,"concrete.png"), native = TRUE )
-    rasterImage( im,  20, fond-3, -2, 4.63 )
-    rect(xleft=18,ybottom=fond,xright=retrait,ytop=4.63,col="aquamarine")
-    im <- readPNG( str_c(imgwd,"iron.png"), native = TRUE )
-    rasterImage( im,  xleft=18,ybottom=fond+hvan,xright=retrait,ytop=hautvolet+hvan)
+  if (graph) {
+    plot(x = NA, xlim = c(20, -2), ylim = c(fond - 3, 4.63), ylab = "profondeur (m NGF)", xlab = "distance(m)")
+    im <- readPNG(str_c(imgwd, "concrete.png"), native = TRUE)
+    rasterImage(im, 20, fond - 3, -2, 4.63)
+    rect(xleft = 18, ybottom = fond, xright = retrait, ytop = 4.63, col = "aquamarine")
+    im <- readPNG(str_c(imgwd, "iron.png"), native = TRUE)
+    rasterImage(im, xleft = 18, ybottom = fond + hvan, xright = retrait, ytop = hautvolet + hvan)
     
-    #polygon(x=c(19,19,18,18,0,0,-1,-1),y=c(fond-2,4.63,4.63,fond,fond,4.63,4.63,fond-2),col="grey20") # fond
+    # polygon(x=c(19,19,18,18,0,0,-1,-1),y=c(fond-2,4.63,4.63,fond,fond,4.63,4.63,fond-2),col="grey20") # fond
     
-    plot(migration_frame,col=makeTransparent("yellow",alpha=100),add=TRUE)
-    if(volet){
-      rect(xleft=18,ybottom=hautvolet,xright=retrait,ytop=hautvolet+chargevolet,col="aquamarine3")			
+    plot(migration_frame, col = makeTransparent("yellow", alpha = 100), add = TRUE)
+    if (volet) {
+      rect(xleft = 18, ybottom = hautvolet, xright = retrait, ytop = hautvolet + chargevolet, col = "aquamarine3")
     }
-    if (is.na(divide[1])){
+    if (is.na(divide[1])) {
       # affichage si le polygone de détection n'est pas découpé
-      plot(detection_frame,col = makeTransparent("yellow",alpha=100), add = TRUE)
+      plot(detection_frame, col = makeTransparent("yellow", alpha = 100), add = TRUE)
     }
-    plot( st_intersection(migration_frame,detection_frame),col = makeTransparent("white",alpha=80), add = TRUE)
-    points(0,profdid,col="green",cex=2,pch=16) # didson
+    plot(st_intersection(migration_frame, detection_frame), col = makeTransparent("white", alpha = 80), add = TRUE)
+    points(0, profdid, col = "green", cex = 2, pch = 16) # didson
     # pour une droite bx+a, tracé des lignes
-    abline(a=profdid,b=slopebeta,col="red") # pour un intercept à la distance de dist, on touche le fond et il faut rajouter l'intercept x=(Y-b)/a
-    abline(a=profdid,b=pentesup,lty=2) # droite supérieure
-    abline(a=profdid,b=penteinf,lty=2) # droite inférieure
-    if (is.infinite(perpslope)){
-     abline(v=c(d1,d2),lty=3, col = "white")
-    } else {
-    abline(b=perpslope,a=fond-perpslope*dist,lty=3, col="white") # perpendiculaire au point ou le centre touche le fond
-    }
+    abline(a = profdid, b = slopebeta, col = "red") # pour un intercept à la distance de dist, on touche le fond et il faut rajouter l'intercept x=(Y-b)/a
+    abline(a = profdid, b = pentesup, lty = 2) # droite supérieure
+    abline(a = profdid, b = penteinf, lty = 2) # droite inférieure
+    
+    
     # fonction pour tracer les droites perpendiculaires à l'axe du didson
-    fperp<-function(newdist,col){
-      y=profdid+newdist*sin(beta)
-      x=0+newdist*cos(beta)
-      adistx=y-perpslope*x# Y-slope*x
-      abline(a=adistx,b=perpslope,lty=4,col=col) # perpendiculaire au point ou le centre touche le fond
-      text(x,y,str_c(newdist,"m"),pos=4, col=col)
+    fperp <- function(newdist, col) {
+      y <- profdid + newdist * sin(beta)
+      x <- 0 + newdist * cos(beta)
+      adistx <- y - perpslope * x # Y-slope*x
+      if (is.infinite(perpslope)) {
+        abline(v = newdist, lty = 3, col = col)
+      } else {
+        abline(a = adistx, b = perpslope, lty = 4, col = col) # perpendiculaire au point ou le centre touche le fond
+      }
+      text(x, y, str_c(newdist, "m"), pos = 4, col = col)
     }
-    fperp(d1,"white")
-    fperp(d2,"white")
-    if (!is.na(divide[1])){
-      couleurs<-couleur
-      for (i in 1:length(detection_frames)){
-        plot(detection_frames[[i]]$poly,col = couleurs[i], add = TRUE)
+    fperp(d1, "white")
+    fperp(d2, "white")
+    if (!is.na(divide[1])) {
+      couleurs <- couleur
+      for (i in 1:length(detection_frames)) {
+        plot(detection_frames[[i]]$poly, col = couleurs[i], add = TRUE)
       }
     }
     
     # ci dessous pour mettre les anguilles vues à un vecteur de dist du didson
     # et pour un bruit (le long de la droite perpendiculaire) de distnoise
-    if (!is.na(vectdist[1])){
-      fpointperp <- function(vectdist,vectdir){
+    if (!is.na(vectdist[1])) {
+      fpointperp <- function(vectdist, vectdir) {
         # au max on met des points jusqu'à 0.6 le bord
-        noise<-runif(length(vectdist),-d1*0.6*tan(alpha/2),d1*0.6*tan(alpha/2))
-        noise<-noise*vectdist/d1
-        y=profdid+vectdist*sin(beta)+noise*cos(beta)
-        x=0+vectdist*cos(beta)-noise*sin(beta)
-        dir<-vectdir=="Up"
-        points(x[dir],y[dir],pch="+",cex=0.7)
-        points(x[!dir],y[!dir],pch="-",cex=0.7)
+        noise <- runif(length(vectdist), -d1 * 0.6 * tan(alpha / 2), d1 * 0.6 * tan(alpha / 2))
+        noise <- noise * vectdist / d1
+        y <- profdid + vectdist * sin(beta) + noise * cos(beta)
+        x <- 0 + vectdist * cos(beta) - noise * sin(beta)
+        dir <- vectdir == "Up"
+        points(x[dir], y[dir], pch = "+", cex = 0.7)
+        points(x[!dir], y[!dir], pch = "-", cex = 0.7)
       }
-      fpointperp(vectdist,vectdir)
+      fpointperp(vectdist, vectdir)
     }
   }
-  return(list("area_intersect"=round(st_area(st_intersection(detection_frame,migration_frame)),2),
-          "area_migration_frame"=st_area(migration_frame),
-          "det_frames_int_area"=detection_frames_intersect_area,
-          "det_frames_range"=detection_frames_range))
+  return(list(
+          "area_intersect" = round(st_area(st_intersection(detection_frame, migration_frame)), 2),
+          "area_migration_frame" = st_area(migration_frame),
+          "det_frames_int_area" = detection_frames_intersect_area,
+          "det_frames_range" = detection_frames_range
+      ))
 }
-#'==========================================================
+#' ==========================================================
 #' FONCTION DE TRACAGE ET CALCUL DES DISTANCES DE PASSAGE D'ANGUILLES POUR DES CONDITIONS DONNEES
 #' proddid profondeur du didson
 #' incl beta en degrés
-#' Phi  "s" ou "f" note "sf" (transitions entre vannes et volets) est selectionné par les deux 
+#' Phi  "s" ou "f" note "sf" (transitions entre vannes et volets) est selectionné par les deux
 #' distancestart distance de début du didson, si plusieurs valeurs existent pour les conditions sélectionnées, la
 #' fonction renvoit un message, et la zone entre les distances est sélectionné pour le calcul
-#' timestamp un vecteur charactère de longueur 2, transformé en timestamp, le format doit être 
+#' timestamp un vecteur charactère de longueur 2, transformé en timestamp, le format doit être
 #' timestamp=c("2013-11-05 00:00:00","2013-12-25 00:00:00")
 #' nomperiod= nom stocké dans la liste et nom du pdf écrit dans le répertoire imgwdy
 #' print soit "pdf" pour sortir un pdf soit png, soit n'importe quelle chaine pour avoir à l'écran
@@ -728,173 +783,181 @@ drawdi<-function(
 #' d1=la distance d'enregistrement au didson, chargevolet la moyenne pondérée par les effectifs de la charge sur le volet. La fonction retourne aussi un graphique. Attention les positions des anguilles
 #' dans le champ perpendiculaire a la direction du faisceau sont générés aléatoirement.
 
-drawdicriter<-function(profdid,
+drawdicriter <- function(
+    profdid,
     incl,
     Phi, # s ou f, les valeurs sf de transition sont inclues pour les deux
-    distancestart=NA,
-    timestamp=NA,
-    nomperiode="preciser",
-    print="pdf",
-    couleur=rainbow(5,alpha=0.3)){
-# regarder distancestart et ouverture vanne	
+    distancestart = NA,
+    timestamp = NA,
+    nomperiode = "preciser",
+    print = "pdf",
+    couleur = rainbow(5, alpha = 0.3)) {
+  # regarder distancestart et ouverture vanne
   cat(nomperiode, "\n ---------------------------\n")
-  logi<-d3ej$dsf_incl==incl&
-      !is.na(d3ej$dsf_incl)&
-      d3ej$dsf_depth==profdid&
-      !is.na(d3ej$dsf_depth)&
-      grepl(Phi,d3ej$optvanne4)
-  if (!is.na(distancestart)) logi<-logi&d3ej$dsf_distancestart==distancestart
+  logi <- d3ej$dsf_incl == incl &
+      !is.na(d3ej$dsf_incl) &
+      d3ej$dsf_depth == profdid &
+      !is.na(d3ej$dsf_depth) &
+      grepl(Phi, d3ej$optvanne4)
+  if (!is.na(distancestart)) logi <- logi & d3ej$dsf_distancestart == distancestart
   if (!is.na(timestamp[1])) {
-    if(length(timestamp)!=2) stop("le timestamp doit comporter une date de début et une date de fin")
-    timestamp<-strptime(timestamp,format="%Y-%m-%d %H:%M:%S")
-    logi<-logi&d3ej$dsf_timeinit>=timestamp[1]&
-        d3ej$dsf_timeinit<=timestamp[2]
+    if (length(timestamp) != 2) stop("le timestamp doit comporter une date de début et une date de fin")
+    timestamp <- strptime(timestamp, format = "%Y-%m-%d %H:%M:%S")
+    logi <- logi & d3ej$dsf_timeinit >= timestamp[1] &
+        d3ej$dsf_timeinit <= timestamp[2]
   }
   
-  if (incl==0) incl_=incl+0.1 else incl_=incl#pb de division par zéro
-  if (sum(logi)==0) stop("attention ne correspond à aucun critères")
-  cat(str_c("N=",sum(logi),"\n"))
-  d3ej_per<-d3ej[logi,
-      c("dsf_id","dsf_timeinit","dsf_depth","optvanne4","dsf_distancestart","niveauvilaine30","hvanne4","dsr_eelplus","dsr_eelminus")]
-  daterange<-str_c(min(d3ej_per$dsf_timeinit),"=>",max(d3ej_per$dsf_timeinit))
-  eff<-d3ej_per$dsr_eelplus+d3ej_per$dsr_eelminus
-  cat((str_c("Nsuivi=",length(eff[!is.na(eff)]),"\n")))
-  cat((str_c("dates =",daterange," ")))
-  daterange<-str_c(format(as.Date(min(d3ej_per$dsf_timeinit)),"%d %b")," au ",format(as.Date(max(d3ej_per$dsf_timeinit)),"%d %b"))
-  cat((str_c("prof =",profdid," incl=",incl," Phi=",Phi,"\n")))
-  eff1<-eff
-  eff1[is.na(eff)]<-"NA"
-  cat((str_c("Eff=",str_c(eff1,collapse=","),"\n")))
+  if (incl == 0) incl_ <- incl + 0.1 else incl_ <- incl # pb de division par zéro
+  if (sum(logi) == 0) stop("attention ne correspond à aucun critères")
+  cat(str_c("N=", sum(logi), "\n"))
+  d3ej_per <- d3ej[
+      logi,
+      c("dsf_id", "dsf_timeinit", "dsf_depth", "optvanne4", "dsf_distancestart", "niveauvilaine30", "hvanne4", "dsr_eelplus", "dsr_eelminus")
+  ]
+  daterange <- str_c(min(d3ej_per$dsf_timeinit), "=>", max(d3ej_per$dsf_timeinit))
+  eff <- d3ej_per$dsr_eelplus + d3ej_per$dsr_eelminus
+  cat((str_c("Nsuivi=", length(eff[!is.na(eff)]), "\n")))
+  cat((str_c("dates =", daterange, " ")))
+  daterange <- str_c(format(as.Date(min(d3ej_per$dsf_timeinit)), "%d %b"), " au ", format(as.Date(max(d3ej_per$dsf_timeinit)), "%d %b"))
+  cat((str_c("prof =", profdid, " incl=", incl, " Phi=", Phi, "\n")))
+  eff1 <- eff
+  eff1[is.na(eff)] <- "NA"
+  cat((str_c("Eff=", str_c(eff1, collapse = ","), "\n")))
   
-  cat((str_c("Eff_tot=",sum(eff,na.rm=TRUE),"\n")))
-  if (Phi=="s"){
-    chargevolet<-round(weighted.mean(d3ej_per$niveauvilaine30[!is.na(eff)],eff[!is.na(eff)])-1.38,2)
-    volet=TRUE
-    hvanne4=0
-    hpas=chargevolet*PARM[2]
+  cat((str_c("Eff_tot=", sum(eff, na.rm = TRUE), "\n")))
+  if (Phi == "s") {
+    chargevolet <- round(weighted.mean(d3ej_per$niveauvilaine30[!is.na(eff)], eff[!is.na(eff)]) - 1.38, 2)
+    volet <- TRUE
+    hvanne4 <- 0
+    hpas <- chargevolet * PARM[2]
   } else {
-    chargevolet<-NA
-    hvanne4<-round(weighted.mean(d3ej_per$hvanne4[!is.na(eff)],eff[!is.na(eff)]),2)
-    volet=FALSE
-    hpas=hvanne4*PARM[1]
+    chargevolet <- NA
+    hvanne4 <- round(weighted.mean(d3ej_per$hvanne4[!is.na(eff)], eff[!is.na(eff)]), 2)
+    volet <- FALSE
+    hpas <- hvanne4 * PARM[1]
   }
-  d1<-unique(d3ej_per$dsf_distancestart)
-  if (length(d1)>1) {
-    cat(str_c("attention d1=",str_c(d1,collapse=",")," précisez les valeurs, utilisation de toute la gamme"))
-    d2=max(d1)+10
-    d1=min(d1)
+  d1 <- unique(d3ej_per$dsf_distancestart)
+  if (length(d1) > 1) {
+    cat(str_c("attention d1=", str_c(d1, collapse = ","), " précisez les valeurs, utilisation de toute la gamme"))
+    d2 <- max(d1) + 10
+    d1 <- min(d1)
   } else {
-    d2=d1+10
+    d2 <- d1 + 10
   }
-# Dans dddp je n'ai pas les conditions de l'environnement, je vais chercher les bonnes lignes
-# avec dsf_id
+  # Dans dddp je n'ai pas les conditions de l'environnement, je vais chercher les bonnes lignes
+  # avec dsf_id
   
-  dddp_per<-dddp[dddp$dsf_id%in%d3ej_per$dsf_id,
-      c("dsf_timeinit","psf_dir","psf_l_cm","psf_q","psf_motion","psf_move","psf_comment","psf_radius_m")]
-  ppp[[nomperiode]]$plus<-sum(d3ej_per$dsr_eelplus,na.rm=TRUE) # 26
-  ppp[[nomperiode]]$minus<-sum(d3ej_per$dsr_eelminus,na.rm=TRUE)
-  ppp[[nomperiode]]$dates<-daterange
-  ppp[[nomperiode]]$dddp<-dddp_per
-  ppp[[nomperiode]]$d3ej<-d3ej_per
-  ppp[[nomperiode]]$hvanne4<-hvanne4
-  ppp[[nomperiode]]$d1<-d1
-  ppp[[nomperiode]]$chargevolet<-chargevolet
-  ppp[[nomperiode]]$N<-sum(logi)
-  ppp[[nomperiode]]$Nsuivis<-length(eff[!is.na(eff)])
-  ppp[[nomperiode]]$prof <-profdid
-  ppp[[nomperiode]]$incl<-incl
-  ppp[[nomperiode]]$Phi=Phi
-  dddp[dddp$dsf_id%in%d3ej_per$dsf_id,"periode"]<-nomperiode
-  if (print=="pdf"){
-    cat(str_c("écriture du fichier ",nomperiode,".pdf\n"))
-    pdf(file=str_c(imgwdy,nomperiode,".pdf"),width=7,height=5)
-  } else if (print=="png"){
-    cat(str_c("écriture du fichier ",nomperiode,".png\n"))
-    png(file=str_c(imgwdy,nomperiode,".png"),width=700,height=500)
+  dddp_per <- dddp[
+      dddp$dsf_id %in% d3ej_per$dsf_id,
+      c("dsf_timeinit", "psf_dir", "psf_l_cm", "psf_q", "psf_motion", "psf_move", "psf_comment", "psf_radius_m")
+  ]
+  ppp[[nomperiode]]$plus <- sum(d3ej_per$dsr_eelplus, na.rm = TRUE) # 26
+  ppp[[nomperiode]]$minus <- sum(d3ej_per$dsr_eelminus, na.rm = TRUE)
+  ppp[[nomperiode]]$dates <- daterange
+  ppp[[nomperiode]]$dddp <- dddp_per
+  ppp[[nomperiode]]$d3ej <- d3ej_per
+  ppp[[nomperiode]]$hvanne4 <- hvanne4
+  ppp[[nomperiode]]$d1 <- d1
+  ppp[[nomperiode]]$chargevolet <- chargevolet
+  ppp[[nomperiode]]$N <- sum(logi)
+  ppp[[nomperiode]]$Nsuivis <- length(eff[!is.na(eff)])
+  ppp[[nomperiode]]$prof <- profdid
+  ppp[[nomperiode]]$incl <- incl
+  ppp[[nomperiode]]$Phi <- Phi
+  dddp[dddp$dsf_id %in% d3ej_per$dsf_id, "periode"] <- nomperiode
+  if (print == "pdf") {
+    cat(str_c("écriture du fichier ", nomperiode, ".pdf\n"))
+    pdf(file = str_c(imgwdy, nomperiode, ".pdf"), width = 7, height = 5)
+  } else if (print == "png") {
+    cat(str_c("écriture du fichier ", nomperiode, ".png\n"))
+    png(file = str_c(imgwdy, nomperiode, ".png"), width = 700, height = 500)
   }
-  d<-drawdi(fond=-7.72,
-      profdid=profdid,
-      alphadegres=14,
-      dist=NA,
-      betadegres=incl_,
-      d1=d1, 
-      d2=d2,
-      hpas=hpas,# lambda=6
-      hvan=hvanne4, 
-      graph=TRUE,
-      divide=2,
-      volet=volet,
-      chargevolet=chargevolet,
-      vectdist=dddp_per$psf_radius_m,
-      vectdir=dddp_per$psf_dir,
-      couleur=couleur)
-  if (print=="pdf"|print=="png"){
+  d <- drawdi(
+      fond = -7.72,
+      profdid = profdid,
+      alphadegres = 14,
+      dist = NA,
+      betadegres = incl_,
+      d1 = d1,
+      d2 = d2,
+      hpas = hpas, # lambda=6
+      hvan = hvanne4,
+      graph = TRUE,
+      divide = 2,
+      volet = volet,
+      chargevolet = chargevolet,
+      vectdist = dddp_per$psf_radius_m,
+      vectdir = dddp_per$psf_dir,
+      couleur = couleur
+  )
+  if (print == "pdf" | print == "png") {
     dev.off()
   }
-  dddp<<-dddp
+  dddp <<- dddp
   return(ppp)
 }
 
-open_in_excel <- function(some_df){
-  tFile<-paste("C:/temp/",gsub("\\\\","",tempfile(fileext=paste0(substitute(some_df), ".csv"),tmpdir="")),sep="")
-  write.table(some_df, tFile, row.names=F, sep=";", quote=F)
+open_in_excel <- function(some_df) {
+  tFile <- paste("C:/temp/", gsub("\\\\", "", tempfile(fileext = paste0(substitute(some_df), ".csv"), tmpdir = "")), sep = "")
+  write.table(some_df, tFile, row.names = F, sep = ";", quote = F)
   system(paste('open -a \"/ProgramData/Microsoft/Windows/Start Menu/Programs/Microsoft Office/Microsoft Excel 2010\"', tFile))
 }
-#'==========================================================
+#' ==========================================================
 #' Définition du nom des couleurs
-#'==========================================================
+#' ==========================================================
 #'  Ces couleurs sont en cohérence avec les couleurs latex
-rouille="#87472D"
-turquoise="#008080"
-orange="#FF8040"
+rouille <- "#87472D"
+turquoise <- "#008080"
+orange <- "#FF8040"
 bleu_EV <- "#00218f"
 turquoise_EV <- "#00C9C4"
 orange_EV <- "#ff7557"
 orange_EVf <- "#b2513c" # foncé
 bleu_clair_EV <- "#33b5ff"
 jaune_EV <- "#ffb428"
-grisbleu="#42428F"
-purplesombre="#32004A"
-purplemedian="#430064"
-purpleclair="#7300AB"
-grisbleufonce="#15155D"
+grisbleu <- "#42428F"
+purplesombre <- "#32004A"
+purplemedian <- "#430064"
+purpleclair <- "#7300AB"
+grisbleufonce <- "#15155D"
 
 
-#drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=6,betadegres=NA,d1=5,print=TRUE,graph=TRUE)
-#drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=6,betadegres=NA,d1=5,print=TRUE,graph=TRUE,divide=1)
-#vannefond
-#drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=NA,betadegres=-3,d1=2.5,d2=12.5, hpas=3,hvan=1.5,graph=TRUE,divide=2) # ici on passe l'angle
-#vannedroit
-#drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=NA,betadegres=4,d1=5,d2=15,hpas=7,hvan=1.5,print=TRUE,graph=TRUE,divide=c(2,2,2,2,2))
+# drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=6,betadegres=NA,d1=5,print=TRUE,graph=TRUE)
+# drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=6,betadegres=NA,d1=5,print=TRUE,graph=TRUE,divide=1)
+# vannefond
+# drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=NA,betadegres=-3,d1=2.5,d2=12.5, hpas=3,hvan=1.5,graph=TRUE,divide=2) # ici on passe l'angle
+# vannedroit
+# drawdi(fond=-7.72,profdid=-6.92,alphadegres=14,dist=NA,betadegres=4,d1=5,d2=15,hpas=7,hvan=1.5,print=TRUE,graph=TRUE,divide=c(2,2,2,2,2))
 # Volets
-#drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=-7,d1=5,d2=15,hvan=0,hpas=4,print=FALSE,graph=TRUE,divide=2,volet=TRUE,chargevolet=0.7)
+# drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=-7,d1=5,d2=15,hvan=0,hpas=4,print=FALSE,graph=TRUE,divide=2,volet=TRUE,chargevolet=0.7)
 # Volets 40 °
-#drawdi(fond=-7.72,profdid=1.20,alphadegres=14,dist=NA,betadegres=-40,d1=4,d2=14,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=TRUE,retrait=0.4)
+# drawdi(fond=-7.72,profdid=1.20,alphadegres=14,dist=NA,betadegres=-40,d1=4,d2=14,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=TRUE,retrait=0.4)
 # fond 70 °
-#drawdi(fond=-7.72,profdid=-7.2,alphadegres=14,dist=NA,betadegres=70,d1=2,d2=12,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=FALSE)
+# drawdi(fond=-7.72,profdid=-7.2,alphadegres=14,dist=NA,betadegres=70,d1=2,d2=12,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=FALSE)
 # fonddroitbutée
-#drawdi(fond=-7.72,profdid=-7.2,alphadegres=14,dist=NA,betadegres=5,d1=2,d2=12,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=FALSE)
-#crue surface ouestil ?
-#drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=7,d1=2,d2=12,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=TRUE,chargevolet=0.72)
-#crue surface ouestil ?
+# drawdi(fond=-7.72,profdid=-7.2,alphadegres=14,dist=NA,betadegres=5,d1=2,d2=12,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=FALSE)
+# crue surface ouestil ?
+# drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=7,d1=2,d2=12,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=TRUE,chargevolet=0.72)
+# crue surface ouestil ?
 # ce tableau est compilé en fin de rapport, en boucle, je le repasse en début de rapport dans le résumé
-#drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=-26,d1=5,d2=15,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=TRUE,chargevolet=0.72)
+# drawdi(fond=-7.72,profdid=1.15,alphadegres=14,dist=NA,betadegres=-26,d1=5,d2=15,hvan=0,hpas=2,print=TRUE,graph=TRUE,divide=2,volet=TRUE,chargevolet=0.72)
 # ppp<-list()
-#save(ppp,file=str_c(datawdy,"ppp.Rdata"))
-load(file=str_c(datawdy,"final.Rdata")) #final
-load(file=str_c(datawdy,"Nprim04all.Rdata")) #Nprim04all=
+# save(ppp,file=str_c(datawdy,"ppp.Rdata"))
+load(file = str_c(datawdy, "final.Rdata")) # final
+load(file = str_c(datawdy, "Nprim04all.Rdata")) # Nprim04all=
 
-load(file=str_c(datawdy,"ppp.Rdata"))
-#Nprim04all=0
-#final<-matrix(1,10,10)
-#PARM=c(3,6)#paramètres d'extrapolation fond surface
+load(file = str_c(datawdy, "ppp.Rdata"))
+# Nprim04all=0
+# final<-matrix(1,10,10)
+# PARM=c(3,6)#paramètres d'extrapolation fond surface
 # premier paramètre = DEPRECATED mulitplication de la hauteur pour ouverture vanne
 # deuxième paramètre = hauteur de migration pour la tranche de surface.
-#(en coefficient multiplicateur de la charge)
+# (en coefficient multiplicateur de la charge)
 # troisième paramètre couche de surface sans migration
-PARM=c(NA,6,2)
+PARM <- c(NA, 6, 2)
 # attention changement de la signification pour les stats bayésiennes
-load(file=str_c(datawdy,"vvv.Rdata"))
+load(file = str_c(datawdy, "vvv.Rdata"))
+
 @
 
 
@@ -1174,7 +1237,8 @@ cat("ddde didsonfile, didsonread, didsonreadresult env\n")# --------------------
 req@sql <- str_c("select * from did.v_ddde
         where dsf_timeinit>'",toutdebut,
     "' and dsf_timeinit<'",fin,
-    "'")
+    "' and dsr_csotismin",
+    " and NOT dsr_pertefichiertxt")
 ddde <- query(req, base) %>% getquery()
 
 ddde$count=1
@@ -1254,6 +1318,8 @@ nrow(dddp)
 ddde$hour <- as.numeric(strftime(ddde$round_time, format = "%H", tz ="UTC"))
 
 stopifnot(length(which(duplicated(ddde$dsf_id))) == 0)
+#View(ddde[ddde$dsf_id %in% ddde$dsf_id[duplicated(ddde$dsf_id)],])
+
 stopifnot(nrow(dddp) == sum(colSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE)))
 
 d3ej <-
@@ -1413,8 +1479,11 @@ hpas[volet] <-
         d3ej$niveauvilaine30[volet] - pmax(-7.72, d3ej$niveauvilaine30[volet] -
                 PARM[2] * d3ej$chargevolet[volet])
     )
+
 # La hauteur de passage sur la Vanne correspond à l'ensemble de la hauteur d'eau moins 2 m en surface
 hpas[vanne] <- d3ej$niveauvilaine30[vanne] + 7.72 - PARM[3]
+
+hpas[vanne][is.na(hpas[vanne])] <- median(hpas[vanne], na.rm=TRUE)
 d3ej$hpas <- hpas
 
 
@@ -1444,6 +1513,7 @@ divide <- split(divide, c(row(divide))) # coercing to list
 # Qui peut être réduite si il y a intersection avec le fond.
 #------------------------------------------------------------------------
 #date_seuil_pb_lentille <- dmy(13122018)
+test <- new.env()
 system.time(
     d <- mapply(
         drawdi,
@@ -1454,7 +1524,7 @@ system.time(
         betadegres = d3ej$dsf_incl,
         d1 = d3ej$dsf_distancestart,
         d2 =  d3ej$dsf_distancestart + 10,
-        hpas = hpas,
+        hpas = d3ej$hpas,
         hvan = 0,
         # on s'en fout
         graph = FALSE,
