@@ -562,7 +562,7 @@ drawdi <- function(
     couleur = rainbow(length(detection_frames), alpha = 0.3)) {
   if (is.na(hpas) | is.na(profdid)){
     return(list(
-            "area_intersect" = 0,
+            "area_intersect" = NA,
             "area_migration_frame" = NA,
             "det_frames_int_area" = NA,
             "det_frames_range" = NA
@@ -792,7 +792,9 @@ drawdicriter <- function(
     timestamp = NA,
     nomperiode = "preciser",
     print = "pdf",
-    couleur = rainbow(5, alpha = 0.3)) {
+    couleur = rainbow(5, alpha = 0.3), 
+    ... # arguments to png
+    ) {
   # regarder distancestart et ouverture vanne
   cat(nomperiode, "\n ---------------------------\n")
   logi <- d3ej$dsf_incl == incl &
@@ -871,7 +873,7 @@ drawdicriter <- function(
     pdf(file = str_c(imgwdy, nomperiode, ".pdf"), width = 7, height = 5)
   } else if (print == "png") {
     cat(str_c("écriture du fichier ", nomperiode, ".png\n"))
-    png(file = str_c(imgwdy, nomperiode, ".png"), width = 700, height = 500)
+    png(file = str_c(imgwdy, nomperiode, ".png"), width = 7, height = 5, units="in", ...)
   }
   d <- drawdi(
       fond = -7.72,
@@ -965,10 +967,10 @@ load(file = str_c(datawdy, "vvv.Rdata"))
 \pagestyle{stylestandard}
 \begin{abstract}
     
-Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième année
+Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième année
   consécutive, à l'aide d'un sonar multifaisceaux (didson). Le didson est placé
   sur un rail porteur au niveau du quatrième pertuis de vannes du barrage d'Arzal à la limite de l'estuaire de la Vilaine.
- Sur les onze années,  \num{\Sexpr{round(Nprim04all)}} anguilles
+ Sur les douze années,  \num{\Sexpr{round(Nprim04all)}} anguilles
  argentées ont été comptées lors des dépouillements. En \Sexpr{saison},
  \num{\Sexpr{round(Nprim04allCY)}} anguilles ont été comptées. L'efficacité de
  la détection a été calculée en fonction de la taille des anguilles, de la
@@ -983,14 +985,14 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième ann�
   (N=\num{\Sexpr{vvv$N.odot}}).
   Lorsque le didson est mal placé, les effectifs sont estimés à partir des densités du jour même 
   (N=\num{\Sexpr{vvv$N.oplus}}). Un modèle calé sur l'ensemble des journées de
-  suivi a été calé pour estimer les effectifs lorsque le didson n'était pas en
-  mesure d'apporter une estimation journalière des effectifs
+  suivi estime les effectifs lorsque le didson n'était pas en
+  mesure d'apporter une estimation journalière 
   (N=\num{\Sexpr{vvv$N.otimes}}).
   L'estimation
   quantitative de la dévalaison sur la Vilaine, sur la période de suivi,
   s'établit à (N=\num{\Sexpr{vvv$N}}) soit \Sexpr{vvv$total_weight} tonnes. 
   Les tendances interannuelles de cette migration sont détaillées dans le
-  rapport (baisse, puis possible augmentation).\\
+  rapport (globalement tendance à la baisse).\\
   
   Mots clés : anguille argentée \sep migration \sep dévalaison \sep didson \sep
 	Vilaine.
@@ -998,11 +1000,11 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième ann�
   \textit{  
   \centering{\textbf{Abstract}}\\
   \smallskip
- Silver eel migrations were monitored, for the eleventh year
+ Silver eel migrations were monitored, for the twelfth year
   in a row, using a multibeam sonar (didson). The didson is placed
   on a guiding rail at the level of the fourth sluice gate of the Arzal dam at
   the limit of the Vilaine estuary.
- Over eleven years, \num{\Sexpr{round(Nprim04all)}} silver eels
+ Over twelve years, \num{\Sexpr{round(Nprim04all)}} silver eels
  silver were counted during the readings. In \Sexpr{saison},
  \num{\Sexpr{round(Nprim04allCY)}} eels have been counted. The effectiveness of
  the detection was calculated according to the size of the eels, the
@@ -1022,7 +1024,7 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la onzième ann�
   A quantitative estimation of downstream migration on the Vilaine, over the
   monitoring period is established at (N = \num {\Sexpr{vvv$N}}) or \Sexpr{vvv$total_weight} tonnes.
   The interannual trends of this migration are detailed in the
-  report (decrease, then possible increase).
+  report ( global decrease).
 }
 
  Keywords: \textit{silver eel} \sep \textit{downtream migration}
@@ -1281,6 +1283,21 @@ reqnblpm <- str_c("select count(*), psf_dir from did.t_didsonfiles_dsf  dsf
     "' group by psf_dir " )
 req@sql <- reqnblpm
 nblpm <- query(req, base) %>% getquery()
+
+reqnblpmtout <- str_c("select count(*), dsf_season, psf_dir from did.t_didsonfiles_dsf  dsf 	
+        join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+        join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
+        join did.t_poissonfile_psf on psf_drr_id=drr_id
+        where psf_species='2014'
+        and dsr_csotismin
+        and NOT dsr_pertefichiertxt
+        and dsf_timeinit>'",toutdebut,
+    "' and dsf_timeinit<'",fin,
+    "' group by psf_dir, dsf_season" )
+req@sql <- reqnblpmtout
+nblpmtout <- query(req, base) %>% getquery()
+
+nblpmtout %>% pivot_wider(id_cols="dsf_season", names_from = psf_dir, values_from = count)
 
 reqlpm <- str_c("select * from did.t_didsonfiles_dsf  dsf 	
         join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
@@ -1624,7 +1641,8 @@ for (j in 1:nrow(res)) {
           makeTransparent(bleu_EV, 70),
           makeTransparent(turquoise_EV, 90),
           makeTransparent(orange_EV, 90)
-      )
+      ),
+      res=300
   )
 }
 # les periodes sont écrites par la fonction dans dddp$periode,
@@ -1926,7 +1944,7 @@ a enregistré au fond.
 En 2016--2017, le didson a été bien positionné pour enregistrer les deux
 premiers pics de crue. À partir du 13/02, le signal a été détérioré par une
 attaque de corrosion. Jusqu'au 17/03, malgré plusieurs essais de remise en
-fonctionnement, il n'y a pas vraiment de suivi. En fin de saison, le didson a
+fonctionnement, il n'y a pas vraiment eu de suivi. En fin de saison, le didson a
 été placé en volet puis en vanne mais les effectifs observés sont restés
 faibles.
 
@@ -1937,43 +1955,49 @@ En 2018--2019, l'essentiel de la saison est couvert par le mode "suivi
 vanne volet" qui permet de positionner correctement le didson en cours de
 nuit lorsque la gestion du barrage alterne entre vannes en volets. 
 
-En 2019--2020, la saison s'effectue avec un suivi principalement en vanne dès
-le début de la saison. Le suivi a été arrêté le 19/02 après que le câble ait
+En 2019--2020, la saison s'est effectuée avec un suivi principalement en vanne
+dès le début de la saison. Le suivi a été arrêté le 19/02 après que le câble ait
 été entaillé par un objet dérivant qui a mis fin au suivi (Figure
-\ref{fig_effectif}). Cette situation intervient cependant après plusieurs pics
-de crue et il est probable que l'essentiel de la migration ait eu lieu.
+\ref{fig_effectif}). Cette situation n'est cependant intervenue qu'après
+plusieurs pics de crue et il est probable que l'essentiel de la migration ait eu lieu.
 
 En 2020--2021 plusieurs problemes techniques ont lieu entre octobre et décembre, 
 plantages liés à l'humidité, arrêts électriques à répétition sur l'ouvrage,
 plantage de la mémoire vive du PC d'acquisition, problème de codeur et de fin de course sur le
 volet, difficultés à mettre en service l'automatisme de suivi vanne volet...
-Le didson fonctionne globalement plutôt bien sur le reste de la saison, qui
-présente deux pics de crues importants en janvier et février avec des débits de
-l'ordre de 700 $m^3.s^{-1}$. Le didson est enlevé de l'eau lors du deuxième pic
-de crue le 03/02. 
+Le didson a toutefois fonctionné globalement plutôt bien sur le reste de la
+saison, qui a présenté deux pics de crue importants en janvier et février
+avec des débits de l'ordre de 700 $m^3.s^{-1}$. Le didson a été enlevé de l'eau
+lors du deuxième pic de crue le 03/02. 
 
-En 2021--2022, en tout début de saison, il y a des difficultés à utiliser
+En 2021--2022, en tout début de saison, il y a eu des difficultés à utiliser
 l'automate du treuil du fait d'un problème de communication entre l'armoire
-électrique de la pile et l'automate. Ces problèmes n'ont pas d'incidence car
-l'appareil reste en surface. Par la suite l'utilisation de
-l'automate permettra d'alterner les positions vanne et volet. 
-Les problèmes d'acquisition sont liés à des problèmes électriques du
-barrage et sont en général de faible durée (Figure \ref{fig_effectif_pb}).
-Un seul pic de crue est observé en janvier avec des débits de l'ordre de 300
+électrique de la pile et l'automate. Ces problèmes n'ont pas eu d'incidence car
+l'appareil est resté en surface. Par la suite l'utilisation de
+l'automate a permis d'alterner les positions vanne et volet. 
+Les problèmes d'acquisition ont été liés à des problèmes électriques du
+barrage et n'ont en général été que de faible durée (Figure
+\ref{fig_effectif_pb}).
+Un seul pic de crue a été observé en janvier avec des débits de l'ordre de 300
 $m^3.s^{-1}$
 
 En 2022--2023, il y a eu de nombreux plantages intempestifs du didson au cours
 de la saison.
-La majorité de ces derniers sont liés à un problème d'accès au disque dur. 
-Le rotateur commence également à montrer des signes d'usures.
-La première crue à débutée le 20 décembre avec des débits de l'ordre de 
-380 $m^3.s^{-1}$. Plus une diminution suivie d'une deuxième crue à partir 
-du 31 décembre de l'ordre de 350 $m^3.s^{-1}$. 
-Ces crues ont été suivies d'une période calme du 6 février au 9 mars, puis un
+La majorité de ces derniers étaient liés à un problème d'accès au disque dur. 
+Le rotateur a également commencé à montrer des signes d'usures.
+La première crue a débuté le 20 décembre avec des débits de l'ordre de 
+380 $m^3.s^{-1}$. Après une période de débit plus faible, une deuxième
+crue à partir du 31 décembre a ramené des débits de l'ordre de 350 $m^3.s^{-1}$. 
+Ces crues ont été suivies d'une période calme du 6 février au 9 mars, puis d'un
 enchainement de 5 pics de crues jusqu'à la fin de la saison (en fin avril) 
 avec des débits de l'ordre de 180 à 270 $m^3.s^{-1}$.
 
-En 2023--2024, 
+En 2023--2024, une succession de 7 pics de crue de 300 à 500 $m^3.s^{-1}$ a été
+observée. La première crue intervient tôt, début novembre avec la plus forte
+début janvier à 500 $m^3.s^{-1}$ . Durant cette période, le didson a
+pratiquement toujours été bien positionné, en vannes, mais également en volets sur le mois d'octobre. Le didson et son rotateur montrent
+des signes de fatigue, avec de nombreux plantages en cours de saison, 
+mais sans aucune défaillance importante.  
 
 %------------------------------------------
 \begin{figure}[htbp]
@@ -3440,9 +3464,11 @@ petits mâles sont observés en début de saison (Figure
   \centering
   \includegraphics[width=0.45\textwidth]{2024/mosaic_taille_mois_all}
   \caption[Taille des anguilles]{Diagramme en mosaïque montrant la relation
-  entre la taille et le mois. En rouge et bleu, les catégories qui sont
-  significativement différentes au seuil de 90 et 99\%. L'ensemble des saisons
-  de migration est analysé dans ce graphique.
+  entre la taille et le mois. La surface de chaque case correspond aux
+  effectifs observés pour la classe de taille et le mois correspond. En rouge
+  et bleu (clair et foncé), les catégories qui sont significativement différentes au seuil de 90
+  et 99\% des effectifs attendus si la répartition était homogène. En gris
+  (valeur centrale), les effectifs attendus sont conformes aux attendus du tableau de contingence.
   \citep{zeileis_ResidualbasedShadingsVisualizing_2007}.
  \textit{Cette figure teste l'hypothèse que les classes de tailles soient
 distribuées de manière homogène en fonction des mois, de nouveau en regroupant l'ensemble des années de suivi.
@@ -4030,7 +4056,7 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
 
-<<qualite, echo=FALSE, eval=FALSE, results=hide>>=
+<<qualite, echo=FALSE, eval=TRUE, results=hide>>=
 load(file= str_c(datawdy,"dddp_2.Rdata"))
 
 # 5 missing lines for brice and gerard together in 2012-2013 dddp[is.na(dddp$psf_q),]
@@ -4790,7 +4816,7 @@ dévalaison 2023--2024. }}
 #plot(d3edj$enj_date,d3edj$sum_eel_plus,ylim=c(-20,200))
 #points(d3edj$enj_date,-d3edj$sum_eel_minus,col="red")
 
-#sum(d3edj$sum_eel_plus,na.rm=TRUE)+sum(d3edj$sum_eel_minus,na.rm=TRUE)# 1990
+#sum(d3edj$sum_eel_plus,na.rm=TRUE)+sum(d3edj$sum_eel_minus,na.rm=TRUE
 # d3ej vient de ddde mais limité de jour
 # je remet les positionnements de vanne
 #plot(d3ej$dsf_timeinit,d3ej$dsf_fls_id)
@@ -4807,8 +4833,8 @@ d3ej <- d3ej[order(d3ej$dsf_timeinit),]
 d3ej$Nprimo4 <- rowSums(d3ej[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)
 
 # Ensemble des détections du fichier poisson
-(Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 22479
-(Nprim04allCY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1581
+(Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 22373
+(Nprim04allCY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1116
 sum(d3ej$Nprimo4) # plus faible car limité de jour #20650
 
 duree <- d3ej$dsf_timeend-d3ej$dsf_timeinit
@@ -4931,6 +4957,9 @@ save(Nprim04all,Nprim04allCY, file=str_c(datawdy,"Nprim04all.Rdata"))
 
 @
 
+
+[TODO CHECK ICI APPEL A e3ejok QUI EST SEULEMENT DANS LES ANCIENS CALCULS, 
+DEPLACER CHUNK NOMBRE ALL AVANT ET FAIRE REFERENCE A CELUI CI ]
 Un total de
 \num{\Sexpr{round(Nprim04all)}}
 anguilles a été compté au didson sur l'ensemble de la période de suivi depuis
@@ -5040,7 +5069,7 @@ journalier (Formule \ref{eq_mu}).
 
 @
 
-<<Nombre_all, echo=TRUE, eval=TRUE,results=hide>>=
+<<Nombre_all, echo=FALSE, eval=TRUE,results=hide>>=
 # chargement
 
 load(file=str_c(datawdy,"d3ej.all.Rdata")) 
@@ -5181,6 +5210,7 @@ D2$N4[D2$vol4==0] <- NA
 sum(D2$N[D2$indexOK==1], na.rm=TRUE) #945973.7
 sum(D2$N4[D2$indexOK==1], na.rm=TRUE) # 279189
 
+
 D2$N[D2$indexOK==0] <- NA
 D2$N4[D2$indexOK==0] <- NA
 
@@ -5212,7 +5242,7 @@ stopifnot(sum(duplicated(D2$dsf_id))==0)
 # didson penché loin du didson : vanne et didson sl en surface regarde en bas, volet et didson au fond sl regarde en haut
 #  3 => Le didson marche mais est mal positionné
 
-# en pratique ex=3 correspond à tous les fichiers Didson avec fls 0 (ok) ou 3 (pb qualité) [car ex4 eclue les fls 1 et 2]
+# en pratique ex=3 correspond à tous les fichiers Didson avec fls 0 (ok) ou 3 (pb qualité) [car ex eclue les fls 1 et 2]
 # et où il y a un écoulement sur la vanne et le didson est mal positionné
 D2$ex3 <- as.numeric((D2$ex==3 |D2$ex==0) & D2$volbarrage30>0)
 
@@ -5327,20 +5357,20 @@ summary(g3 <- mgcv::gam(N~s(ndays, by=dsf_season),dat=D7j[D7j$N>0,],family=Gamma
 AIC(g3)
 summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g4)
-summary(g5 <- mgcv::gam(N~s(ndays, by=dsf_season)+s(deb_qtotalj)+s(enj_turb),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g5 <- mgcv::gam(N~s(ndays, by=dsf_season)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g5)
-summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(enj_turb)+s(cumflow, k=3) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g6)
-summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(enj_turb)+s(cumflow, k=3) + s(delta_1d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) + s(delta_1d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g7) # delta NS
-summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(enj_turb)+s(cumflow, k=3) + s(delta_3d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) + s(delta_3d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g8) # delta NS
-summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(enj_turb)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g9) # delta NS
-summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5)+s(deb_qtotalj)+s(enj_turb)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+AIC(g9) # delta NS 
+summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5)+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g10) 
 
-
+# J'ai du virer tous les +s(enj_turb) car je ne l'ai plus dans mon modèle
 bestg <- g9
 
 pdf(file=str_c(imgwdy,"gam_predict.pdf"),width=7,height=7)
@@ -5811,13 +5841,23 @@ jour est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} anguilles argentées.
 Sur l'ensemble des années, il y a eu en moyenne
 \num{\Sexpr{round(mean(vvv$number.missingday.all$N))}} journées avec aucun enregistrement du fait de problèmes d'acquisition ou
 d'écriture disque (Figure \ref{fig_horairespb}). Pour la saison \Sexpr{saison},
-ce nombre est de \num{\Sexpr{vvv$number.missingday}}.
-Pour ces jours, un modèle GAM a été utilisé pour extrapoler 
- les effectifs en migration à partir des valeurs des jours proches ($\oplus$).
- Ce modèle utilise une tendance saisonnière non linéaire, le débit à 7 jours, la
- turbidité pour prédire les migrations. Il explique
- \num{\Sexpr{round(100*summary(bestg)$dev.expl,2)}} \% de la déviance. La
- migration correspondant à ces journées manquantes est estimée à N = \num{\Sexpr{vvv$N.oplus}} anguilles argentées (Figure \ref{gam_predict}).
+ce nombre très limité avec seulement \num{\Sexpr{vvv$number.missingday}}
+journée manquante.
+Pour toutes les journées manquantes sur la période de suivi, un modèle GAM a été
+utilisé pour extrapoler les effectifs en migration à partir des valeurs des jours proches ($\oplus$).
+ Ce modèle utilise une tendance saisonnière non linéaire, le débit à 7 jours,
+ le débit total, le cumul du débit ayant transité par le barrage depuis le début
+ de la saison. La turbidité qui était utilisée jusqu'à la dernière saison est retirée
+ du modèle car elle n'est plus collectée par l'usine d'eau. pour prédire les migrations.
+ Les tendances saisonnières permettent un ajutement d'une tendance saisonnière
+ globablement à l'augmentation, sauf pour 2016-2017 et 2017-2018. L'effet saison
+ montre une tendance à la baisse des effectifs depuis 2012-2013, et le cumul de
+ débit présente une tendance linéaire à la baisse que l'on peut interpréter de
+ manière simple : plus y a eu d'eau écoulée, moins il reste d'anguilles.
+ Le modèle explique \num{\Sexpr{round(100*summary(bestg)$dev.expl,2)}} \% de la
+ déviance.
+  La migration correspondant à ces journées
+ manquantes est estimée à N = \num{\Sexpr{vvv$N.oplus}} anguilles argentées (Figure \ref{gam_predict}).
  
  %=====================================================================
 \begin{figure}[htbp]
@@ -5934,15 +5974,22 @@ vvv$lpm <- sum(tt)
 \section{Discussion}
 \subsection{Migration}
 
-La saison \Sexpr{saison} se caractérise par des débits de crue moyens avec 
-un premier pic à 300 \si{\cubic\metre\per\second}) fin décembre, début
-janvier puis un deuxième pic assez long à 100-200 \si{\cubic\metre\per\second})
-en mars et avril. La migration s'est principalement effectuée lors de la
-première augmentation de débit fin décembre avec un effectif journalier dépassant 10000 anguilles. Le pic de crue de fin février n'a permis la migration que d'un nombre
-limité d'anguilles argentées (Figure
-  \ref{fig_N_interannuel}).
-Il faut en particulier remarquer la très forte proportion de mâles, qui
-confirme la modification de la structure en taille des anguilles amorcée en 2020-2021.  
+La saison \Sexpr{saison} se caractérise par une succession de pic de crue forts
+entre 300 \si{\cubic\metre\per\second} et 600 \si{\cubic\metre\per\second}). Ces
+pics de crue ont commencé dès novembre. Il n'y a pratiquement pas eu de suivi en
+volets. Le suivi du fonctionnement vanne / volet par l'automate a permis au didson d'être pratiquement toujours
+bien positionné. La migration s'est effectuée lors des trois premiers
+pics de débit avec des effectifs journaliers 
+anguilles (Figure \ref{fig_N_interannuel}).
+Ces conditions de suivi en vanne n'ont pas trop affecté la qualité des
+détections qui sont en moyenne bien supérieures (Figure \ref{qualite_distance})
+à celles observées en moyenne sur l'ensemble des années (Figure \ref{qualite_distance_vanne_all}).
+Cette bonne qualité est liée à l'ouverture simultanée à la même hauteur des
+trois vannes attenant au didson (Vannes 3,4,5). Ces ouvertures permettent
+d'éviter des turbulences le long des piles du barrage qui dégradent la qualité
+des détections. La proportion de mâles reste importante malgré le suivi presque
+exclusivement en vannes, et confirme la modification de la structure en
+taille des anguilles amorcée en 2020-2021.
 
 \begin{figure}[htbp]
   \centering
@@ -5978,13 +6025,14 @@ descendante.}
 \label{tab_nblpm}
 \begin{tabular}{rr}
   \hline
- Année & effectif  \\ 
+ Saison & effectif  \\ 
   \hline
 2012--2013 &  530+(111) \\ 
 2013--2014 &  29+(0) \\ 
 2014--2015 &  143+(132)\\ 
 2015--2016 &  655+(278)    \\
 2016--2017 & 7+(1)\\
+2017--2018 & 10+(0)\\
 2018--2019 & 2+(0)\\
 2019--2020 & 1+(0)\\
 2020--2021 & 58+(0)\\
@@ -6101,11 +6149,11 @@ $Q_{j~max}~m^{3}s^{-1}$= débit maximum journalier,
 2020--2021 & {-} &
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2020-2021" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 700\\
 2021--2022 & {-} & 
-\num{\Sexpr{round(as.numeric(final[final$Saison=="2021-2022" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\& \\
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2021-2022" &final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\
 2022--2023 & {-} & 
-\num{\Sexpr{round(as.numeric(final[final$Saison=="2022-2023" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\& \\
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2022-2023" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\
 2023--2024 & {-} & 
-\num{\Sexpr{round(as.numeric(final[final$Saison=="2023-2024" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\& \\
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2023-2024" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\
  \hline
 \end{tabular}
 \normalsize
