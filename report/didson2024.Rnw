@@ -328,6 +328,7 @@ round-precision = 0 % precision des arrondis
 %\footme{Submitted to Someone Somewhere\hspace{2mm}(\pageref{LastPage} pages)} \datestamp{Andrej Korenic, 27$^{th}$ October, 2011}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \thispagestyle{empty}
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
