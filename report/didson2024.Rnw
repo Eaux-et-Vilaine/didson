@@ -2995,11 +2995,21 @@ mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="04"),
     labeling_args = long.labels,
     split_vertical=TRUE,main="") 
 dev.off()
-vvv$perc$"0" <- round(100*d3ej_perc_pos[d3ej_perc_pos$ex=="0" & d3ej_perc_pos$dsf_season==saison,"perc"])
-vvv$perc$"1" <- round(100*d3ej_perc_pos[d3ej_perc_pos$ex=="1" & d3ej_perc_pos$dsf_season==saison,"perc"])
-vvv$perc$"2" <- round(100*d3ej_perc_pos[d3ej_perc_pos$ex=="2" & d3ej_perc_pos$dsf_season==saison,"perc"])
-vvv$perc$"3" <- round(100*d3ej_perc_pos[d3ej_perc_pos$ex=="3" & d3ej_perc_pos$dsf_season==saison,"perc"])
-vvv$perc$"4" <- round(100*d3ej_perc_pos[d3ej_perc_pos$ex=="4" & d3ej_perc_pos$dsf_season==saison,"perc"])
+
+fix_no_perc <- function(ex, saison){
+	if (any(d3ej_perc_pos$ex==ex)) {
+	# test if at least there is one line corresponding to ex in
+	# d3ej_perc_pos for this season
+	pull(round(100*d3ej_perc_pos[d3ej_perc_pos$ex==ex & d3ej_perc_pos$dsf_season==saison,"perc"]))
+    } else {
+	0	
+	}	
+}
+vvv$perc$"0" <- fix_no_perc(ex="0",saison)
+vvv$perc$"1" <- fix_no_perc(ex="1",saison)
+vvv$perc$"2" <- fix_no_perc(ex="2",saison)
+vvv$perc$"3" <- fix_no_perc(ex="3",saison)
+vvv$perc$"4" <- fix_no_perc(ex="4",saison)
 save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
@@ -3121,7 +3131,7 @@ round-precision = 0]{\Sexpr{vvv$perc$"4"}}\% du
  \end{itemize}
 \end{itemize}
 Cette année, les problèmes de fonctionnement du didson en octobre, novembre,
-février, mars et avril sont visibles (en orange, Figure \ref{position}). 
+février, mars et avril sont visibles (en orange, Figure \ref{fig_position}). 
 Il s'agit essentiellement de problèmes de communication via le
 câble avec le didson. Globalement il y a très peu d'enregistrements sur des
 périodes où le didson est mal positionné (en marron), quand c'est le cas, il
