@@ -354,25 +354,26 @@ keepaspectratio]{frontpage.png}%
 \Large 
 Suivi de la dévalaison d'anguilles argentées en 2023-2024 (douzième
 année) sur la Vilaine à l'aide d'un didson.\\
-\vspace{2cm}\\
+\vspace{1cm}\\
 \includegraphics[width=0.8\textwidth]{logo_EV} 
 \end{minipage}
 
-\vspace{3cm}
+\vspace{1cm}
 \hfill{ %
 \begin{minipage}{0.28\textwidth}
+
+\begin{center}
 \textbf{
 Date d'édition :\\}
 \color{orange_EV}
-\begin{center}
 \Large
 Mars 2025
 \end{center}
-\vspace{2cm}\\
+\vspace{1cm}\\
 \end{minipage}
 }%
        
-    
+\vfill %
 \hfill{ %
 \begin{minipage}{0.28\textwidth}
 \textbf{Réalisé avec le concours de} : 
@@ -380,15 +381,17 @@ Mars 2025
 \vspace{1cm}\\
 \centering{\includegraphics[width=\textwidth]{logo_agence.png}} 
 \vspace{1cm}\\
-\centering{\includegraphics[width=\textwidth]{logo_region_bretagne.png}} 
+\centering{\includegraphics[width=0.6\textwidth]{logo_region_bretagne.png}} 
+\vspace{1cm}
 \end{minipage}
 }%  
-\vfill
+
 \hfill{ %
 \begin{minipage}{0.3\textwidth}
 \large
 \color{bleu_EV}
 \leftskip=1cm
+\large 
 Cédric Briand\par   
 Brice Sauvaget\par
 Gérard Eriau\par
@@ -397,6 +400,7 @@ Gérard Eriau\par
 }% 
 \endgroup
 \end{titlepage}
+
 
 
 
@@ -496,6 +500,7 @@ load_library("mgcv")
 load_library("MASS")
 load_library("xtable")
 load_library("tidyverse") # conflict with intersect ... fixed
+load_library("mixdist")
 #' ==========================================================
 #' fonction de nettoyage du code latex
 #' ==========================================================
@@ -1971,7 +1976,7 @@ plantage de la mémoire vive du PC d'acquisition, problème de codeur et de fin 
 volet, difficultés à mettre en service l'automatisme de "suivi vanne volet" ...
 Le didson a toutefois fonctionné globalement plutôt bien sur le reste de la
 saison, qui a présenté deux pics de crue importants en janvier et février
-avec des débits de l'ordre de 700 $m^3.s^{-1}$. Le didson a été enlevé
+avec des débits de l'ordre de 700 \unit{\cubic\metre\per\second}. Le didson a été enlevé
 temporairement de l'eau lors du deuxième pic de crue le 03/02. 
 
 En 2021--2022, en tout début de saison, il y a eu des difficultés à utiliser
@@ -1983,7 +1988,7 @@ Les problèmes d'acquisition ont été liés à des problèmes électriques du
 barrage et n'ont en général été que de faible durée (Figure
 \ref{fig_effectif_pb}).
 Un seul pic de crue a été observé en janvier avec des débits de l'ordre de 300
-$m^3.s^{-1}$
+\unit{\cubic\metre\per\second}
 
 En 2022--2023, il y a eu de nombreux plantages intempestifs du didson au cours
 de la saison.
@@ -1991,18 +1996,18 @@ La majorité de ces derniers étaient liés à un problème d'accès au disque d
 début de saison.
 Le rotateur a également commencé à montrer des signes d'usures.
 La première crue a débuté le 20 décembre avec des débits de l'ordre de 
-380 $m^3.s^{-1}$. Après une période de débit plus faible, une deuxième
-crue à partir du 31 décembre a ramené des débits de l'ordre de 350 $m^3.s^{-1}$. 
+380 \unit{\cubic\metre\per\second}. Après une période de débit plus faible, une deuxième
+crue à partir du 31 décembre a ramené des débits de l'ordre de 350 \unit{\cubic\metre\per\second}. 
 Ces crues ont été suivies d'une période calme du 6 février au 9 mars, puis d'un
 enchainement de 5 pics de crues jusqu'à la fin de la saison (en fin avril) 
-avec des débits de l'ordre de 180 à 270 $m^3.s^{-1}$.
+avec des débits de l'ordre de 180 à 270 \unit{\cubic\metre\per\second}.
 
 En 2023--2024, le didson et son rotateur montrent des signes de fatigue, avec de
 nombreux plantages en cours de saison, mais sans aucune défaillance importante.
 La saison se caractérise par des débits soutenus de début novembre jusqu'à
-mi-avril, avec 2 pics à 300 $m^3.s^{-1}$ début novembre et mi-décembre,
-un gros pic à 650 $m^3.s^{-1}$ début janvier suivi d'un autre à 450 $m^3.s^{-1}$ mi-janvier,
-puis de 3 crues de 350 à 400 $m^3.s^{-1}$ de février à la mi-avril.
+mi-avril, avec 2 pics à 300 \unit{\cubic\metre\per\second} début novembre et mi-décembre,
+un gros pic à 650 \unit{\cubic\metre\per\second} début janvier suivi d'un autre à 450 \unit{\cubic\metre\per\second} mi-janvier,
+puis de 3 crues de 350 à 400 \unit{\cubic\metre\per\second} de février à la mi-avril.
 
 %------------------------------------------
 \begin{figure}[htbp]
@@ -2509,15 +2514,17 @@ cor(d3edj$debitvilainej,d3edj$enj_turb, use="complete.obs") # 0.76
 #' fonction de graphique des débits et turbidités et des pb de fonctionnement
 #' @param ylim2   limite du graph
 #' @param  ytop  loc max des labels sur l'axe
-plotdebitturbidite <- function(ylim = 1000, ytop=800){
-  thisseason <- d3edj$enj_date>=datedebut
+plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
+  thisseason_d3ej <- d3ej$enj_date>=datedebut
+  thisseason_d3edj <- d3ej$enj_date>=datedebut
   yat <- pretty(c(0, ytop)) # loc des labels
   yat2<-yat/4
   # ajoute de la place à gauche
   par(oma=c(0,2,0,0))
   #calcul des problèmes d'acquistion
   # d3ej[,c("dsf_timeinit","dsf_fls_id")]
-  pb <- d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==3&!is.na(d3ej$dsf_fls_id[thisseason])]
+  pb <- d3ej$dsf_timeinit[
+		  thisseason_d3ej][d3ej$dsf_fls_id[thisseason_d3ej]==3&!is.na(d3ej$dsf_fls_id[thisseason_d3ej])]
   if (length(pb>0)){
     pb<-data.frame("date"=pb,"delta"=NA)
     pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
@@ -2540,7 +2547,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
   #	datefin2<-as.Date(datefin2,tz=Sys.timezone())
   #}else {dateinit2=NULL;datefin2=NULL}
   ############################
-  pb<-d3ej$dsf_timeinit[thisseason][d3ej$dsf_fls_id[thisseason]==1]
+  pb<-d3ej$dsf_timeinit[thisseason_d3ej][d3ej$dsf_fls_id[thisseason_d3ej]==1]
   if (length(pb>0)){
     pb<-data.frame("date"=pb,"delta"=NA)
     pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
@@ -2553,10 +2560,12 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
   } else {dateinit3=NULL;datefin3=NULL}
 # plot, mais pas les axes 
   
-  plot(d3edj$enj_date[thisseason],d3edj$deb_qtotalj[thisseason],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,ylim))
+  plot(d3edj$enj_date[thisseason_d3edj],d3edj$deb_qtotalj[thisseason_d3edj],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,ylim))
+  # this one is based on d3ej
   if (!is.null(dateinit3)){
     rect(xleft=dateinit3,ybottom=102,xright=datefin3+2,ytop=ytop,col=jaune_EV,border=jaune_EV,density=6)
   }
+  # this one is based on d3ej
   if (!is.null(dateinit)){
     rect(xleft=dateinit,ybottom=102,xright=datefin,ytop=ytop,col=orange_EV,border=rouille)
   }
@@ -2564,11 +2573,11 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800){
   #rect(xleft=date_seuil_pb_lentille,ybottom=102,xright=as.Date(max(d3ej$dsf_timeinit)),ytop=1000,col=makeTransparent("yellow",70),border="orange")
   # si le premier elt du polygone est sup 100 et tout seul ça plante
   
-  polygon(c(min(d3edj$enj_date[thisseason])-1,d3edj$enj_date[thisseason],max(d3edj$enj_date[thisseason])+1),c(100,pmax(100,d3edj$deb_qtotalj[thisseason]),100),col="grey",border=NA)
+  polygon(c(min(d3edj$enj_date[thisseason_d3edj])-1,d3edj$enj_date[thisseason_d3edj],max(d3edj$enj_date[thisseason_d3edj])+1),c(100,pmax(100,d3edj$deb_qtotalj[thisseason_d3edj]),100),col="grey",border=NA)
   # petit ajustement 2018-2019 pour que le gris finisse à 100
   #polygon(d3edj$enj_date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
-  points(d3edj$enj_date[thisseason][thisseason],d3edj$debitvilainej[thisseason],col=turquoise_EV,type="l")
-  points(d3edj$enj_date[thisseason],d3edj$enj_turb[thisseason]*4,col="black",type="l",lty=2)
+  points(d3edj$enj_date[thisseason_d3edj][thisseason_d3edj],d3edj$debitvilainej[thisseason_d3edj],col=turquoise_EV,type="l")
+  points(d3edj$enj_date[thisseason_d3edj],d3edj$enj_turb[thisseason_d3edj]*4,col="black",type="l",lty=2)
   axis(2, col=turquoise_EV, at=yat, labels=yat,col.axis=turquoise_EV)
   axis(side=2, at=yat, labels=yat2, col=rouille, line=2,col.axis=rouille)
   mtext(side=2, line=4, "Débit journalier m3/s et turbidité (NTU)")
@@ -2583,7 +2592,6 @@ dev.off()
 
 Le barrage ne commence à ouvrir qu'en novembre à la date de la mise en place du
 didson (Figures \ref{debitturbidite} et \ref{fonctionnementvanne}). Au total,
-sept grosses crues sont observées (débit supérieur à
 \SI{300}{\cubic\metre\per\second}) entre début novembre et mi-avril.
 Les turbidités montent au-delà de 50 NTU au cours de seconde crue
 mi-décembre (Figure \ref{debitturbidite}). Le paramètre turbidité n'est pour
