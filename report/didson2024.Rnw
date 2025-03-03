@@ -467,6 +467,7 @@ saison <- str_c((CY - 1), "-", CY)
 debut <- str_c(CY - 1, "-09-01 00:00:00")
 fin <- str_c(CY, "-05-01 00:00:00")
 toutdebut <- str_c(2012, "-09-01 00:00:00")
+toutdebutdate <- as.Date(toutdebut)
 datedebut <- str_c(CY - 1, "-09-01")
 datefin <- str_c(CY, "-05-01")
 graphics.off()
@@ -1156,7 +1157,7 @@ save(sumdepouillement_all,file=str_c(datawdy,"sumdepouillement_all.Rdata"))
 
 
 cat("d3edj\n") #------------------------------------------ # ddde_dj dj=données journalières
-req@sql <- str_c("select * from did.v_dddedj where enj_date>'",toutdebut,
+req@sql <- str_c("select * from did.v_dddedj where enj_date>'",toutdebutdate,
     "' and enj_date<'",datefin,"'")
 d3edj <- query(req, base) %>% getquery()
 #req@sql <- str_c("select * from did.v_dddedj where enj_date='","2022-03-28","'")
