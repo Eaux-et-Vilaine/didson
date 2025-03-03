@@ -175,9 +175,9 @@ round-precision = 0 % precision des arrondis
      bookmarksopen=true,            %si les signets Acrobat sont créés,
                                     %les afficher complètement.
      pdftitle={Suivi de la dévalaison de l'anguille argentée en 2023--2024
-     (11ème année) sur la Vilaine à l'aide d'un didson},
+     (12ème année) sur la Vilaine à l'aide d'un didson},
      %informations apparaissant dans
-     pdfauthor={Cédric Briand,Brice Sauvaget, Gérard Eriau},     %dans les
+     pdfauthor={Cédric Briand, Brice Sauvaget, Gérard Eriau},     %dans les
      % informations du document
      pdfsubject={anguille argentée},          %sous Acrobat
      pdfkeywords={anguille argentée}{migration}{dévalaison}{didson}{Vilaine}
@@ -366,7 +366,7 @@ Date d'édition :\\}
 \color{orange_EV}
 \begin{center}
 \Large
-Mars 2024
+Mars 2025
 \end{center}
 \vspace{2cm}\\
 \end{minipage}
@@ -379,6 +379,8 @@ Mars 2024
 % le logo de l'agence doit au moins faire 25 mm de haut      
 \vspace{1cm}\\
 \centering{\includegraphics[width=\textwidth]{logo_agence.png}} 
+\vspace{1cm}\\
+\centering{\includegraphics[width=\textwidth]{logo_region_bretagne.png}} 
 \end{minipage}
 }%  
 \vfill
@@ -395,8 +397,6 @@ Gérard Eriau\par
 }% 
 \endgroup
 \end{titlepage}
-
-
 
 
 
@@ -431,7 +431,7 @@ Eriau}}}
 \end{center}
 \end{minipage}
 \vfill
-\hfill \Large Mars 2024
+\hfill \Large Mars 2025
 
 \normalsize
 
@@ -1865,13 +1865,17 @@ didson V5.27.48 de la société Soundmetrics.
 
 \subsection{Automatisation de la position verticale du didson}
 
-La position verticale du didson est automatisée par un treuil. 
-Le treuil est relié à l'automate du barrage par une liaison
-ethernet et le pilotage des positionnements du didson se fait par une
-interface graphique (Figures \ref{automate2} et \ref{ihm}).
+La position verticale du didson a été automatisée avec un treuil en novembre
+2017. Le treuil est relié à l'automate du barrage par une liaison
+ethernet et le pilotage des positionnements du didson se fait par 
+l'interface graphique de l'Interface Homme Machine (IHM)
+(Figures \ref{automate2} et \ref{ihm}).
 Un système de gestion
-des câbles permet le déplacement vertical du didson à l'aide un chariot (Figure
-\ref{automate3}).
+des câbles permet le déplacement vertical du didson à l'aide d'un chariot
+(Figure \ref{automate3}).
+En octobre 2021, les barragistes installent des commandes manuelles sur
+l'armoire électrique de la pile 4. Cela permet de shunter le programme de l'IHM
+et de retrouver plus facilement le Point d'Origne Machine (POM) du treuil.
 
 %------------------------------------------
 \begin{figure}[htbp]
@@ -1951,24 +1955,24 @@ faibles.
 En 2017--2018, un problème de déformation du concentrateur de faisceau (slit) a dégradé
 la qualité des images à partir de fin janvier.
 
-En 2018--2019, l'essentiel de la saison est couvert par le mode "suivi
-vanne volet" qui permet de positionner correctement le didson en cours de
-nuit lorsque la gestion du barrage alterne entre vannes en volets. 
+En 2018--2019, l'essentiel de la saison est couvert par le mode
+automatique "suivi vanne volet" qui permet de positionner correctement le didson
+en cours de nuit lorsque la gestion du barrage alterne entre vannes en volets. 
 
 En 2019--2020, la saison s'est effectuée avec un suivi principalement en vanne
 dès le début de la saison. Le suivi a été arrêté le 19/02 après que le câble ait
-été entaillé par un objet dérivant qui a mis fin au suivi (Figure
+été entaillé par un objet dérivant qui a mis fin à la saison (Figure
 \ref{fig_effectif}). Cette situation n'est cependant intervenue qu'après
 plusieurs pics de crue et il est probable que l'essentiel de la migration ait eu lieu.
 
-En 2020--2021 plusieurs problemes techniques ont lieu entre octobre et décembre, 
-plantages liés à l'humidité, arrêts électriques à répétition sur l'ouvrage,
+En 2020--2021, plusieurs problèmes techniques ont lieu entre octobre et
+décembre, plantages liés à l'humidité, arrêts électriques à répétition sur l'ouvrage,
 plantage de la mémoire vive du PC d'acquisition, problème de codeur et de fin de course sur le
-volet, difficultés à mettre en service l'automatisme de suivi vanne volet...
+volet, difficultés à mettre en service l'automatisme de "suivi vanne volet" ...
 Le didson a toutefois fonctionné globalement plutôt bien sur le reste de la
 saison, qui a présenté deux pics de crue importants en janvier et février
-avec des débits de l'ordre de 700 $m^3.s^{-1}$. Le didson a été enlevé de l'eau
-lors du deuxième pic de crue le 03/02. 
+avec des débits de l'ordre de 700 $m^3.s^{-1}$. Le didson a été enlevé
+temporairement de l'eau lors du deuxième pic de crue le 03/02. 
 
 En 2021--2022, en tout début de saison, il y a eu des difficultés à utiliser
 l'automate du treuil du fait d'un problème de communication entre l'armoire
@@ -1983,7 +1987,8 @@ $m^3.s^{-1}$
 
 En 2022--2023, il y a eu de nombreux plantages intempestifs du didson au cours
 de la saison.
-La majorité de ces derniers étaient liés à un problème d'accès au disque dur. 
+La majorité de ces derniers étaient liés à un problème d'accès au disque dur en
+début de saison.
 Le rotateur a également commencé à montrer des signes d'usures.
 La première crue a débuté le 20 décembre avec des débits de l'ordre de 
 380 $m^3.s^{-1}$. Après une période de débit plus faible, une deuxième
@@ -1992,12 +1997,12 @@ Ces crues ont été suivies d'une période calme du 6 février au 9 mars, puis d
 enchainement de 5 pics de crues jusqu'à la fin de la saison (en fin avril) 
 avec des débits de l'ordre de 180 à 270 $m^3.s^{-1}$.
 
-En 2023--2024, une succession de 7 pics de crue de 300 à 500 $m^3.s^{-1}$ a été
-observée. La première crue intervient tôt, début novembre avec la plus forte
-début janvier à 500 $m^3.s^{-1}$ . Durant cette période, le didson a
-pratiquement toujours été bien positionné, en vannes, mais également en volets sur le mois d'octobre. Le didson et son rotateur montrent
-des signes de fatigue, avec de nombreux plantages en cours de saison, 
-mais sans aucune défaillance importante.  
+En 2023--2024, le didson et son rotateur montrent des signes de fatigue, avec de
+nombreux plantages en cours de saison, mais sans aucune défaillance importante.
+La saison se caractérise par des débits soutenus de début novembre jusqu'à
+mi-avril, avec 2 pics à 300 $m^3.s^{-1}$ début novembre et mi-décembre,
+un gros pic à 650 $m^3.s^{-1}$ début janvier suivi d'un autre à 450 $m^3.s^{-1}$ mi-janvier,
+puis de 3 crues de 350 à 400 $m^3.s^{-1}$ de février à la mi-avril.
 
 %------------------------------------------
 \begin{figure}[htbp]
@@ -2014,7 +2019,7 @@ d'échantillonnage en fonction de la distance.}
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.5\textwidth]{didsonD1}
-\caption[schéma didson 0° 5-15m]{Fond 0° 5-15m, didson placé à 5.5 m de
+\caption[schéma didson 0° 5-15m]{Fond 0° 5-15m, didson placé à -5.5 m NGF de
 profondeur lorsqu'il alterne entre des positions au fond et en surface à l 'aide
 du positionnement géré par l'automate. Le didson échantillonne 
 \num[round-mode=places,round-precision=1]{\Sexpr{round(100*vvv$listdidson$didsonD1$area_intersect/vvv$listdidson$didsonD1$area_migration_frame,1)}}\%
@@ -2025,7 +2030,7 @@ de la fenêtre de passage supposée.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.5\textwidth]{didsonD2}
-\caption[schéma didson -7° 5-15m]{Fond -7° 5-15m, didson placé à 4.5 m de
+\caption[schéma didson -7° 5-15m]{Fond -7° 5-15m, didson placé à -4.5 m NGF de
 profondeur avec un angle de -7°. Par rapport à la position en
 Figure \ref{didsonD1} le didson est remonté. L'angle de -7° permet d'éviter les
 échos sur la surface lorsque le didson est remonté en position haute par l'automate. Le didson
@@ -2045,14 +2050,13 @@ d'Information de la Vilaine et de ses Affluents}. Il s'agit :
 \begin{enumerate}
 \item Des niveaux d'ouverture des 5 vannes. 
 \item De la position des volets, 5 clapets flottants par lesquels sont évacués
-les débits du barrage lorsque le débit est suffisamment faible (entre 10 et 50 $m3^.s^-1$).
-\item Des débits transitant par la
-passe à poissons. 
+les débits du barrage lorsque le débit est suffisamment faible (entre 10 et 50 \unit{\cubic\metre\per\second}).
+\item Des débits transitant par la passe à poissons. 
 \item Des débits des siphons \footnote{Les siphons sont des tuyaux dont le
 fonctionnement gravitaire permet d'évacuer les lentilles d'eau salée
 s'accumulant en profondeur en amont du barrage, du fait du fonctionnement
-estival de l'écluse. Les siphons débouchent près de l'entrée de la passe en
-rive gauche de l'ouvrage.}. 
+estival de l'écluse. Les siphons débouchent près de l'entrée de la passe à
+bassins en rive gauche de l'ouvrage.}. 
 \item Du débit de la Vilaine, calculé au niveau
 du pont de Cran, 30 kilomètres en amont du barrage d'Arzal.
 \item Des températures d'eau enregistrées au niveau de sondes en amont
@@ -2116,9 +2120,9 @@ sur chaque vanne \citep{briand_note_2015}.}
 
 \subsection{Dépouillement des fichiers}\label{par_depouillement}
 
-Les fichiers sont recueillis au niveau du local de la passe à intervalles réguliers et rapatriés 
-au siège de l'EPTB Vilaine. Ils sont ensuite traités par le logiciel
-soundmetrics pour réduire le temps de dépouillement.
+Les fichiers sont recueillis au niveau du local de la passe (Figure
+\ref{vueaeriennebarrage}) à intervalles réguliers et rapatriés au siège de l'EPTB
+Vilaine. Ils sont ensuite traités par le logiciel soundmetrics pour réduire le temps de dépouillement.
 Le traitement (CSOT) retire les éléments stables de l'image (échos constants) et ne retient que des
 poissons, des objets, voire rien en période de fort débit et forte turbidité. Ce
 processus permet de réduire la taille des fichiers et de limiter le temps de dépouillement, mais il dépend aussi des conditions. Le passage d'un banc de mulets,
@@ -2150,7 +2154,8 @@ par le didson (elle traverse le faisceau d'un bord à l'autre (Figure
 \item \emph{In} l'anguille entre dans le champ, soit par-dessus, soit par
 dessous, soit latéralement (dans ce cas elle entre généralement en début de
 champ de détection, c'est à dire qu'elle était entre la pile et la zone de
-prospection); pour l'observateur elle apparaît donc en cours de trajectoire au milieu du champ,
+prospection); pour l'observateur, elle apparaît donc en cours de trajectoire au
+milieu du champ,
 \item \emph{Out} l'anguille sort du champ,
 \item \emph{InOut} l'anguille entre et ressort.
 \end{itemize}
@@ -2444,7 +2449,7 @@ transitant par le barrage $V\odot$ (Equation \ref{mod}).
 N_d\otimes=\frac{\sum_{t,k} N(t,k)\odot*V\otimes}{V\odot}
 \end{equation}
 Pour les jours où aucun suivi n'a été effectué à cause de problèmes
-techniques les effectifs $N_d\oplus$ ont été interpolés à partir de la tendance
+techniques, les effectifs $N_d\oplus$ ont été interpolés à partir de la tendance
 des effectifs journaliers par un modèle gam basé sur la
 tendance saisonnière et le débit.
 
@@ -2454,7 +2459,7 @@ Les biomasses en dévalaison ont été calculées à partir de la fréquence de 
 corrigée des anguilles à moins de 7 m de distance du didson. Les fréquences des
 effectifs de chaque classe de taille de 5cm ont été calculées et multipliées par le poids moyen du centre de la
 classe, tel que prédit par la relation taille/poids calée sur les données régionales
-d'anguilles argentées (source OFB et EPTB-Vilaine).
+d'anguilles argentées (source OFB et EPTB Vilaine).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\newpage
@@ -2577,13 +2582,12 @@ dev.off()
 @
 
 Le barrage ne commence à ouvrir qu'en novembre à la date de la mise en place du
-didson (Figures \ref{debitturbidite} et \ref{fonctionnementvanne}). Trois
-grosses crues sont observées (débit supérieur à
-\SI{300}{\cubic\metre\per\second}) entre mi-décembre et mi-janvier, puis mars
-des pics successifs entre 100 et 200 \unit{\cubic\metre\per\second}.
-Les
-turbidités montent au-delà de 100 NTU au cours de la crue de
-décembre-janvier (Figure \ref{debitturbidite}).
+didson (Figures \ref{debitturbidite} et \ref{fonctionnementvanne}). Au total,
+sept grosses crues sont observées (débit supérieur à
+\SI{300}{\cubic\metre\per\second}) entre début novembre et mi-avril.
+Les turbidités montent au-delà de 50 NTU au cours de seconde crue
+mi-décembre (Figure \ref{debitturbidite}). Le paramètre turbidité n'est pour
+le moment plus enregistré dans SIVA depuis janvier 2024.
 
 \begin{figure}[ht!]
   \centering
@@ -2591,14 +2595,13 @@ décembre-janvier (Figure \ref{debitturbidite}).
   \caption[Débits, turbidité et problèmes de fonctionnement du
   sonar]{ Débit de la Vilaine 
   (m$^3$.s$^{-1}$ \textcolor{black}{\rule[0.5mm]{0.5cm}{0.3mm}}) et turbidité
-  (NTU, \protect\dashedrule) pendant la période de migration. En
-  \textcolor{turquoise_EV}{\rule[-0.5mm]{3mm}{2mm}} débits corrigés (moyennes journalières). En fond, problèmes de fonctionnement du sonar,
-   en jaune \textcolor{jaune_EV}{\rule[-0.5mm]{3mm}{2mm}} erreurs ponctuelles
-  d'acquisition, %en jaune, \textcolor{yellow}{\rule[-0.5mm]{3mm}{2mm}}
+  (NTU, \protect\dashedrule) pendant la période de migration. 
+  \textcolor{turquoise_EV}{\rule[-0.5mm]{3mm}{2mm}} débits corrigés (moyennes journalières). 
+  En fond, problèmes de fonctionnement du sonar, 
+  \textcolor{jaune_EV}{\rule[-0.5mm]{3mm}{2mm}} erreurs ponctuelles d'acquisition, %en jaune, \textcolor{yellow}{\rule[-0.5mm]{3mm}{2mm}}
   % problèmes d'écriture,
-  en orange, \textcolor{orange_EV}{\rule[-0.5mm]{3mm}{2mm}} problèmes
- de qualité (absents cette année), 
-  voir aussi la figure
+   \textcolor{orange_EV}{\rule[-0.5mm]{3mm}{2mm}} problèmes de qualité (absents
+   cette année), voir aussi la figure
 \ref{fig_horairespb} dans la discussion pour le détail des horaires.}
   \label{debitturbidite}
 \end{figure}
@@ -2674,8 +2677,8 @@ options(encoding = "UTF-8")
 xtafls<-xtable::xtable(tabfls,
     label="tabfls",
     caption="Fonctionnement (nombre de suivis de 30 minutes) du didson en fonction de l'ouverture de la vanne
-        et de la position, $s$= appareil en surface, $f5$= appareil en vanne, $n$ appareil en panne,
-        0 enregistrement normal, 1 problème d'acquisition, 2 problèmes d'écriture sur le disque, 3 problèmes de qualité.",
+        et de la position pour la saison 2023-2024. $s$ = appareil en surface, $f5$ = appareil en vanne, $n$ = appareil en panne,
+        0 = enregistrement normal, 1 = problème d'acquisition, 2 = problèmes d'écriture sur le disque, 3 = problèmes de qualité.",
     digits=0
 )
 print(xtafls,file=str_c(tabwdy,"tabfls.tex"),
@@ -2689,8 +2692,8 @@ tabflsall <- as.data.frame.matrix(table(d3ej$dsf_fls_id,d3ej$position))
 xtafls <- xtable::xtable(tabflsall,
     label="tabfls",
     caption="Fonctionnement du didson en fonction de l'ouverture de la vanne
-        et de la position pour l'ensemble des saisons de suivi, $s$= appareil en surface, $f3$ $f5$= appareil en vanne, $n$ appareil en panne,
-        0 enregistrement normal, 1 problème d'acquisition, 2 problèmes d'écriture sur le disque, 3 problèmes de qualité.",
+        et de la position pour l'ensemble des saisons de suivi. $s$ = appareil en surface, $f3$ $f5$ = appareil en vanne, $n$ = appareil en panne,
+        0 = enregistrement normal, 1 = problème d'acquisition, 2 = problèmes d'écriture sur le disque, 3 = problèmes de qualité.",
     digits=0
 )
 print(xtafls,file=str_c(tabwdy,"tabflsall.tex"),
@@ -2715,7 +2718,7 @@ données, l'inscription dans la base ou les vérifications.
 En prenant comme base un temps de dépouillement de 6 heures par jour, 5
 jours par semaine, la durée totale de dépouillement n'est que de l'ordre de
 \num{\Sexpr{floor(tps_semaine[length(tps_semaine)])}} semaines et
-\num{\Sexpr{tps_jour_supl[length(tps_semaine)]}} jours contre 
+\num{\Sexpr{tps_jour_supl[length(tps_semaine)]}} jours, contre 
 \num{\Sexpr{floor(tps_semaine[length(tps_semaine)-1])}} semaines et
 \num{\Sexpr{tps_jour_supl[length(tps_semaine)-1]}} jours et 
 \num{\Sexpr{floor(tps_semaine[length(tps_semaine)-2])}} semaines et
@@ -2724,7 +2727,7 @@ saisons précédentes (Tableau \ref{tabletps}).
 
 
 \input{../table/2024/depouillement.tex}
-Cette année les temps de dépouillement sont de 10-20 minutes alors qu'ils
+Cette année, les temps de dépouillement sont de 10-20 minutes alors qu'ils
 pouvaient être de 30 minutes lors des pics de migration, la mesure des anguilles
 restant chronophage (Figure \ref{tpspoint}).
 \begin{figure}[htbp]
@@ -2871,7 +2874,7 @@ en général concentrée en début et fin de nuit.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.4\textwidth]{flash}
-  \caption[Interférence du didson]{Flash du didson}
+  \caption[Interférence du didson]{Flash du didson.}
   \label{flash}
 \end{figure}
 \begin{figure}[htbp]
@@ -3048,9 +3051,10 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
     la vanne 4, taille des rectangles relative au nombre d'occurences d'un type
     de positionnement de vanne et d'un type de positionnement didson pour chaque mois.
     En lignes, positionnement du didson, 00 = pas de données, 0 = pas de
-    lecture, s = surface (Figure \ref{didsonsurface}), f=fond (Figure \ref{didsonD1}).
-    En colonnes, ouverture de la vanne, 0= pas d'ouverture, s=surface, f=fond,
-    sf= surface et fond (l'ouverture change au cours des 30 minutes). 
+    lecture, s = surface (Figure \ref{didsonsurface}), f = fond (Figure
+    \ref{didsonD1}).
+    En colonnes, ouverture de la vanne, 0 = pas d'ouverture, s = surface,
+    f = fond, sf = surface et fond (l'ouverture change au cours des 30 minutes). 
     
     Couleurs :
     \textbf{\textcolor{orange_EV}{orange}} le didson n'enregistre
@@ -3076,37 +3080,37 @@ sonar dans la période de 17h à 9h sur l'ensemble de la saison de migration com
       que ce soit en surface ou au fond, et il n'y a pas de passage possible.
       Cette situation correspond à
       \num[round-mode = places,
-round-precision = 1]{\Sexpr{vvv$perc$"0"}}\% du temps,
+round-precision = 0]{\Sexpr{vvv$perc$"0"}}\% du temps,
 
   \item Dans tous les autres cas, le pertuis 4 est ouvert
   \begin{itemize}
   \item 
       le didson n'a pas pu être positionné (problèmes techniques)
       \num[round-mode = places,
-round-precision = 1]{\Sexpr{vvv$perc$"2"}}\% du temps, (rectangles
+round-precision = 0]{\Sexpr{vvv$perc$"2"}}\% du temps (rectangles
       \textbf{\textcolor{orange_EV}{orange}}),
   \item
       le  didson fonctionne, il est bien positionné
       \num[round-mode = places,
-round-precision = 1]{\Sexpr{vvv$perc$"1"}}\% du temps (rectangles
+round-precision = 0]{\Sexpr{vvv$perc$"1"}}\% du temps (rectangles
         \textbf{\textcolor{turquoise_EV}{turquoise}}),
   \item
       le didson fonctionne, mais il est mal positionné (rectangles
       \textbf{\textcolor{rouille}{marron}}), mais les fichiers ont quand même
       fait l'objet d'un dépouillement seulement \num[round-mode = places,
-round-precision = 1]{\Sexpr{vvv$perc$"3"}}\% du temps,
+round-precision = 0]{\Sexpr{vvv$perc$"3"}}\% du temps,
    \item  
       les fichiers du didson n'ont pas été lus, ou le didson n'a pas
       fonctionné pendant \num[round-mode = places,
-round-precision = 1]{\Sexpr{vvv$perc$"4"}}\% du
+round-precision = 0]{\Sexpr{vvv$perc$"4"}}\% du
       temps (zones \textbf{\textcolor{Gray}{grises}}).
  \end{itemize}
 \end{itemize}
 Cette année, les problèmes de fonctionnement du didson en octobre, novembre,
 février, mars et avril sont visibles (en orange, Figure \ref{position}). 
 Il s'agit essentiellement de problèmes de communication via le
-cable avec le didson. Globalement il y a très peu d'enregistrements sur des
-périodes où le didson est mal positionné (en marron), quand c'est le cas il
+câble avec le didson. Globalement il y a très peu d'enregistrements sur des
+périodes où le didson est mal positionné (en marron), quand c'est le cas, il
 peut s'agir d'écoulement en volets ailleurs sur le barrage alors que la vanne 4
 a été fermée. 
 Les fichiers non dépouillés en gris correspondent majoritairement aux fichiers
@@ -3347,7 +3351,7 @@ grande des colonnes),
 \item plus on s'éloigne du didson plus la qualité des images détectées diminue,
 \item la qualité est globalement meilleure en surface qu'au fond.
 \end{itemize}
-Pour la saison \Sexpr{saison} les détections sont majoritairement faites en
+Pour la saison \Sexpr{saison}, les détections sont majoritairement faites en
 vanne. Dans ces conditions, les détections de petites anguilles $\tau$
 <45cm~\text{mâles} et 45-60cm~\text{petites femelles} sont très réduites, et ces
 effectifs faibles se traduisent sur l'ensemble des saisons de suivi dans le
@@ -3394,10 +3398,10 @@ didson, et on retrouve une meilleure qualité des images en surface.
                 \label{qualite_distance_vanne_all}
         \end{subfigure}
         \caption[Qualité.]{Qualité des détections en fonction des classes de
-        distance. En haut données de l'année en cours, deux graphiques du bas
-        groupement de l'ensemble des années disponibles. La taille verticale ou
+        distance. En haut : données de l'année en cours, deux graphiques du bas
+        : groupement de l'ensemble des années disponibles. La taille verticale ou
         horizontale est relative à l'effectif dans chacune des catégories.
-        Qualité 5 =pas de doute possible, qualité 1 = fort doute.}
+        Qualité 5 =pas de doute possible, qualité 2 = anguille douteuse (1 disparaissent après vérification).}
        \label{qualite_distance}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3456,7 +3460,7 @@ mâles qui n'avaient pas été observées jusqu'alors (Figures
 % Ci dessous compte tenu des problèmes de détection pas utile d'analyser la taille au 
 % cours de la saison.
 Les tailles changent en fonction de la période (Test $\chi^2$ p<0.001) et les
-petits mâles sont observés en début de saison (Figure
+mâles sont observés en début de saison (Figure
 \ref{mosaic_taille_mois}).
 
 %=====================================================================
@@ -3466,9 +3470,9 @@ petits mâles sont observés en début de saison (Figure
   \caption[Taille des anguilles]{Diagramme en mosaïque montrant la relation
   entre la taille et le mois. La surface de chaque case correspond aux
   effectifs observés pour la classe de taille et le mois correspond. En rouge
-  et bleu (clair et foncé), les catégories qui sont significativement différentes au seuil de 90
-  et 99\% des effectifs attendus si la répartition était homogène. En gris
-  (valeur centrale), les effectifs attendus sont conformes aux attendus du tableau de contingence.
+  et vert (clair et foncé), les catégories qui sont significativement
+  différentes aux seuils de 90 et 99\% des effectifs attendus si la répartition
+  était homogène. En gris (valeur centrale), les effectifs attendus sont conformes aux attendus du tableau de contingence.
   \citep{zeileis_ResidualbasedShadingsVisualizing_2007}.
  \textit{Cette figure teste l'hypothèse que les classes de tailles soient
 distribuées de manière homogène en fonction des mois, de nouveau en regroupant l'ensemble des années de suivi.
@@ -3894,7 +3898,7 @@ toto<-latex(aovlmsel,
     col.just=strsplit("l r r r r r", " ")[[1]],	
     label="tab_aovefficacite",
     caption=str_c("Analyse de variance du modèle logit des efficacités. 
-            $\\tau$= taille, $\\delta$= distance au didson, $k$=position"),
+            $\\tau$ = taille, $\\delta$ = distance au didson, $k$ = position"),
     caption.lot=str_c("aov efficacité"),		
     file=str_c(tabwdy,"aovefficacite.tex"))
 options(encoding = "native.enc")
@@ -4168,12 +4172,12 @@ didson.
   \label{aovefficacite}
 \end{figure}
 %=====================================================================
-Pour l'ensembles des années, les diminutions d'effectifs en fonction de la
+Pour l'ensemble des années, les diminutions d'effectifs en fonction de la
 distance au didson sont résumées en Figure \ref{nombre_taille_distance},  
 les efficacités sont calculées
 en Figure \ref{efficacite} et les nombres corrigés issus du recalcul sont
 présentés en Figures \ref{efficacite} et \ref{Ncor}
- (les trois figures \ref{nombre_taille_distance}, \ref{efficacite} et
+ (les trois Figures \ref{nombre_taille_distance}, \ref{efficacite} et
  \ref{Ncor} sont en annexe).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -4476,19 +4480,19 @@ Le suivi des migrations a été effectué entre 17 h et 9 h (Figure
                 \centering
                 \includegraphics[trim=0mm 15mm 0mm
                 15mm,clip]{2024/heure_jourcomplet.png}
-                \caption{Horaires de passages toutes saisons}
+                \caption{Horaires de passages toutes saisons.}
            \label{fig_heure_jourcomplet}
         \end{subfigure}
         \begin{subfigure}{0.55\textwidth}
                 \centering
                 \includegraphics{2024/fonctionnement_journuit_barrage.png} 
-                \caption{heures de fonctionnement du barrage.}
+                \caption{Heures de fonctionnement du barrage.}
         \label{fig_fonctionnement_journuit_barrage}
         \end{subfigure}
          \begin{subfigure}{0.4\textwidth}
                 \centering
                 \includegraphics{2024/circular_full_days} 
-                \caption{modèle circulaire.}
+                \caption{Modèle circulaire.}
         \label{fig_circular_full_days}
         \end{subfigure}
         \caption[Horaires de  passage]{Horaires de passage des anguilles 
@@ -4505,7 +4509,7 @@ En compilant l'ensemble des saisons avec des suivis toute la journée, nous
 disposons de \num[round-mode = places,
  round-precision = 0]{\Sexpr{length(fulldays)}} journées pour lesquelles le
 suivi a été effectué au delà de ces heures. Le pourcentage d'anguilles migrant
-de 9h30 à 17h30 est de mu=\Sexpr{mu} \footnote{Les deux années
+de 9h30 à 17h30 est de $\mu$ = \Sexpr{mu}\% \footnote{Les deux années
 2013--2014 et 2014--2015, un coefficient de $\mu$ =  11.9\% avait été
 utilisé \citep{briand_suivi_2015, briand_suivi_2016}, 
 puis une valeur de 5.6 \%.} (Figure\ref{fig_heure_jourcomplet}).
@@ -4779,8 +4783,10 @@ Les sexes ratios calculés en utilisant une limite de
 en 2014-2015 et 2015-2016 \citep{briand_suivi_2016,
 briand_suivi_2017}, 7\% en 2016-2017 \citep{briand_suivi_2018}, 5\% en
 2017-2018 \citep{briand_suivi_2018}, 7 \% en 2018-2019
-\citep{briand_suivi_2019}, 8\% en 2019-2020 \citep{briand_suivi_2020} et 24 \%
-de mâles en 2020-2021.
+\citep{briand_suivi_2019}, 8\% en 2019-2020 \citep{briand_suivi_2020}, 24\% en
+2020-2021 \citep{briand_suivi_2021},
+x\% en 2021-2022 \citep{briand_suivi_2022}
+et x\% de mâles en 2022-2023 \citep{briand_suivi_2023}.
 
 % le pdf fait planter l'impression
 %\begin{figure}[htbp]
@@ -4990,6 +4996,7 @@ Enfin, les effectifs sont extrapolés à l'ensemble du barrage pour obtenir la p
 \ref{eq_Ntotal}). Lors de cette dernière extrapolation, on corrige aussi des
 effectifs estimés de jour pour obtenir la migration sur l'ensemble du cycle
 journalier (Formule \ref{eq_mu}).
+
 \subsubsection{Prédiction pour les données manquantes}
 
 
@@ -5381,7 +5388,7 @@ gam.check(bestg)
 concurvity(bestg)
 options(encoding = "UTF-8")
 besttg<- itsadug::gamtabs(bestg, 
-    caption="Modèle de prédiction des effectifs",
+    caption="Modèle de prédiction des effectifs.",
     label="tableau_modele_miss")
 cat(besttg,
     file=str_c(tabwdy,"tableau_modele_miss.tex"),
@@ -5601,18 +5608,18 @@ toto <- latex(final,
         "S[table-format = 5.0]"),
     label="tabfinal",
     caption="Extrapolation des effectifs, 
-        $N'_{o4}$ effectifs comptés au droit du sonar,
-        $N_{o4}$=effectifs corrigés de l'efficacité du didson,
-        $N_{4}$=effectifs estimés au droit de la vanne,
-        $N$= effectifs estimés sur l'ensemble du barrage,
+        $N'_{o4}$ = effectifs comptés au droit du sonar,
+        $N_{o4}$ = effectifs corrigés de l'efficacité du didson,
+        $N_{4}$ = effectifs estimés au droit de la vanne,
+        $N$ = effectifs estimés sur l'ensemble du barrage,
         $\\otimes$ = effectifs comptés au didson alors que celui-ci est mal positionné par rapport à l'écoulement, 
-        $\\odot$= période de suivi complet sans problème de qualité,
-        $\\otimes$=période de suivi extrapolée à partir des densités moyennes du jour,
+        $\\odot$ = période de suivi complet sans problème de qualité.
+        $\\otimes$ = période de suivi extrapolée à partir des densités moyennes du jour,
         problème d'enregistrement ou de qualité ou mauvais positionnement du didson, en marron(4) sur la Figure \\ref{fig_horairespb} et orange sur la Figure \\ref{fig_position}.
-        $\\oplus$=périodes sans suivi, les points d'interrogation indiquent des extrapolations incertaines,
-        $\\sum$= Somme.
-        Les positions $s$, $f3$, $f5$, $sl$ indiquent : $s$ position du didson en surface, $f3$ fond aquisition 3-13 m, $f5$ fond acquisition 5-15,
-        $sl$ didson regardant vers la surface ou le fond pour tenter de déterminer la position verticale des anguilles. ",
+        $\\oplus$ = périodes sans suivi, les points d'interrogation indiquent des extrapolations incertaines,
+        $\\sum$ = somme.
+        Les positions $s$, $f3$, $f5$, $sl$ indiquent : $s$ = position du didson en surface, $f3$ = fond aquisition 3-13 m, $f5$ = fond acquisition 5-15,
+        $sl$ = didson regardant vers la surface ou le fond pour tenter de déterminer la position verticale des anguilles. ",
     caption.lot=str_c("Extrapolation des effectifs."),		
     file=str_c(tabwdy,"tabfinal.tex"),
     # arguments pour longtable :
@@ -5833,9 +5840,9 @@ migrations lorsque le didson est dans une mauvaise position ($\otimes$), c'est �
 dire en surface alors que les écoulements sont au fond, et au fond alors que les
 écoulements sont en surface, ou quand le didson est en arrêt technique. Pour la
 saison \Sexpr{saison}, le nombre de données correspondant à ce type de configuration
-sont de \num{\Sexpr{vvv$number.otimes}} enregistrements  ($\otimes$), contre
+est de \num{\Sexpr{vvv$number.otimes}} enregistrements  ($\otimes$), contre
 \num{\Sexpr{vvv$number.odot}} enregistrements en fonctionnement normal
-($\odot$). Les effectifs extrapolés à partir des migrations observées le même
+($\odot$). L'effectif extrapolé à partir des migrations observées le même
 jour est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} anguilles argentées.
 
 Sur l'ensemble des années, il y a eu en moyenne
@@ -5975,12 +5982,12 @@ vvv$lpm <- sum(tt)
 \subsection{Migration}
 
 La saison \Sexpr{saison} se caractérise par une succession de pic de crue forts
-entre 300 \si{\cubic\metre\per\second} et 600 \si{\cubic\metre\per\second}). Ces
+entre 300 \si{\cubic\metre\per\second} et 650 \si{\cubic\metre\per\second}). Ces
 pics de crue ont commencé dès novembre. Il n'y a pratiquement pas eu de suivi en
-volets. Le suivi du fonctionnement vanne / volet par l'automate a permis au didson d'être pratiquement toujours
-bien positionné. La migration s'est effectuée lors des trois premiers
-pics de débit avec des effectifs journaliers 
-anguilles (Figure \ref{fig_N_interannuel}).
+volet. Le suivi du fonctionnement vanne / volet par l'automate a permis au
+didson d'être pratiquement toujours bien positionné. La migration s'est effectuée 
+lors des trois premiers pics de débit avec des effectifs journaliers maximums à
+plus de 4000 anguilles (Figure \ref{fig_effectif}).
 Ces conditions de suivi en vanne n'ont pas trop affecté la qualité des
 détections qui sont en moyenne bien supérieures (Figure \ref{qualite_distance})
 à celles observées en moyenne sur l'ensemble des années (Figure \ref{qualite_distance_vanne_all}).
@@ -6012,7 +6019,7 @@ taille des anguilles amorcée en 2020-2021.
 
 \subsection{Biais et précision}
 \subsubsection{Confusion avec d'autres espèces}
-L'anguille présente une morphologie et une nage particulière qui
+L'anguille présente une morphologie et une nage particulières qui
 permettent de la discerner des autres poissons \citep{langkau_can_2012}.
 En \Sexpr{saison}, \Sexpr{vvv$lpm} lamproies marines 
 (\textit{Petromyzon marinus}) ont été détectées.
@@ -6020,7 +6027,7 @@ En \Sexpr{saison}, \Sexpr{vvv$lpm} lamproies marines
 \begin{table}
 \centering
 \caption[Nombre de lamproies]{Nombre de lamproies marines comptées au didson en
-fonction des saisons de suivi. Entre parenthèse les lamproies en direction
+fonction des saisons de suivi. Entre parenthèses, les lamproies en direction
 descendante.}
 \label{tab_nblpm}
 \begin{tabular}{rr}
@@ -6064,22 +6071,23 @@ descendante.}
 
 La résolution du didson est calculée à partir de la largeur du faisceau (qui correspond
 à la moitié de la distance) et du nombre de faisceaux (96) lorsque le didson est
-configuré en haute fréquence. La taille des anguilles mesurées correspond au
-nombre de faisceaux rencontrés par la cible, mais elle est légèrement sous-estimée 
+configuré en haute fréquence, ce qui est toujours le cas sur la Vilaine. La
+taille des anguilles mesurées correspond au nombre de faisceaux rencontrés par la cible, mais elle est légèrement sous-estimée 
 \citep{bilotta_decline_2011}. En effet, la taille dépasse légèrement un faisceau
-sans entrer en contact avec le faisceau suivant. L'erreur de mesure est au maximum de 1 cm à 2m
-et elle augmente linéairement jusqu'à 7 cm à 15 m. La modification de la
-structure en taille amorcée en 2020--2021 est confirmée cette saison avec un
+sans entrer en contact avec le faisceau suivant. L'erreur de mesure est au
+maximum de 1 cm à 2 m, et elle augmente linéairement jusqu'à 7 cm à 15 m. La
+modification de la structure en taille amorcée en 2020--2021 est confirmée cette saison avec un
 pourcentage de mâles de \num{\Sexpr{round(100*vvv$sexe_ratio)}} \%, alors que ce
 pourcentage était plutôt de l'ordre de 5 à 9 \% de 2014--2015 à 2019--2020
 
 \subsubsection{Efficacité moyenne}
 
-Les efficacité moyennes sont plus faibles que celles calculées historiquement
+Les efficacités moyennes sont plus fortes que celles calculées historiquement
 depuis le nouveau calcul en 2020 intégrant la qualité des anguilles dans le
 calcul (Tableau \ref{tabefficacite_moyenne}, Tableau
 \ref{tab_efficacite_historique} en annexe). La forte efficacité cette année
-est une traduction des débits plus faibles.
+est directement liée à la modification des ouvertures en vannes décrite plus
+haut (3.1 Migration).
 
 \input{../table/2024/tabefficacite_moyenne.tex}
 
@@ -6087,15 +6095,18 @@ est une traduction des débits plus faibles.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=0.5\textwidth]{2024/fig_effectif}
-  \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage,
-				en turquoise $N\odot$ 
-				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en orange $N\otimes$ 
-				\textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}}=effectifs extrapolés à
-				partir de données de densité recueillies dans la journée. 
-                En jaune, $N\oplus$
-                \textcolor{jaune_EV}{\rule[-0.5mm]{0.7mm}{3mm}} effectifs
-                extrapolés à partir d'un modèle saisonnier. En bleu foncé \textcolor{bleu_EV}{\rule{3mm}{0.5mm}} débits
-                journaliers estimés au barrage d'Arzal $m3.s^{-1}$(multipliés par 10 pour des raisons graphiques).}
+  \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage. 
+                En turquoise $N\odot$ 
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}} = effectifs mesurés, 
+                en orange $N\otimes$
+                \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs extrapolés 
+                à partir de données de densité recueillies dans la journée,
+                en jaune, $N\oplus$
+                \textcolor{jaune_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs
+                extrapolés à partir d'un modèle saisonnier. 
+                En bleu foncé \textcolor{bleu_EV}{\rule{3mm}{0.5mm}} débits journaliers estimés 
+                au barrage d'Arzal en \si{\cubic\metre\per\second} (multipliés
+                par 10 pour des raisons graphiques).}
   \label{fig_effectif}
   % heure de fonctionnement
 \end{figure}
@@ -6109,14 +6120,14 @@ De 2014 à 2017 les effectifs ont augmenté, probablement du fait du recalcul de
 l'efficacité. Ils ont diminué pour 2017--2018 et 2018--2019, et ces deux saisons
 un calcul particulier avait été effectué pour corriger du problème de "myopie"
 des lentilles du didson. Il est possible que le nouveau calcul -qui ne prend pas
-en compte ce problème particulier- sous estime les effectifs \footnote{pas de détection dans la zone la 
-plus éloignée du didson donc pas d'extrapolation des effectifs.}. 
+en compte ce problème particulier- sous estime les effectifs \footnote{Pas de
+détection dans la zone la plus éloignée du didson donc pas d'extrapolation des effectifs.}. 
 
 
 % siunitx S[...] left of . is the number of digits left of the decimal and same with the right. 
 \begin{table}
 \centering
-\caption[Production annuelle]{Production en anguilles argentées de la Vilaine à
+\caption[Production annuelle]{Production de la Vilaine en anguilles argentées à
 partir des comptages au didson en fonction des saisons de suivi. 
 $N_{old}$ indique les effectifs calculés sur les rapports d'origine, $N_{new}$ indique
 les effectifs recalculés à partir de 2021 en assemblant
@@ -6129,7 +6140,7 @@ $Q_{j~max}~m^{3}s^{-1}$= débit maximum journalier,
   \hline
  Année & {$N{old}$} & {$N_{new}$} & {${Q_{j~max}~m^{3}s^{-1}}$} \\ 
   \hline
-2012--2013 & 130000 &
+2012--2013 & \num{130000} &
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2012-2013" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} &750\\
 2013--2014 & \num{119616} &
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2013-2014" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 1000\\
@@ -6163,16 +6174,16 @@ $Q_{j~max}~m^{3}s^{-1}$= débit maximum journalier,
 
 La tendance interannuelle des effectifs en migration est à la baisse, avec une
 légère augmentation à partir du minimum observé en 2017-2018. La réaugmentation des effectifs est cohérente
-avec une modification du sexe ratio à partir du minimum (5\% de mâles) observés
-en 2017-2018. Globalement, même sur une période d'observation relativement
-courte (série de moins de 10 ans), les effectifs sont en baisse. Sur le bassin versant de la Vilaine, le
+avec une modification du sexe ratio à partir du minimum (5\% de mâles) observé
+en 2017-2018. Globalement, même sur une période d'observation relativement courte (série de moins de 10 ans), 
+les effectifs sont en baisse. Sur le bassin versant de la Vilaine, le
 stock en place est plus qu'ailleurs la résultante des mesures de gestion prises sur la phase civelle.
 L'augmentation de la proportion de mâles traduit probablement l'effet combiné de
 l'introduction des quotas, de l'augmentation des migrations sur la passe et du 
 transport de civelles qui s'est traduit par un pic de recrutement fluvial entre
 2012 et 2014. Les mâles partant en 2021 auraient un âge continental de 6 à 8
 ans ce qui est cohérent avec les données de croissance recueillies sur le bassin. Il est
-donc probable que cet effectif de mâles donne le pas à un départ de femelles
+donc probable que cet effectif de mâles annonce un départ de femelles
 argentées dans les années qui viennent. Les effectifs plus importants observés
 en 2019--2020 sont peut être liés à l'effet d'une grande crue
 suivant plusieurs années sans débit important qui aurait permis le départ d'un
@@ -6205,11 +6216,11 @@ détections à la descente (+) et à la montée (-). Les ouvertures de vannes su
 les figures correspondent aux ouvertures moyennes lors des détections (elles
 sont pondérées par les effectifs en migration). Chaque figure correspond à un des
 positionnements du didson et un type d'écoulement : volet, vanne ou fermé.  
-$\Phi$= fonctionnement de la vanne (s= surface, f=fond, o=pas d'écoulement), $\beta$ angle du didson, 
-$h$= hauteur du didson en côte orthométrique, $O_t$=
-nombre de périodes de 30 minutes, $O_t\circ$=nombre de périodes de 30
-minutes ayant fait l'objet d'un dépouillement, $N'_{4o}+$=nombre
-d'anguilles observées en dévalaison, $N'_{4o}-$=nombre d'anguilles
+$\Phi$ = fonctionnement de la vanne (s = surface, f = fond, o = pas
+d'écoulement), $\beta$ = angle du didson, $h$ = hauteur du didson en côte
+orthométrique, $O_t$ = nombre de périodes de 30 minutes, $O_t\circ$ = nombre de
+périodes de 30 minutes ayant fait l'objet d'un dépouillement, $N'_{4o}+$ =
+nombre d'anguilles observées en dévalaison, $N'_{4o}-$ = nombre d'anguilles
 observées en montaison (nage dirigée vers l'amont). La hauteur de la
 vanne et la charge sur le volet correspondent à la moyenne des hauteurs
 observées pondérée par les effectifs en migration.
@@ -6383,16 +6394,16 @@ observées pondérée par les effectifs en migration.
 \begin{table}[htp] \centering 
   \begin{tabular}{|l | p{6cm}|} 
   \hline    
-        $\tau$ & Tailles d'anguilles, <45cm mâles,45-60cm petites
+        $\tau$ & Tailles d'anguilles, <45cm mâles, 45-60cm petites
        femelles, 60-80cm femelles, >80cm grandes femelles\\ \hline
          $\delta$ & Classes de distance au sonar (2,5m[, (5,7m[, (7,9m[, (9,11m[, (11,13m[ et
         (13,15m[ \\ \hline   
          $\beta$ & Angle du didson\\ \hline
-         $\Phi$ & Type d'écoulement du barrage , $s$ surface, $f$=fond\\ \hline
-         $O_t$& Période d'enregistrement de 30 mn\\ \hline
+         $\Phi$ & Type d'écoulement du barrage , $s$ = surface, $f$ = fond\\
+         \hline $O_t$& Période d'enregistrement de 30 mn\\ \hline
          $O_t\circ$& Période d'enregistrement de 30 mn avec
          visualisation\\\hline
-         $h$ & Altitude du didson en IGN69 \\ \hline
+         $h$ & Altitude du didson en NGF69 \\ \hline
          $N'_{4o}(t,\tau,\delta,k)$ & Dévalaison observée dans le champ de
            détection du didson sur la vanne 4\\ \hline
          $N_{4o}(t,\tau,\delta,k)$ & Dévalaison réelle dans le champ de
@@ -6453,17 +6464,19 @@ observées pondérée par les effectifs en migration.
 \begin{landscape}
 \begin{figure}
     \includegraphics[width=0.8\linewidth,keepaspectratio]{2024/fig_effectif_pb}
-\caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage,
-				en turquoise $(N)\odot$ 
-				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en
-				bleu foncé $N\otimes$
-				\textcolor{bleu_EV}{\rule[-0.5mm]{0.7mm}{3mm}}=effectifs extrapolés à
-				partir de données de densité recueillies dans la journée.
-                En orange, $N\oplus$
-                \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} effectifs
-                extrapolés à partir des données des jours voisins. En bleu \textcolor{blue}{\rule{3mm}{0.5mm}}, débits
-                journaliers estimés au barrage d'Arzal $m3.s^{-1}$(multipliés par 10 pour des raisons graphiques).
-                En rouge, \textcolor{red}{\rule{3mm}{0.5mm}}, débits de la
+\caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage.
+				En turquoise $(N)\odot$ 
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}} = effectifs mesurés, 
+                en bleu foncé $N\otimes$
+				\textcolor{bleu_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs extrapolés à
+				partir de données de densité recueillies dans la journée,
+                en orange, $N\oplus$
+                \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs
+                extrapolés à partir des données des jours voisins. 
+                En bleu \textcolor{blue}{\rule{3mm}{0.5mm}} = débits
+                journaliers estimés au barrage d'Arzal
+                \si{\cubic\metre\per\second} (multipliés par 10 pour des raisons graphiques).
+                En rouge \textcolor{red}{\rule{3mm}{0.5mm}} = débit de la
                 vanne 4. Les barres en gris et marron indiquent la position
                 verticale du didson.
                 Les rectangles en arrière plan indiquent les problèmes
@@ -6476,7 +6489,7 @@ observées pondérée par les effectifs en migration.
   \centering
   \includegraphics[width=\linewidth,keepaspectratio]{2024/nombre_taille_distance}
   \caption[Effectifs observés et corrigés]{Effectifs observés (traits
-  plains) et corrigés de l'augmentation de la taille du faisceau (traits
+  pleins) et corrigés de l'augmentation de la taille du faisceau (traits
   pointillés) en fonction de la distance, pour l'ensemble des saisons et les
   deux classes de distance. Les cercles jaunes correspondent au maximum observé pour
   les effectifs corrigées (pas toujours au plus près du didson).}
@@ -6494,8 +6507,8 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth,keepaspectratio]{2024/Ncor}
-  \caption[Effectifs recalculés]{Effectif recalculés après correction. En
-  théorie les effectifs devraient augmenter. Il n'est pas toujours possible
+  \caption[Effectifs recalculés]{Effectifs recalculés après correction. En
+  théorie, les effectifs devraient augmenter. Il n'est pas toujours possible
   d'extrapoler les effectifs pour la classe de distance la plus grande, car il
   n'y a alors plus de détections.}
   \label{Ncor}
@@ -6521,7 +6534,7 @@ observées pondérée par les effectifs en migration.
   \centering
   \includegraphics[width=0.8\textwidth]{2024/taille_distance_volet}
   \caption[Taille des anguilles vanne]{Taille des anguilles en fonction de la
-  distance au sonar en volets. Couleur en fonction du nombre d'observations par
+  distance au sonar en volet. Couleur en fonction du nombre d'observations par
   carré.
   Les polygones d'isodensité permettent de mettre en évidence la relation
   distance - taille (les plus petites anguilles ne sont visibles que près du
@@ -6537,8 +6550,8 @@ observées pondérée par les effectifs en migration.
  \begin{table}[htbp]
 \centering
 \caption[Efficacités moyennes historiques]{Efficacités moyennes calculées lors
-des précédents rapports pour les différentes positions du didson pour les 7 saisons
-de suivi. * Hors problèmes de concentrateur.}
+des précédents rapports pour les différentes positions du didson pour les 7
+permières saisons de suivi. * Hors problèmes de concentrateur.}
 \label{tab_efficacite_historique}
 \begin{tabular}{rrr}
   \hline
@@ -6567,12 +6580,12 @@ de suivi. * Hors problèmes de concentrateur.}
 \nul
 \vfill
 \section*{Remerciements}
-Les principaux remerciements, vont au personnel
-d'exploitation du barrage d'Arzal, Laurent Philippot, Thierry
-Besnard, Johann Dalhem, Alban Leguen, Cyril Faucon pour leur
+Les principaux remerciements vont au personnel
+d'exploitation du barrage d'Arzal : Laurent Philippot, Thierry
+Besnard, Johann Dalhem, Alban Leguen et Cyril Faucon, pour leur
 aide au quotidien.
 Cette étude a été financée par l'Agence de l'eau Loire
-Bretagne.
+Bretagne et la Région Bretagne.
 
 
 \begin{center}
