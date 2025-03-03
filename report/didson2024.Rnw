@@ -2516,7 +2516,7 @@ cor(d3edj$debitvilainej,d3edj$enj_turb, use="complete.obs") # 0.76
 #' @param  ytop  loc max des labels sur l'axe
 plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   thisseason_d3ej <- d3ej$enj_date>=datedebut
-  thisseason_d3edj <- d3ej$enj_date>=datedebut
+  thisseason_d3edj <- d3edj$enj_date>=datedebut
   yat <- pretty(c(0, ytop)) # loc des labels
   yat2<-yat/4
   # ajoute de la place à gauche
@@ -2573,7 +2573,11 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   #rect(xleft=date_seuil_pb_lentille,ybottom=102,xright=as.Date(max(d3ej$dsf_timeinit)),ytop=1000,col=makeTransparent("yellow",70),border="orange")
   # si le premier elt du polygone est sup 100 et tout seul ça plante
   
-  polygon(c(min(d3edj$enj_date[thisseason_d3edj])-1,d3edj$enj_date[thisseason_d3edj],max(d3edj$enj_date[thisseason_d3edj])+1),c(100,pmax(100,d3edj$deb_qtotalj[thisseason_d3edj]),100),col="grey",border=NA)
+  polygon(c(min(d3edj$enj_date[thisseason_d3edj])-1,
+				  d3edj$enj_date[thisseason_d3edj],
+				  max(d3edj$enj_date[thisseason_d3edj])+1),
+		  c(100,pmax(100,d3edj$deb_qtotalj[thisseason_d3edj]),100),
+		  col=turquoise_EV,border=NA)
   # petit ajustement 2018-2019 pour que le gris finisse à 100
   #polygon(d3edj$enj_date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
   points(d3edj$enj_date[thisseason_d3edj][thisseason_d3edj],d3edj$debitvilainej[thisseason_d3edj],col=turquoise_EV,type="l")
@@ -2586,7 +2590,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
 
 png(file=str_c(imgwdy,"debitturbidite.png"),,width = 8, height = 8, units = 'in', res = 300)
 #d3edj<-d3edj[!is.na(d3edj$enj_turb),]
-plotdebitturbidite(ylim= 700, ytop= 600)
+plotdebitturbidite(ylim= 700, ytop= 600, d3ej=d3ej, d3edj=d3edj)
 dev.off()
 @
 
@@ -2602,9 +2606,10 @@ le moment plus enregistré dans SIVA depuis janvier 2024.
   \includegraphics[width=0.4\textwidth]{2024/debitturbidite.png}
   \caption[Débits, turbidité et problèmes de fonctionnement du
   sonar]{ Débit de la Vilaine 
-  (m$^3$.s$^{-1}$ \textcolor{black}{\rule[0.5mm]{0.5cm}{0.3mm}}) et turbidité
-  (NTU, \protect\dashedrule) pendant la période de migration. 
-  \textcolor{turquoise_EV}{\rule[-0.5mm]{3mm}{2mm}} débits corrigés (moyennes journalières). 
+  (\unit{\cubic\metre\per\second} \textcolor{black}{\rule[0.5mm]{0.5cm}{0.3mm}}) et turbidité
+  (NTU, \protect\dashedrule) pendant la période de migration. Les valeurs en
+  gris correspondent à des débits de crue > 100 \unit{\cubic\metre\per\second}.
+  \textcolor{turquoise_EV}{\rule[-0.5mm]{3mm}{2mm}} débits corrigés (moyennes journalières).
   En fond, problèmes de fonctionnement du sonar, 
   \textcolor{jaune_EV}{\rule[-0.5mm]{3mm}{2mm}} erreurs ponctuelles d'acquisition, %en jaune, \textcolor{yellow}{\rule[-0.5mm]{3mm}{2mm}}
   % problèmes d'écriture,
