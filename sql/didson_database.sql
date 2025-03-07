@@ -104,10 +104,7 @@ CONSTRAINT c_fk_fsq_dsr_id foreign key (fsq_dsr_id) references did.t_didsonread_
 );
 comment on table did.t_fishsequence_fsq is 'table containing dubious eels';
 
-drop view if exists did.v_fish;
-create view did.v_fish as select * from did.t_didsonfiles_dsf 
-join did.t_didsonread_dsr on dsr_dsf_id=dsf_id
-join did.t_fishsequence_fsq on fsq_dsr_id=dsr_id;
+
 
 /*
 VARIABLES ENVIRONNEMENTALES
@@ -260,6 +257,7 @@ select max(env_time) FROM did.t_env_env_temp;
 delete from did.t_env_env where env_time>=(select min(env_time) from did.t_env_env_temp) AND env_time<=(select max(env_time) from did.t_env_env_temp);
 
 **/
+
 select * from did.t_env_env ORDER BY env_time;
 --insert into did.t_env_env select * from did.t_env_env_temp;--34702
 
@@ -431,10 +429,10 @@ AS $$
   else date_trunc('hour', $1) + INTERVAL '30 min' end
 $$ LANGUAGE SQL;
 
-SELECT did.round_time_30('2021-10-05 02:29:00')
-SELECT did.round_time_30('2021-10-05 02:30:00')
-SELECT did.round_time_30('2021-10-05 02:59:00')
-SELECT did.round_time_30('2021-10-14 15:00:00.000 +0200')
+SELECT did.round_time_30('2021-10-05 02:29:00'); -- 2021-10-05 02:30:00.000 +0200
+SELECT did.round_time_30('2021-10-05 02:30:00');--2021-10-05 02:30:00.000 +0200
+SELECT did.round_time_30('2021-10-05 02:59:00'); --2021-10-05 03:00:00.000 +0200
+SELECT did.round_time_30('2021-10-14 15:00:00.000 +0200'); --2021-10-14 15:00:00.000 +0200
 
 DROP VIEW if exists did.v_env CASCADE;
 create view did.v_env as
@@ -551,7 +549,7 @@ SELECT * FROM crosstab('select dsf_id_csot, dsf_filename,dsf_timeinit,dsf_positi
 				       order by 1,2',
 			        'select distinct on (dsr_reader) dsr_reader from did.t_didsonread_dsr'
 				)
-AS ct(dsf_id_csot text,  dsf_filename character varying(30),dsf_timeinit timestamp,dsf_position character varying(6) ,brice numeric, brice_et_gerard numeric,gerard numeric)
+AS ct(dsf_id_csot text,  dsf_filename character varying(30),dsf_timeinit timestamptz,dsf_position character varying(6) ,brice numeric, brice_et_gerard numeric,gerard NUMERIC, gerard2 numeric)
 ) AS crosst
 ORDER BY dsf_timeinit);
 
@@ -565,12 +563,12 @@ Vue didsonlectures
 drop view if exists v_didsonlectures;
 create view v_didsonlectures as 
 select v_lecture.*,debitvilaine30,volbarrage30, volet4,vanne4,fct1.*,hvanne4 from did.v_lecture 
-full outer join did.v_env on v_env.round_time=date_trunc(dsf_timeinit,'minute')
+full outer join did.v_env on round_time=date_trunc(dsf_timeinit,'minute')
 full outer join did.v_fctvanne4 fct on fct.round_time=v_env.round_time
 full outer join did.v_fctvanne1235 fct1 on fct1.round_time=v_env.round_time
 order by dsf_timeinit, round_time;
 
-
+SELECT * FROM did.v_lecture LIMIT 10
 
 drop view if exists did.v_dddp;
 create view did.v_dddp as (
@@ -581,6 +579,12 @@ select * from did.t_didsonfiles_dsf  dsf
 				left join did.t_poissonfile_psf on psf_drr_id=drr_id
 				where psf_species!='2014' AND psf_species!='2238'
 				and dsr_csotismin);
+		
+drop view if exists did.v_fish;
+create view did.v_fish as select * from did.t_didsonfiles_dsf 
+join did.t_didsonread_dsr on dsr_dsf_id=dsf_id
+join did.t_fishsequence_fsq on fsq_dsr_id=dsr_id;		
+
 
 -- vue avec les lamproies
 
@@ -750,9 +754,10 @@ group by date2) v_d3j
 on date=date2
 order by date);
 
+create view did.v_depouillement as (
+select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id);
 
-
-select distinct dsf_fls_id from did.t_didsonfiles_dsf
 /*
 delete from did.t_fishsequence_fsq;
 delete from did.t_didsonread_dsr;
@@ -847,9 +852,6 @@ with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timei
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id)
 select mois,dsr_reader,sum(temps_lecture) from depouillement group by mois,dsr_reader order by dsr_reader, mois
 
-create view did.v_depouillement as (
-select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
-dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id);
 
 
 
@@ -1047,4 +1049,3 @@ UPDATE did.t_envjour_enj SET deb_qtotalj = debit_moyen_recalcule
 
 
 
-select * from did.v_dddedj

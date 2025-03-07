@@ -9,16 +9,18 @@ SELECT dsf_timeinit FROM did.t_didsonfiles_dsf ORDER BY dsf_timeinit LIMIT 1; --
 
 
 
-DROP VIEW did.v_ddd CASCADE;
-DROP VIEW did.v_dddp CASCADE;
-DROP VIEW did.v_dddpall CASCADE;
-DROP VIEW did.v_depouillement CASCADE;
-DROP VIEW did.v_fish CASCADE;
-DROP VIEW did.v_nb_parjour;
-DROP VIEW v_didsonlectures;
-DROP VIEW did.v_env;
-DROP VIEW did.v_fctvanne1235;
-DROP VIEW did.v_fctvanne4;
+DROP VIEW did.v_ddd CASCADE;-- OK
+DROP VIEW did.v_dddp CASCADE;-- OK
+DROP VIEW did.v_dddpall CASCADE;-- OK
+DROP VIEW did.v_depouillement CASCADE; --OK
+DROP VIEW did.v_fish CASCADE; --OK
+DROP VIEW did.v_nb_parjour; -- NOT USED ? I didn't find IN code
+DROP VIEW v_didsonlectures; --v_lectures en plus
+DROP VIEW did.v_env; -- OK
+DROP VIEW did.v_fctvanne1235; --OK
+DROP VIEW did.v_fctvanne4; -- OK
+
+
 ALTER TABLE did.t_didsonfiles_dsf DROP constraint c_ck_dsf_timeend;
 
 
