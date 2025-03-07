@@ -906,8 +906,8 @@ drawdicriter <- function(
   return(ppp)
 }
 
-open_in_excel <- function(some_df) {
-  tFile <- paste("C:/temp/", gsub("\\\\", "", tempfile(fileext = paste0(substitute(some_df), ".csv"), tmpdir = "")), sep = "")
+open_in_excel <- function(some_df, pathtemp ="C:/temp/") {
+  tFile <- paste(pathtemp, gsub("\\\\", "", tempfile(fileext = paste0(substitute(some_df), ".csv"), tmpdir = "")), sep = "")
   write.table(some_df, tFile, row.names = F, sep = ";", quote = F)
   system(paste('open -a \"/ProgramData/Microsoft/Windows/Start Menu/Programs/Microsoft Office/Microsoft Excel 2010\"', tFile))
 }
@@ -1108,7 +1108,7 @@ briand_suivi_2021, briand_suivi_2022, briand_suivi_2023, briand_suivi_2024}.
 
 
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<database, echo=FALSE, eval=FALSE,results=hide >>=
+<<database, echo=FALSE, eval=TRUE,results=hide >>=
 require("safer")
 require("getPass")
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
@@ -1325,7 +1325,7 @@ save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 
 @
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<d3ej, echo=FALSE, eval=FALSE,results=hide >>=
+<<d3ej, echo=FALSE, eval=TRUE,results=hide >>=
 #CHUNK PRINCIPAL DE CALCUL
 load(file = str_c(datawdy, "ddde.all.Rdata"))
 load(file = str_c(datawdy, "dddp.all.Rdata"))
@@ -1603,7 +1603,7 @@ rm(hpas, vanne, volet)
     
   % METTRE EVAL TRUE / FALSE POUR CALCULER / ACCELERER
   
-<< d3ejperiodes, echo = FALSE, eval = FALSE, results = hide   >>=
+<< d3ejperiodes, echo = FALSE, eval = TRUE, results = hide   >>=
 ###########################################
 # FONCTION UTILISANT DES CRITERES DE CHOIX POUR TRACER LE GRAPHIQUE
 # ET GARDER DANS VVV UN RESUME DE LA PERIODE DE PASSAGE
@@ -1728,7 +1728,7 @@ ddde$hour <- as.numeric(strftime(ddde$round_time,format="%H", tz="UTC"))
 lpm$count <- 1
 horaires <- function(data){
   data$Hdeb<-as.numeric(strftime(data$dsf_timeinit,"%H"))+as.numeric(strftime(data$dsf_timeinit,"%M"))/60
-  data$Hfin<-as.numeric(strftime(data$dsf_timeend,"%H"))+round(as.numeric(strftime(data$dsf_timeend,"%M"))/60,2)
+  data$Hfin<-as.numeric(strftime(data$dsf_timeend,"%H"))+round(as.numeric(strftime(data$dsf_timeend,"%M"))/60,1)
   data$Hfin[data$Hfin==0]<-24
   indx<-data$Hfin==24&data$Hdeb==0
   data[indx,"Hfin"]<-24.0
@@ -2474,7 +2474,7 @@ d'anguilles argentées (source OFB et EPTB Vilaine).
 \subsubsection{Fonctionnement du barrage}
 
 
-<<fonctionnementvanne, echo=FALSE, eval=FALSE,results=hide>>=
+<<fonctionnementvanne, echo=FALSE, eval=FALSE, results=hide>>=
 png(file=str_c(imgwdy,"fonctionnementvanne.png"),width = 8, height = 8, units = 'in', res = 300)
 def.par <- par(no.readonly = TRUE)
 par(mar = c(2,3,1,1))
@@ -2904,7 +2904,7 @@ L'ensemble des problèmes techniques est résumé sur les Figures
 \input{../table/2024/tabfls.tex}
 \input{../table/2024/tabflsall.tex}
 \subsubsection{Positionnement du didson}
-<<positionnement, echo=FALSE, eval=FALSE,results=hide>>=
+<<positionnement, echo=FALSE, eval=TRUE, results=hide>>=
 # pour extrapoler d3ej$ex>1
 d3ej2 <- d3ej[d3ej$dsf_season==saison,]
 # JE passe sur un nouveau d3ej2 pour pas casser le dsf_position
@@ -3098,6 +3098,7 @@ reconstituer les effectifs migrant au droit du sonar. L'utilisation de
 l'automate pour le placement du didson a permis de considérablement réduire les
 périodes où le didson est mal placé.  On peut résumer les fonctionnements du
 sonar dans la période de 17h à 9h sur l'ensemble de la saison de migration comme suit (Figure \ref{fig_position}):
+\begin{samepage}
 \begin{itemize}
   \item
       La vanne 4 est fermée (rectangles \textbf{noirs}),
@@ -3105,7 +3106,6 @@ sonar dans la période de 17h à 9h sur l'ensemble de la saison de migration com
       Cette situation correspond à
       \num[round-mode = places,
 round-precision = 0]{\Sexpr{vvv$perc$"0"}}\% du temps,
-
   \item Dans tous les autres cas, le pertuis 4 est ouvert
   \begin{itemize}
   \item 
@@ -3130,6 +3130,7 @@ round-precision = 0]{\Sexpr{vvv$perc$"4"}}\% du
       temps (zones \textbf{\textcolor{Gray}{grises}}).
  \end{itemize}
 \end{itemize}
+\end{samepage}
 Cette année, les problèmes de fonctionnement du didson en octobre, novembre,
 février, mars et avril sont visibles (en orange, Figure \ref{fig_position}). 
 Il s'agit essentiellement de problèmes de communication via le
@@ -3528,7 +3529,7 @@ anguilles.}}
 \vspace{\dimexpr.8pt+\fboxsep\relax}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<taille_volets, echo=FALSE, eval=FALSE,results=hide>>=
+<<taille_volets, echo=FALSE, eval=TRUE,results=hide>>=
 ########################
 # Données volets
 ########################
@@ -3617,7 +3618,7 @@ dev.off()
 
 
 
-<<taille_vannes_dddpf5, echo=FALSE, eval=FALSE,results=hide>>=
+<<taille_vannes_dddpf5, echo=FALSE, eval=TRUE, results=hide>>=
 
 
 pdf(file=str_c(imgwdy,"taille_distance_vannefond.pdf"))
@@ -4481,14 +4482,16 @@ first_year <- 2013
 for (i in 1:length(unique(d3ej$dsf_season))){
   saison1 <- unique(d3ej$dsf_season)[i]
   if (i ==1) the_year <- first_year else the_year=the_year+1
-  png(file=str_c(imgwdy,"horairespb.png"),width = 15, height = 15, units = 'cm', res = 300)
+  png(file=str_c(imgwdy,"horairespb",the_year,".png"),width = 15, height = 15, units = 'cm', res = 300)
   g <- ggplot(d3ej[d3ej$dsf_season==saison1,])+
       geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=factor(flsall)))+#"yellow"
+	  scale_x_datetime(date_breaks="month") +
+	  theme(panel.background = element_rect(fill="black"),
+			  panel.grid.major = element_line(colour = "grey50"),
+			  panel.grid.minor = element_line(colour = "grey20"),
+			  axis.text = element_text(colour ="black")) +
       scale_fill_manual("qualité",values=c("0"=turquoise_EV,"1"=jaune_EV,"2"="limegreen","3"=orange_EV,"4"=rouille,"5"="grey"))+ # ajouter orange derrière yellow si pb qualité
-      ylab("Heure")+theme(panel.background = element_rect(fill="black"),
-          panel.grid.major = element_line(colour = "grey50"),
-          panel.grid.minor = element_line(colour = "grey20"),
-          axis.text = element_text(colour ="black"))
+      ylab("Heure")
   print(g)
   dev.off()
 }
@@ -4659,7 +4662,7 @@ Comme pour les autres saisons, cette prospection est plus importante lorsque le 
 %\end{figure}
 \subsubsection{Biomasses et sexe ratios}
 \label{parpoids}
-<<biomasse, echo=FALSE, eval=TRUE,results=hide>>=
+<<biomasse, echo=FALSE, eval=TRUE, results=hide>>=
 #load("C:/workspace/pdata/devalpomi/ang_laurent/data/big_anguille.RData")
 load(str_c(datawd,"big_anguille.RData"))
 # NLS
