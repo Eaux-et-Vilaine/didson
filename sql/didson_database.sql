@@ -417,17 +417,24 @@ update did.t_didsonfiles_dsf set dsf_depth=-6.92 where dsf_timeinit>'2012-11-01 
 /*
 
 LANCEMENT DES VUES
-
+ 
 */
 
 
-DROP FUNCTION IF EXISTS did.round_time_30(TIMESTAMP);
-CREATE OR REPLACE FUNCTION did.round_time_30(TIMESTAMP) 
-RETURNS TIMESTAMP AS $$ 
-  SELECT case when date_part('minute',$1)>=30 then  date_trunc('hour', $1) + INTERVAL '30 min'
-  else date_trunc('hour', $1) end
+DROP FUNCTION IF EXISTS did.round_time_30(TIMESTAMP WITH TIME ZONE);
+CREATE OR REPLACE FUNCTION did.round_time_30(TIMESTAMP WITH TIME ZONE) RETURNS 
+TIMESTAMP WITH TIME ZONE
+AS $$ 
+  SELECT case when date_part('minute',$1)>30 then  date_trunc('hour', $1) + INTERVAL '1hour'
+  when date_part('minute',$1)=30 then  $1
+  when date_part('minute',$1)=0 then  $1
+  else date_trunc('hour', $1) + INTERVAL '30 min' end
 $$ LANGUAGE SQL;
 
+SELECT did.round_time_30('2021-10-05 02:29:00')
+SELECT did.round_time_30('2021-10-05 02:30:00')
+SELECT did.round_time_30('2021-10-05 02:59:00')
+SELECT did.round_time_30('2021-10-14 15:00:00.000 +0200')
 
 DROP VIEW if exists did.v_env CASCADE;
 create view did.v_env as
@@ -1037,3 +1044,7 @@ UPDATE did.t_envjour_enj SET deb_qtotalj = debit_moyen_recalcule
  DROP TABLE did.debitjour21102021;
   DROP TABLE  did.t_env_env_21102021;
 */
+
+
+
+select * from did.v_dddedj
