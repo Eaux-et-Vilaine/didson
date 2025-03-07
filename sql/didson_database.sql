@@ -186,13 +186,13 @@ Retour à l'heure normale le Dimanche 27 Octobre 2024 - 02 h 00 (GMT + 1 h ) CET
 /*
  * LA FONCTION RAJOUTE UNE HEURE EN ETE...
  */
-DROP FUNCTION IF EXISTS did.adjust_time(TIMESTAMP) cascade;
-CREATE OR REPLACE FUNCTION did.adjust_time(TIMESTAMP) 
-RETURNS TIMESTAMP AS $$ 
-  SELECT case when $1 < TIMESTAMP '2023-10-29 03:00:00' or $1 > TIMESTAMP '2024-03-26 02:00:00' 
-  then $1 + INTERVAL '1 hour'
-  else $1 end
-$$ LANGUAGE SQL;  
+--DROP FUNCTION IF EXISTS did.adjust_time(TIMESTAMP) cascade;
+--CREATE OR REPLACE FUNCTION did.adjust_time(TIMESTAMP) 
+--RETURNS TIMESTAMP AS $$ 
+--  SELECT case when $1 < TIMESTAMP '2023-10-29 03:00:00' or $1 > TIMESTAMP '2024-03-26 02:00:00' 
+--  then $1 + INTERVAL '1 hour'
+--  else $1 end
+--$$ LANGUAGE SQL;  
 
 /*
 DROP FUNCTION IF EXISTS did.adjust_time(TIMESTAMP) cascade;
