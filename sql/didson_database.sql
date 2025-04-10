@@ -52,7 +52,7 @@ COMMENT ON COLUMN did.t_didsonfiles_dsf.dsf_periode IS 'Period where didson is c
 
 -- changements manuels 06/2013
 /*
-select * from did.t_didsonfiles_dsf where dsf_position='volet';
+SELECT * from did.t_didsonfiles_dsf where dsf_position='volet';
 update did.t_didsonfiles_dsf set dsf_depth=-0.45 where dsf_position='volet';
 update did.t_didsonfiles_dsf set dsf_depth=-6.92 where dsf_position='vanne' and dsf_timeinit< '2012-12-17 15:30:00';
 update did.t_didsonfiles_dsf set dsf_depth=-6.82 where dsf_position='vanne' and dsf_timeinit>= '2012-12-17 15:30:00';
@@ -202,10 +202,10 @@ $$ LANGUAGE SQL;
 */
 */
 /*
-select * from did.t_env_env_temp limit 10;
-select * from did.t_env_env_temp WHERE env_time='2021-10-28 03:00:00';
-select * from did.t_env_env_temp WHERE env_time='2021-10-28 02:00:00';
-select * from did.t_env_env_temp WHERE env_time='2021-10-28 04:00:00';
+SELECT * from did.t_env_env_temp limit 10;
+SELECT * from did.t_env_env_temp WHERE env_time='2021-10-28 03:00:00';
+SELECT * from did.t_env_env_temp WHERE env_time='2021-10-28 02:00:00';
+SELECT * from did.t_env_env_temp WHERE env_time='2021-10-28 04:00:00';
 DELETE FROM did.t_env_env_temp;
 */
 -----------------------------------------
@@ -219,9 +219,9 @@ update did.t_env_env_temp set env_time =did.adjust_time(env_time);
 --38846 2013 34702 2014--34846 --34990 --34846(2017-2018) --52558 (2018-2019) --34990(2019-2020) 34250 (2020-2023)
 --32971 (2023-2024)
 /*drop table if exists did.t_env_env cascade;
-create table did.t_env_env as select distinct on (env_time) * from did.t_env_env_temp;
+create table did.t_env_env as SELECT distinct on (env_time) * from did.t_env_env_temp;
 alter table did.t_env_env add constraint c_uk_env_time unique (env_time);
-select * from did.t_env_env;
+SELECT * from did.t_env_env;
 alter table did.t_env_env add column env_debitmoycran numeric;
 alter table did.t_env_env add column env_qvolet1 numeric;
 alter table did.t_env_env add column env_qvolet2 numeric;
@@ -242,24 +242,24 @@ Relancer le script
 
 
 -- vérifier que les dates se suivent avant de faire l'insertion
-select max(env_time) from did.t_env_env ;
-select min(env_time) from did.t_env_env ;
-select min(env_time) FROM did.t_env_env_temp;
-select max(env_time) FROM did.t_env_env_temp;
+SELECT max(env_time) from did.t_env_env ;
+SELECT min(env_time) from did.t_env_env ;
+SELECT min(env_time) FROM did.t_env_env_temp;
+SELECT max(env_time) FROM did.t_env_env_temp;
 -- supression des dates en commun
 --!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 -- bien réfléchir avant de lancer cette ligne ou l'autre
 -- une erreur ci dessous peut aussi être due à un doublon !
 /*
---delete from did.t_env_env where env_time>=(select min(env_time) from did.t_env_env_temp);
---delete from did.t_env_env_temp where env_time<=(select max(env_time) from did.t_env_env);
---delete from did.t_env_env where env_time<=(select max(env_time) from did.t_env_env_temp); --32810
-delete from did.t_env_env where env_time>=(select min(env_time) from did.t_env_env_temp) AND env_time<=(select max(env_time) from did.t_env_env_temp);
+--delete from did.t_env_env where env_time>=(SELECT min(env_time) from did.t_env_env_temp);
+--delete from did.t_env_env_temp where env_time<=(SELECT max(env_time) from did.t_env_env);
+--delete from did.t_env_env where env_time<=(SELECT max(env_time) from did.t_env_env_temp); --32810
+delete from did.t_env_env where env_time>=(SELECT min(env_time) from did.t_env_env_temp) AND env_time<=(SELECT max(env_time) from did.t_env_env_temp);
 
 **/
 
-select * from did.t_env_env ORDER BY env_time;
---insert into did.t_env_env select * from did.t_env_env_temp;--34702
+SELECT * from did.t_env_env ORDER BY env_time;
+--insert into did.t_env_env SELECT * from did.t_env_env_temp;--34702
 
 insert into did.t_env_env(env_time,
 env_volet1,
@@ -298,7 +298,7 @@ env_qvolet1,
 env_qvolet2,
 env_qvolet3,
 env_qvolet4,
-env_qvolet5) select distinct on (env_time) env_time,
+env_qvolet5) SELECT distinct on (env_time) env_time,
 env_volet1,
 env_volet2,
 env_volet3,
@@ -351,7 +351,7 @@ env_qvolet5
   --32965 2024
  
  /*
-  * select  env_qvolet4, env_volet4 from did.t_env_env where env_time='2013-11-08 00:30:00'
+  * SELECT  env_qvolet4, env_volet4 from did.t_env_env where env_time='2013-11-08 00:30:00'
   */
 ---------------------------
 -- Données journalières
@@ -378,8 +378,8 @@ DELETE FROM  did.t_envjour_enj WHERE enj_date >='2023-09-01'; --234
   */
  
 
-select * from did.debitjour;
-select * from did.t_envjour_enj ORDER BY enj_date desc;
+SELECT * from did.debitjour;
+SELECT * from did.t_envjour_enj ORDER BY enj_date desc;
 INSERT INTO did.t_envjour_enj(enj_date,enj_turb,deb_qtotalj)  
 SELECT date, turbidite, debit_moyen_recalcule  FROM did.debitjour
 WHERE date > (SELECT max(enj_date) FROM did.t_envjour_enj); 
@@ -390,8 +390,8 @@ WHERE date > (SELECT max(enj_date) FROM did.t_envjour_enj);
 --234 (2023-2024)
 
 
---select max(enj_date) from did.t_envjour_enj 
---select * from did.t_envjour_enj WHERE enj_date>='2018-01-01' AND enj_date <'2020-01-01' ORDER BY enj_date;
+--SELECT max(enj_date) from did.t_envjour_enj 
+--SELECT * from did.t_envjour_enj WHERE enj_date>='2018-01-01' AND enj_date <'2020-01-01' ORDER BY enj_date;
 
 --delete from did.t_envjour_enj where deb_qtotalj is null and enj_date>='2015-09-01';
 --delete from did.t_envjour_enj 
@@ -407,7 +407,7 @@ REPERAGE DES FICHIERS A PB
 script detection_fichiers_problemes.R
 */
 /*
-select * from did.fichierstronques t join t_didsonfiles_dsf dsf on t.dsf_filename=dsf.dsf_filename
+SELECT * from did.fichierstronques t join t_didsonfiles_dsf dsf on t.dsf_filename=dsf.dsf_filename
 
 
 update did.t_didsonfiles_dsf set dsf_depth=-6.92 where dsf_timeinit>'2012-11-01 00:00:00' ; -- requete a ajuster
@@ -435,8 +435,8 @@ SELECT did.round_time_30('2021-10-05 02:59:00'); --2021-10-05 03:00:00.000 +0200
 SELECT did.round_time_30('2021-10-14 15:00:00.000 +0200'); --2021-10-14 15:00:00.000 +0200
 
 DROP VIEW if exists did.v_env CASCADE;
-create view did.v_env as
-select round_time,
+CREATE VIEW did.v_env as
+SELECT round_time,
 avg(env_debitvilaine) as debitvilaine30,
 avg(env_debitmoyencran) as debit_moyen_cran30,
 sum(env_volumetotal) as volbarrage30,
@@ -459,7 +459,7 @@ sum(env_qvolet3*600) as env_volvolet3_30,
 sum(env_qvolet4*600) as env_volvolet4_30,
 sum(env_qvolet5*600) as env_volvolet5_30
  from (
-select did.round_time_30(env_time) as round_time, 
+SELECT did.round_time_30(env_time) as round_time, 
 env_debitvilaine, 
 env_debitmoyencran,
 env_volumetotal,
@@ -488,10 +488,10 @@ order by round_time;
 
 
 
-drop view if exists did.v_fctvanne4 CASCADE;
-create view did.v_fctvanne4 as
-select round_time,sum(bvo4)>0 as volet4,sum(bva4)>0 as vanne4, avg(hva4) as hvanne4 from (
-select did.round_time_30(env_time) as round_time, 
+DROP VIEW if exists did.v_fctvanne4 CASCADE;
+CREATE VIEW did.v_fctvanne4 as
+SELECT round_time,sum(bvo4)>0 as volet4,sum(bva4)>0 as vanne4, avg(hva4) as hvanne4 from (
+SELECT did.round_time_30(env_time) as round_time, 
 case when env_volet4<4.03 then 1 else 0 end as bvo4,
 case when env_vanne4>0 then 1 else 0 end as bva4,
 env_vanne4 as hva4
@@ -500,9 +500,9 @@ group by round_time
 order by round_time;
 
 
-drop view if exists did.v_fctvanne1235;
-create view did.v_fctvanne1235 as
-select round_time,
+DROP VIEW if exists did.v_fctvanne1235;
+CREATE VIEW did.v_fctvanne1235 as
+SELECT round_time,
 sum(bvo5)>0 as volet5,
 sum(bva5)>0 as vanne5, 
 sum(bvo3)>0 as volet3,
@@ -512,7 +512,7 @@ sum(bva2)>0 as vanne2,
 sum(bvo1)>0 as volet1,
 sum(bva1)>0 as vanne1 
 from (
-select did.round_time_30(env_time) as round_time, 
+SELECT did.round_time_30(env_time) as round_time, 
 case when env_volet5<4.03 then 1 else 0 end as bvo5,
 case when env_vanne5>0 then 1 else 0 end as bva5,
 case when env_volet3<4.03 then 1 else 0 end as bvo3,
@@ -527,17 +527,17 @@ order by round_time;
 
 
 /*alter table did.t_didsonread_dsr add ;
-select * from did.t_didsonread_dsr where dsr_dsf_id=696;
-select * from did.t_didsonfiles_dsf where dsf_id=696;
+SELECT * from did.t_didsonread_dsr where dsr_dsf_id=696;
+SELECT * from did.t_didsonfiles_dsf where dsf_id=696;
 
 
 dsr_dsf_id||dsr_csotdb doit être unique du fait de la contrainte 
 */
 
-drop view if exists did.v_lecture cascade;
-create view did.v_lecture as (
+DROP VIEW if exists did.v_lecture cascade;
+CREATE VIEW did.v_lecture as (
 SELECT * FROM (
-SELECT * FROM crosstab('select dsf_id_csot, dsf_filename,dsf_timeinit,dsf_position,dsr_reader,dsr_eelplus from 
+SELECT * FROM crosstab('SELECT dsf_id_csot, dsf_filename,dsf_timeinit,dsf_position,dsr_reader,dsr_eelplus from 
 					(SELECT cast(dsr_dsf_id as text)||''_''||cast(dsr_csotdb as text) as dsf_id_csot,
 					dsf_filename,
 					dsf_timeinit,
@@ -547,7 +547,7 @@ SELECT * FROM crosstab('select dsf_id_csot, dsf_filename,dsf_timeinit,dsf_positi
 					  from did.t_didsonread_dsr
 					  join did.t_didsonfiles_dsf on dsr_dsf_id=dsf_id) sub
 				       order by 1,2',
-			        'select distinct on (dsr_reader) dsr_reader from did.t_didsonread_dsr'
+			        'SELECT distinct on (dsr_reader) dsr_reader from did.t_didsonread_dsr'
 				)
 AS ct(dsf_id_csot text,  dsf_filename character varying(30),dsf_timeinit timestamptz,dsf_position character varying(6) ,brice numeric, brice_et_gerard numeric,gerard NUMERIC, gerard2 numeric)
 ) AS crosst
@@ -560,55 +560,75 @@ Vue didsonlectures
 
 
 
-drop view if exists v_didsonlectures;
-create view v_didsonlectures as 
-select v_lecture.*,debitvilaine30,volbarrage30, volet4,vanne4,fct1.*,hvanne4 from did.v_lecture 
+DROP VIEW if exists v_didsonlectures;
+CREATE VIEW v_didsonlectures as 
+SELECT v_lecture.*,debitvilaine30,volbarrage30, volet4,vanne4,fct1.*,hvanne4 from did.v_lecture 
 full outer join did.v_env on round_time=date_trunc(dsf_timeinit,'minute')
 full outer join did.v_fctvanne4 fct on fct.round_time=v_env.round_time
 full outer join did.v_fctvanne1235 fct1 on fct1.round_time=v_env.round_time
 order by dsf_timeinit, round_time;
 
-SELECT * FROM did.v_lecture LIMIT 10
+DROP VIEW if exists did.v_ddd cascade;
+CREATE VIEW did.v_ddd as (
+SELECT dsf_id, 
+did.round_time_30(dsf_timeinit) AS dsf_timeinit,
+did.round_time_30(dsf_timeend) AS dsf_timeend,
+dsf_position, dsf_incl, dsf_distancestart,
+dsf_depth, dsf_fls_id, dsf_readok, dsf_filename, dsf_season, dsf_mois, dsf_periode, 
+dsr_id, dsr_dsf_id, dsr_readinit, dsr_readend, dsr_reader, dsr_eelplus, dsr_eelminus, 
+dsr_csotdb, dsr_complete, dsr_muletscore, dsr_fryscore, dsr_comment, dsr_csotismin, 
+dsr_pertefichiertxt, drr_filename, drr_path, drr_date, drr_start, drr_end, drr_upstreammotion, drr_countfilename,
+drr_editorid, drr_intensity_db, drr_threshold_db, drr_csotmincluster_cm2, drr_csotminthreshold_db, drr_windowstart_m,
+drr_windowend_m, drr_totalfish, drr_upstream, drr_downstream, drr_unknown, drr_id, drr_dsf_id, drr_dsr_id, drr_eelplus, drr_eelminus
+FROM  did.t_didsonfiles_dsf  dsf  
+        left join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+        left join did.t_didsonreadresult_drr drr on   drr_dsr_id=dsr_id
+        where dsr_csotismin or dsr_csotismin is null);    
 
-drop view if exists did.v_dddp;
-create view did.v_dddp as (
 
-select * from did.t_didsonfiles_dsf  dsf 	
-				left join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-				left join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
-				left join did.t_poissonfile_psf on psf_drr_id=drr_id
-				where psf_species!='2014' AND psf_species!='2238'
-				and dsr_csotismin);
+
+
 		
-drop view if exists did.v_fish;
-create view did.v_fish as select * from did.t_didsonfiles_dsf 
+DROP VIEW if exists did.v_fish;
+CREATE VIEW did.v_fish as SELECT * from did.t_didsonfiles_dsf 
 join did.t_didsonread_dsr on dsr_dsf_id=dsf_id
 join did.t_fishsequence_fsq on fsq_dsr_id=dsr_id;		
 
 
 -- vue avec les lamproies
 
-drop view if exists did.v_dddpall;
-create view did.v_dddpall as (
+DROP VIEW if exists did.v_dddpall CASCADE;
+CREATE VIEW did.v_dddpall as (
+SELECT dsf_id, 
+did.round_time_30(dsf_timeinit) AS dsf_timeinit,
+did.round_time_30(dsf_timeend) AS dsf_timeend,
+dsf_position, dsf_incl, dsf_distancestart, dsf_depth, dsf_fls_id, dsf_readok, dsf_filename,
+dsf_season, dsf_mois, dsf_periode, dsr_id, dsr_dsf_id, dsr_readinit, dsr_readend, dsr_reader,
+dsr_eelplus, dsr_eelminus, dsr_csotdb, dsr_complete, dsr_muletscore, dsr_fryscore, dsr_comment, 
+dsr_csotismin, dsr_pertefichiertxt, drr_filename, drr_path, drr_date, drr_start, drr_end, 
+drr_upstreammotion, drr_countfilename, drr_editorid, drr_intensity_db, drr_threshold_db, 
+drr_csotmincluster_cm2, drr_csotminthreshold_db, drr_windowstart_m, drr_windowend_m, drr_totalfish,
+drr_upstream, drr_downstream, drr_unknown, drr_id, drr_dsf_id, drr_dsr_id, drr_eelplus, drr_eelminus, 
+psf_file, psf_total, psf_frame, psf_dir, psf_radius_m, psf_theta, psf_l_cm, psf_dr_cm, psf_ldr,
+psf_aspect, psf_time, psf_date, psf_latitude1, psf_latitude2, psf_latitude3, psf_latitude4, 
+psf_latitude_unit, psf_longitude1, psf_longitude2, psf_longitude3, psf_longitude4, psf_longitude_unit,
+psf_pan, psf_tilt, psf_roll, psf_species, psf_motion, psf_move, psf_q, psf_n, psf_comment, psf_drr_id, psf_id
+ from did.t_didsonfiles_dsf  dsf  
+        left join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
+        left join did.t_didsonreadresult_drr drr on   drr_dsr_id=dsr_id
+        left join did.t_poissonfile_psf on psf_drr_id=drr_id
+        and dsr_csotismin);
 
-select * from did.t_didsonfiles_dsf  dsf 	
-				left join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-				left join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
-				left join did.t_poissonfile_psf on psf_drr_id=drr_id
-				and dsr_csotismin);
-
-drop view if exists did.v_ddd cascade;
-create view did.v_ddd as (
-
-select * from did.t_didsonfiles_dsf  dsf 	
-				left join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
-				left join did.t_didsonreadresult_drr drr on 	drr_dsr_id=dsr_id
-				where dsr_csotismin or dsr_csotismin is null);				
+DROP VIEW if exists did.v_dddp CASCADE;
+CREATE VIEW  did.v_dddp as (
+SELECT * FROM did.v_dddpall
+        where psf_species!='2014' AND psf_species!='2238');		
 
 
-drop view if exists did.v_dddpeall;
-create view did.v_dddpeall as 
-select v_dddpall.*,debitvilaine30,
+DROP VIEW if exists did.v_dddpeall;
+CREATE VIEW did.v_dddpeall as 
+SELECT v_dddpall.*,
+debitvilaine30,
 volbarrage30,niveauvilaine30,
 niveaumer30, 
 volvanne30,volpasse30,
@@ -636,9 +656,9 @@ full outer join did.v_fctvanne1235 fct1 on fct1.round_time=v_env.round_time
 left join did.t_envjour_enj on date(fct1.round_time)=enj_date
 order by dsf_timeinit, round_time;
 
-drop view if exists did.v_dddpe;
-create view did.v_dddpe as 
-select v_dddp.*,debitvilaine30,
+DROP VIEW if exists did.v_dddpe;
+CREATE VIEW did.v_dddpe as 
+SELECT v_dddp.*,debitvilaine30,
 volbarrage30,niveauvilaine30,
 niveaumer30, 
 volvanne30,volpasse30,
@@ -666,9 +686,9 @@ left join did.t_envjour_enj on date(fct1.round_time)=enj_date
 order by dsf_timeinit, round_time;
 
 
-drop view if exists did.v_ddde;
-create view did.v_ddde as 
-select v_ddd.*,debitvilaine30,
+DROP VIEW if exists did.v_ddde;
+CREATE VIEW did.v_ddde as 
+SELECT v_ddd.*,debitvilaine30,
 volbarrage30,niveauvilaine30,
 niveaumer30, 
 volvanne30,volpasse30,
@@ -695,14 +715,14 @@ full outer join did.v_fctvanne1235 fct1 on fct1.round_time=v_env.round_time
 left join did.t_envjour_enj on date(fct1.round_time)=enj_date
 order by round_time;
 
-select * from did.v_ddde
+--SELECT * from did.v_ddde
 /*
 Sommes journalières, comprends les turbidités
 dj données journalières
 */
-drop view if exists did.v_dddedj;
-create view did.v_dddedj as (
-select enj_date,
+DROP VIEW if exists did.v_dddedj;
+CREATE VIEW did.v_dddedj as (
+SELECT enj_date,
 	enj_turb,
 	debitvilainej,
 	debitcranj,
@@ -727,7 +747,7 @@ sum(env_volsiphon) as volsiphonj,
 sum(env_volvolet) as volvoletj,
 avg(env_qvanne4+env_qvolet4) as debit4j --144 --sum(env_qvanne4*600+env_qvolet4*600)/86400
 	 from (
-	select date(env_time) as date, 
+	SELECT date(env_time) as date, 
 	env_debitmoyencran,
 	env_debitvilaine, 
 	env_volumetotal,
@@ -743,19 +763,19 @@ avg(env_qvanne4+env_qvolet4) as debit4j --144 --sum(env_qvanne4*600+env_qvolet4*
 	) as e
 group by date) as ej
 on ej.date=t_envjour_enj.enj_date
-join (select 
+join (SELECT 
 sum(drr_eelplus) as sum_eel_plus,
 sum(drr_eelminus) as sum_eel_minus,
 date2
-from ( select date(dsf_timeinit) as date2,
+from ( SELECT date(dsf_timeinit) as date2,
 	drr_eelplus,
 	drr_eelminus from did.v_ddd) v_d3
 group by date2) v_d3j	
 on date=date2
 order by date);
 
-create view did.v_depouillement as (
-select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+CREATE VIEW did.v_depouillement as (
+SELECT dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id);
 
 /*
@@ -769,12 +789,12 @@ delete from did.t_didsonfiles_dsf;
 Requètes variées pour la base de données
 */
 
-select * from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id;
-select dsf_timeinit,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id;
+SELECT * from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id;
+SELECT dsf_timeinit,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id;
 
-with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+with depouillement as (SELECT dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id)
-select * from depouillement order by temps_lecture;
+SELECT * from depouillement order by temps_lecture;
 
 
 with depouillement as (
@@ -791,7 +811,7 @@ dsr_readinit,
      where dsf_timeinit>'2021-09-01 00:00:00'
      and dsf_timeinit<'2022-05-01 00:00:00'
      )
-select mois,justify_hours(sum(temps_lecture)) 
+SELECT mois,justify_hours(sum(temps_lecture)) 
 from depouillement group by mois order by  mois
 
 
@@ -810,81 +830,81 @@ dsr_readinit,
      where dsf_timeinit>'2012-09-01 00:00:00'
      and dsf_timeinit<'2022-05-01 00:00:00'
      )
-select mois,justify_hours(sum(temps_lecture)) 
+SELECT mois,justify_hours(sum(temps_lecture)) 
 from depouillement group by mois order by  mois
 
 
 /*
 runonce 2017
-select * from did.t_didsonread_dsr  where dsr_id=37968;
+SELECT * from did.t_didsonread_dsr  where dsr_id=37968;
 update did.t_didsonread_dsr set dsr_readend='2017-08-31 13:52:00' where dsr_id=37968;
-select * from did.t_didsonread_dsr  where dsr_id=37969;
+SELECT * from did.t_didsonread_dsr  where dsr_id=37969;
 update did.t_didsonread_dsr set dsr_readend='2017-08-31 13:56:00' where dsr_id=37969;
-select * from did.t_didsonread_dsr  where dsr_id=31694;
+SELECT * from did.t_didsonread_dsr  where dsr_id=31694;
 update did.t_didsonread_dsr set dsr_readend='2015-03-10 14:01:00' where dsr_id=31694;
-select * from did.t_didsonread_dsr  where dsr_id=27759;
+SELECT * from did.t_didsonread_dsr  where dsr_id=27759;
 update did.t_didsonread_dsr set dsr_readend= '2014-02-11 17:13:00' where dsr_id=27759;
 begin;
 update did.t_didsonread_dsr set dsr_readend=dsr_readinit+interval '5 minute' where dsr_id in (
-select dsr_id from (
-	select dsr_id, 
+SELECT dsr_id from (
+	SELECT dsr_id, 
 	dsr_readend-dsr_readinit as temps_lecture 
 	from did.t_didsonread_dsr  
 	) sub
 	where temps_lecture< interval '0 minute');
 commit;
-select * from did.t_didsonread_dsr  where dsr_id=37373;
+SELECT * from did.t_didsonread_dsr  where dsr_id=37373;
 update did.t_didsonread_dsr set dsr_readend='2017-04-18 10:20:00' where dsr_id=37373;
 */
-with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+with depouillement as (SELECT dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id)
-select * from depouillement order by dsf_timeinit
+SELECT * from depouillement order by dsf_timeinit
 
-with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+with depouillement as (SELECT dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id)
-select justify_hours(sum(temps_lecture)) from depouillement 
+SELECT justify_hours(sum(temps_lecture)) from depouillement 
 
-with depouillement as (select dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+with depouillement as (SELECT dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id)
-select dsf_season, mois,justify_hours(sum(temps_lecture)) from depouillement  group by dsf_season, mois order by dsf_season, mois
+SELECT dsf_season, mois,justify_hours(sum(temps_lecture)) from depouillement  group by dsf_season, mois order by dsf_season, mois
 
-with depouillement as (select dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+with depouillement as (SELECT dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id)
-select mois,dsr_reader,sum(temps_lecture) from depouillement group by mois,dsr_reader order by dsr_reader, mois
+SELECT mois,dsr_reader,sum(temps_lecture) from depouillement group by mois,dsr_reader order by dsr_reader, mois
 
 
 
 
 update did.t_didsonfiles_dsf set dsf_readok=TRUE where dsf_id in (
-select dsf_id from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id where dsf_timeinit>'2013-01-01- 00:00:00'
+SELECT dsf_id from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id where dsf_timeinit>'2013-01-01- 00:00:00'
 and dsf_readok=FALSE);--626
 
 
 
-select * from did.t_didsonfiles_dsf  where dsf_id is null
-select * from did.t_didsonfiles_dsf  where dsf_timeinit='2014-03-21'
-select * from did.t_didsonfiles_dsf  where dsf_timeend='2014-03-30 00:00:00'
-select * from did.v_ddd  where dsf_timeinit='2014-03-21'
-select * from did.v_ddde  where dsf_timeinit='2014-03-21'
+SELECT * from did.t_didsonfiles_dsf  where dsf_id is null
+SELECT * from did.t_didsonfiles_dsf  where dsf_timeinit='2014-03-21'
+SELECT * from did.t_didsonfiles_dsf  where dsf_timeend='2014-03-30 00:00:00'
+SELECT * from did.v_ddd  where dsf_timeinit='2014-03-21'
+SELECT * from did.v_ddde  where dsf_timeinit='2014-03-21'
 
 /* 
 En 2013-2014, brice a fait une erreur sur les inclinaisons, correction après saisie dans la base de données, attention
 les données ont aussi été corrigées dans excel, pour les 
 */
 update did.t_didsonfiles_dsf set (dsf_incl,dsf_distancestart)=(-40,2.92) where dsf_id in (
-select dsf_id from (
-select *,extract('minutes' from dsf_timeinit) min from did.t_didsonfiles_dsf where dsf_timeinit>='2013-12-23 14:00:00' and dsf_timeinit<'2013-12-24 11:30:00' order by dsf_timeinit
+SELECT dsf_id from (
+SELECT *,extract('minutes' from dsf_timeinit) min from did.t_didsonfiles_dsf where dsf_timeinit>='2013-12-23 14:00:00' and dsf_timeinit<'2013-12-24 11:30:00' order by dsf_timeinit
 )sub where min=30);
 
 
 -- correction des altitudes de tous les enregistrements.
 update did.t_didsonfiles_dsf set dsf_depth=dsf_depth+1.48 where dsf_id in (
-select dsf_id   from did.t_didsonfiles_dsf where dsf_depth>-2.5 );--7065
+SELECT dsf_id   from did.t_didsonfiles_dsf where dsf_depth>-2.5 );--7065
 
 
 
 with depouillement as (
-select dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+SELECT dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture,
 dsr_readinit,
 dsr_readend
@@ -898,7 +918,7 @@ UPDATE did.t_didsonread_dsr SET dsr_readend='2019-03-06 14:48:00' WHERE dsr_id=4
 UPDATE did.t_didsonread_dsr SET dsr_readend='2019-12-02 14:08:00' WHERE dsr_id=50043;
 
 with depouillement as (
-select dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+SELECT dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture,
 dsr_readinit,
 dsr_readend
@@ -915,7 +935,7 @@ UPDATE did.t_didsonread_dsr SET dsr_readinit='2020-03-05 11:34:00' WHERE dsr_id=
 SELECT * FROM did.t_didsonread_dsr  WHERE dsr_id=52391;
 
 with depouillement as (
-select dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+SELECT dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture,
 dsr_readinit,
 dsr_readend
@@ -926,7 +946,7 @@ AND temps_lecture >'0:30:00'
 
 
 with depouillement as (
-select dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
+SELECT dsf_timeinit, dsf_season,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture,
 dsr_readinit,
 dsr_readend
@@ -944,8 +964,8 @@ UPDATE did.t_didsonread_dsr SET dsr_readend='2020-01-29 12:37' WHERE dsr_id=5153
 UPDATE did.t_didsonread_dsr SET dsr_readinit='2020-01-29 12:18' WHERE dsr_id=51531;
 begin;
 update did.t_didsonread_dsr set dsr_readend=dsr_readinit+interval '5 minute' where dsr_id in (
-select dsr_id from (
-	select dsr_id, 
+SELECT dsr_id from (
+	SELECT dsr_id, 
 	dsr_readend-dsr_readinit as temps_lecture 
 	from did.t_didsonread_dsr 
 	join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id
@@ -998,7 +1018,7 @@ env_qvolet1,
 env_qvolet2,
 env_qvolet3,
 env_qvolet4,
-env_qvolet5) select distinct on (env_time) TIMEZONE('UTC',env_time),
+env_qvolet5) SELECT distinct on (env_time) TIMEZONE('UTC',env_time),
 env_volet1,
 env_volet2,
 env_volet3,

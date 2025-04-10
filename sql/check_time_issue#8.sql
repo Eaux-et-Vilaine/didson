@@ -233,3 +233,8 @@ SELECT convert_to_timestamp(v_input text)
   dsf_timeinit = new_dsf_timeinit,
   dsf_timeend = new_dsf_timeend
   FROM tochange WHERE tochange.dsf_id = t_didsonfiles_dsf.dsf_id; 
+
+-- trying to check why I have missing values every 30 min
+SELECT env_time,did.round_time_30(env_time) FROM did.t_env_env  WHERE env_time > '2024-01-01 00:00:00';
+SELECT round_time FROM did.v_env WHERE round_time > '2024-01-01 00:00:00' -- v_env IS OK but 
+-- ddde is perhaps not rounded
