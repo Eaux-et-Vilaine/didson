@@ -1108,7 +1108,7 @@ briand_suivi_2021, briand_suivi_2022, briand_suivi_2023, briand_suivi_2024}.
 
 
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<database, echo=FALSE, eval=TRUE,results=hide >>=
+<<database, echo=FALSE, eval=FALSE,results=hide >>=
 require("safer")
 require("getPass")
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
@@ -1325,7 +1325,7 @@ save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 
 @
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<d3ej, echo=FALSE, eval=TRUE,results=hide >>=
+<<d3ej, echo=FALSE, eval=FALSE,results=hide >>=
 #CHUNK PRINCIPAL DE CALCUL
 load(file = str_c(datawdy, "ddde.all.Rdata"))
 load(file = str_c(datawdy, "dddp.all.Rdata"))
@@ -1603,7 +1603,7 @@ rm(hpas, vanne, volet)
     
   % METTRE EVAL TRUE / FALSE POUR CALCULER / ACCELERER
   
-<< d3ejperiodes, echo = FALSE, eval = TRUE, results = hide   >>=
+<< d3ejperiodes, echo = FALSE, eval = FALSE, results = hide   >>=
 ###########################################
 # FONCTION UTILISANT DES CRITERES DE CHOIX POUR TRACER LE GRAPHIQUE
 # ET GARDER DANS VVV UN RESUME DE LA PERIODE DE PASSAGE
@@ -2904,7 +2904,7 @@ L'ensemble des problèmes techniques est résumé sur les Figures
 \input{../table/2024/tabfls.tex}
 \input{../table/2024/tabflsall.tex}
 \subsubsection{Positionnement du didson}
-<<positionnement, echo=FALSE, eval=TRUE, results=hide>>=
+<<positionnement, echo=FALSE, eval=FALSE, results=hide>>=
 # pour extrapoler d3ej$ex>1
 d3ej2 <- d3ej[d3ej$dsf_season==saison,]
 # JE passe sur un nouveau d3ej2 pour pas casser le dsf_position
@@ -3161,7 +3161,7 @@ La vanne 4 (ou le volet 4) sont fermés
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Qualité des images}
 
-<<taille_all, echo=FALSE, eval=TRUE,results=hide>>=
+<<taille_all, echo=FALSE, eval=FALSE,results=hide>>=
 # ce chunk c'est juste pour faires les graphes tous les calculs sont faits dans efficacité
 nat=nrow(dddp) # nombre anguilles taille 14360
 # Commenter la ligne qui suit pour prendre en compte toutes les données dans le calcul
@@ -3330,7 +3330,7 @@ table(round(dddp$psf_l_cm),dddp$mois)
 nrow(dddp[dddp$psf_l_cm>100,])/nrow(dddp) #2%
 
 # correlation significative entre la taille et la distance
-c_dddp<-cor.test(dddp$psf_radius_m,dddp$psf_l_cm) # highly significant
+vvv$cor_dddp<-cor.test(dddp$psf_radius_m,dddp$psf_l_cm) # highly significant
 
 # efficacite
 
@@ -3363,6 +3363,8 @@ dev.off()
 #matplot(t(prop))
 # references tailles >60
 save(dddp, file = str_c(datawdy,"dddp1.Rdata"))
+vvv$nat <- nat
+save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 La qualité des anguilles détectées est notée par l'opérateur avec un facteur allant de 1 (très mauvaise qualité) à 5 (très bonne
 qualité). Les images de qualité 1 sont écartées comme trop douteuses. L'analyse
@@ -3434,13 +3436,13 @@ didson, et on retrouve une meilleure qualité des images en surface.
 \subsection{Taille des anguilles et efficacité}\label{par_taille}
 
 L'analyse de l'efficacité a été conduite sur l'ensemble des anguilles détectées
-(\num{\Sexpr{round(nat,0)}}) en
+(\num{\Sexpr{round(vvv$nat,0)}}) en
 fonction de la distance au didson et de la taille des anguilles. 
 Les anguilles de plus petite taille sont clairement moins détectées loin du
 didson (Figures \ref{taille_distance}, \ref{taille_dist_mois_all}).
 La corrélation entre la taille des anguilles mesurées
 et la distance d'observation est significative (Pearson
-cor=\num{\Sexpr{round(c_dddp[["estimate"]],2)}}, p<0.001) (Figure
+cor=\num{\Sexpr{round(vvv$cor_dddp[["estimate"]],2)}}, p<0.001) (Figure
 \ref{taille_dist_mois}).
 
 
@@ -3529,7 +3531,7 @@ anguilles.}}
 \vspace{\dimexpr.8pt+\fboxsep\relax}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<taille_volets, echo=FALSE, eval=TRUE,results=hide>>=
+<<taille_volets, echo=FALSE, eval=FALSE,results=hide>>=
 ########################
 # Données volets
 ########################
@@ -3618,7 +3620,7 @@ dev.off()
 
 
 
-<<taille_vannes_dddpf5, echo=FALSE, eval=TRUE, results=hide>>=
+<<taille_vannes_dddpf5, echo=FALSE, eval=FALSE, results=hide>>=
 
 
 pdf(file=str_c(imgwdy,"taille_distance_vannefond.pdf"))
@@ -3687,7 +3689,7 @@ dev.off()
 
 
 
-<<efficacite, echo=FALSE, eval=TRUE, results=hide>>=
+<<efficacite, echo=FALSE, eval=FALSE, results=hide>>=
 
 # ce chunk attaque maintenant l'ensemble des années disponibles
 # lancer le chunk loadrdata puis taille_all avant
@@ -4221,7 +4223,7 @@ L'efficacité moyenne (Formule \ref{eq_efficacite32}) est de
 
 \subsection{Migration}
 \subsubsection{Migration en fonction du cycle nycthéméral}
-<<horaires, echo=FALSE, eval=TRUE,results=hide>>=
+<<horaires, echo=FALSE, eval=FALSE,results=hide>>=
 #ATTENTION IL FAUT PASSER PAR LE CHUNK loadrdata pour créer xmin xmax....
 
 dddee<-merge(ddde,eph,by="date",all.x=TRUE,all.y=FALSE) #3476
@@ -4458,9 +4460,11 @@ print(xdat_h,file=str_c(tabwdy,"repartition_horaire.tex"),
     NA.string = "",
     include.rownames=TRUE)
 options(encoding = "native.enc")
-
+vvv$mu <- mu
+vvv$muobs <- muobs
+save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
-<<horairespb, echo=FALSE, eval=TRUE,results=hide>>=
+<<horairespb, echo=FALSE, eval=FALSE,results=hide>>=
 ### Horaires avec fichiers à pb
 d3ej$ouverturebarrage<-d3ej$vanne1|d3ej$vanne2|d3ej$vanne3|d3ej$vanne4|d3ej$vanne5|
     d3ej$volet1|d3ej$volet2|d3ej$volet3|d3ej$volet4|d3ej$volet5
@@ -4536,7 +4540,7 @@ En compilant l'ensemble des saisons avec des suivis toute la journée, nous
 disposons de \num[round-mode = places,
  round-precision = 0]{\Sexpr{length(fulldays)}} journées pour lesquelles le
 suivi a été effectué au delà de ces heures. Le pourcentage d'anguilles migrant
-de 9h30 à 17h30 est de $\mu$ = \Sexpr{mu}\% \footnote{Les deux années
+de 9h30 à 17h30 est de $\mu$ = \Sexpr{vvv$mu}\% \footnote{Les deux années
 2013--2014 et 2014--2015, un coefficient de $\mu$ =  11.9\% avait été
 utilisé \citep{briand_suivi_2015, briand_suivi_2016}, 
 puis une valeur de 5.6 \%.} (Figure\ref{fig_heure_jourcomplet}).
@@ -4567,7 +4571,7 @@ h (Figure \ref{h_pass}, Tableau \ref{repartition_horaire}).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsubsection{Comportement de migration}
-<<comportement, echo=FALSE,eval=TRUE,results=hide>>= 
+<<comportement, echo=FALSE,eval=FALSE,results=hide>>= 
 load(file= str_c(datawdy,"dddp_2.Rdata")) # dddp après traitement dans efficacité
 perctrav <- round(100*sum(table(dddp$psf_move)[1])/sum(table(dddp$psf_move))) # 32% des anguilles traversent
 #(table(dddp$psf_move,taille_composition)/colSums(table(dddp$psf_move,dddp$dsf_position)))
@@ -4662,7 +4666,7 @@ Comme pour les autres saisons, cette prospection est plus importante lorsque le 
 %\end{figure}
 \subsubsection{Biomasses et sexe ratios}
 \label{parpoids}
-<<biomasse, echo=FALSE, eval=TRUE, results=hide>>=
+<<biomasse, echo=FALSE, eval=FALSE, results=hide>>=
 #load("C:/workspace/pdata/devalpomi/ang_laurent/data/big_anguille.RData")
 load(str_c(datawd,"big_anguille.RData"))
 # NLS
@@ -4787,6 +4791,7 @@ vvv$sexe_ratio <- sexe.ratio
 #select 150000*1.053 --157950
 #select 157950/160400 --0.98
 save(tailledf,tailledfinf7,file=str_c(datawdy,"tailledf.Rdata"))
+save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
  La courbe taille poids calculée en 2012--2013 est utilisée pour prédire les
@@ -4842,7 +4847,7 @@ dévalaison 2023--2024. }}
 \subsubsection{Estimation des effectifs migrants}
 \label{parestimationodot}
 
-<<nombre, echo=FALSE, eval=TRUE, results=hide>>=
+<<nombre, echo=FALSE, eval=FALSE, results=hide>>=
 #stop("on travaille ici")
 # load(file=str_c(datawdy,"d3ej.all.Rdata"))
 # if ("efficiency" %in% colnames(d3ej)) d3ej<-d3ej[,-grep("efficiency",colnames(d3ej))]
@@ -5027,7 +5032,7 @@ journalier (Formule \ref{eq_mu}).
 \subsubsection{Prédiction pour les données manquantes}
 
 
-<<load_all_years, echo=FALSE, eval=TRUE,results=hide>>=
+<<load_all_years, echo=FALSE, eval=FALSE,results=hide>>=
 # d3ej vient de ddde mais limité de jour
 # dans un premier temps je l'ai compilé à partir des fichiers, puis j'ai décidé de tout recharger directement à partir de la base
 
@@ -5103,7 +5108,7 @@ journalier (Formule \ref{eq_mu}).
 
 @
 
-<<Nombre_all, echo=FALSE, eval=TRUE,results=hide>>=
+<<Nombre_all, echo=FALSE, eval=FALSE,results=hide>>=
 # chargement
 
 load(file=str_c(datawdy,"d3ej.all.Rdata")) 
@@ -5463,7 +5468,7 @@ save(D2, D7j, file=str_c(datawdy,"D2D7j.Rdata"))
 
 
 
-<<tableaufinal, echo=FALSE, eval=TRUE,results=hide>>=
+<<tableaufinal, echo=FALSE, eval=FALSE,results=hide>>=
 # Devalaison observée dans le champ de la vanne pour positions mauvaise ...
 # didson en vanne alors que en volet, ou en volet alors que écoulement en vanne
 
@@ -6027,7 +6032,7 @@ taille des anguilles amorcée en 2020-2021.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/horairespb}
+  \includegraphics[width=0.5\textwidth]{2024/horairespb2024.png}
   \caption[Fonctionnement du didson]{Fonctionnement du didson. Les rectangles
   correspondent chacun à une période d'enregistrement, 
   0  \textcolor{turquoise}{\rule[0mm]{1mm}{2mm}} enregistrement normal, 
