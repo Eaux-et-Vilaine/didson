@@ -449,10 +449,11 @@ Eriau}}}
 # CHUNKS d3ej d3ejperiodes d3ejfinal didson... tout ce qui utilise la fonction drawdi !
 # options("encoding" = "UTF-8")
 # options(error = recover) # super usefull
-obj <- ls(all = TRUE)
-obj <- obj[!obj %in% c("passworddistant", "passwordlocal", "userdistant", "hostdistant", "mainpass")]
-
-rm(list = obj) # nettoyage complet sauf passwords
+# TODO uncomment to clean up
+#obj <- ls(all = TRUE)
+#obj <- obj[!obj %in% c("passworddistant", "passwordlocal", "userdistant", "hostdistant", "mainpass")]
+# TODO uncomment to clean up
+#rm(list = obj) # nettoyage complet sauf passwords
 load_library <- function(necessary) {
   if (!all(necessary %in% installed.packages()[, "Package"])) {
     install.packages(necessary[!necessary %in% installed.packages()[, "Package"]], dep = T)
@@ -3658,7 +3659,7 @@ grid.text(str_c("N=",nrow(dddpf5)), x=0.5, y=0.5, rot=0,
     gp=gpar(fontsize=20, col="yellow"))
 upViewport()
 pushViewport(vplayout(1,2))
-grid.text(str_c("+6° 2-12m"), x=0.5, y=0.5, rot=-45,
+grid.text(str_c("5-15m"), x=0.5, y=0.5, rot=-45,
     gp=gpar(fontsize=20, col="black"))
 dev.off()
 
@@ -5657,19 +5658,19 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
 
-Un total de $N_{obs}$                                    
+Un total de $N_{obs}$ =                                   
  \num{\Sexpr{round(vvv$Nprim04allCY)}} anguilles argentées a été comptés pour la saison \Sexpr{saison}.
-Pour l'ensemble de la période de suivi depuis 2012 $\sum_{saison}N_{obs}$ cet
-effectif correspond à \num{\Sexpr{round(vvv$Nprim04all)}} anguilles
-argentées. Il y a plus de lectures d'anguilles disponibles dans la base, mais
+Pour l'ensemble de la période de suivi depuis 2012  cet
+effectif correspond à $\sum_{saison}N_{obs}$\num{\Sexpr{round(vvv$Nprim04all)}}
+anguilles argentées. Il y a plus de lectures d'anguilles disponibles dans la base, mais
 lorsque plusieurs lectures sont disponibles pour un même fichier, 
 les fichiers correspondant au meilleur filtre (CSOT) de dépouillement sont utilisés.
 Ce nombre diminue à
 \num{\Sexpr{vvv$Nprim04CY19_8}}
-($\sum_{saison}N_{obs(18h-8h)}$ = \num{\Sexpr{vvv$Nprim04CY19_8}}) anguilles
+($\sum_{saison}N_{obs(18h-8h)}$ = \num{\Sexpr{vvv$Nprim04all19_8}}) anguilles
 lorsqu'on ne sélectionne que les anguilles comptées entre 18h et 8h. Puis il diminue encore à
 \num{\Sexpr{vvv$Nprim04.odot}} 
-(($\sum_{saison}N_\odot$ =\num{\Sexpr{vvv$Nprim04.odot.all}})
+($\sum_{saison}N_\odot$ =\num{\Sexpr{sum(vvv$Nprim04.odot.all)}})
 lorsqu'on ne sélectionne que les fichiers pour lesquels le didson est positionné
 correctement, et qui ne présentent pas de problème de qualité, d'écriture ou
 d'acquisition. 
@@ -5694,13 +5695,6 @@ effectifs estimés de jour pour obtenir la migration sur l'ensemble du cycle
 journalier (Formule \ref{eq_mu}).
 
 \subsubsection{Prédiction pour les données manquantes}
-
-
-
-
-
-
-
 
 
 
@@ -6274,33 +6268,50 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode2_phis_dids_-7.png}
+                25mm,clip, width=0.5\textwidth]{2024/periode2_phi0_didf_5}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode2_phis_dids_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode2_phis_dids_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode2_phis_dids_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode2_phis_dids_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode2_phis_dids_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode2_phis_dids_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode2_phis_dids_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode2_phis_dids_-7"$date,"UTF-8")}
+                $\Phi$=\Sexpr{ppp$"periode2_phi0_didf_5"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode2_phi0_didf_5"$incl}, 
+                $h$=\Sexpr{ppp$"periode2_phi0_didf_5"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode2_phi0_didf_5"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode2_phi0_didf_5"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode2_phi0_didf_5"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode2_phi0_didf_5"$minus},
+                date= \Sexpr{iconv(ppp$"periode2_phi0_didf_5"$date,"UTF-8")}
                 }
-                \label{periode4}
+                \label{periode2}
 \end{figure}
 
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode4_phi0_didf_5}
+                25mm,clip, width=0.5\textwidth]{2024/periode1_phis_dids_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode4_phi0_didf_5"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode4_phi0_didf_5"$incl}, 
-                $h$=\Sexpr{ppp$"periode4_phi0_didf_5"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode4_phi0_didf_5"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode4_phi0_didf_5"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode4_phi0_didf_5"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode4_phi0_didf_5"$minus},
-                date= \Sexpr{iconv(ppp$"periode4_phi0_didf_5"$date,"UTF-8")}}
+                $\Phi$=\Sexpr{ppp$"periode3_phif_didf_5"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode3_phif_didf_5"$incl}, 
+                $h$=\Sexpr{ppp$"periode3_phif_didf_5"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode3_phif_didf_5"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode3_phif_didf_5"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode3_phif_didf_5"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode3_phif_didf_5"$minus},
+                date= \Sexpr{iconv(ppp$"periode3_phif_didf_5"$date,"UTF-8")}
+                }
+                \label{periode3}
+\end{figure}
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2024/periode4_phif_didf_-7}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode4_phif_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode4_phif_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode4_phif_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode4_phif_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode4_phif_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode4_phif_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode4_phif_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode4_phif_didf_-7"$date,"UTF-8")}}
         \label{periode6}
 \end{figure}
 
@@ -6309,127 +6320,72 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode5_phif_didf_5.png}
+                25mm,clip, width=0.5\textwidth]{2024/periode6_phis_didf_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode5_phif_didf_5.png"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode5_phif_didf_5.png"$incl}, 
-                $h$=\Sexpr{ppp$"periode5_phif_didf_5.png"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode5_phif_didf_5.png"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode5_phif_didf_5.png"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode5_phif_didf_5.png"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode5_phif_didf_5.png"$minus},
-                date= \Sexpr{iconv(ppp$"periode5_phif_didf_5.png"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$incl}, 
+                $h$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$minus},
+                date= \Sexpr{iconv(ppp$"periode6_phis_didf_-7.png"$date,"UTF-8")}               
                }
-                \label{periode11}
+                \label{periode5}
 \end{figure}
 
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode5_phif_didf_5.png}
+                25mm,clip, width=0.5\textwidth]{2024/periode6_phis_didf_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode5_phif_didf_5.png"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode5_phif_didf_5.png"$incl}, 
-                $h$=\Sexpr{ppp$"periode5_phif_didf_5.png"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode5_phif_didf_5.png"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode5_phif_didf_5.png"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode5_phif_didf_5.png"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode5_phif_didf_5.png"$minus},
-                date= \Sexpr{iconv(ppp$"periode5_phif_didf_5.png"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$incl}, 
+                $h$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$minus},
+                date= \Sexpr{iconv(ppp$"periode6_phis_didf_-7.png"$date,"UTF-8")}               
                }
-                \label{periode11}
-\end{figure}
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode7_phif_didf_-7}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode7_phif_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode7_phif_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode7_phif_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode7_phif_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode7_phif_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode7_phif_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode7_phif_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode7_phif_didf_-7"$date,"UTF-8")}               
-               }
-                \label{periode11}
+                \label{periode6}
 \end{figure}
 
 
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode8_phi0_didf_-7}
+                25mm,clip, width=0.5\textwidth]{2024/periode7_phif_didf_6}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode8_phi0_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode8_phi0_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode8_phi0_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode8_phi0_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode8_phi0_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode8_phi0_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode8_phi0_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode8_phi0_didf_-7"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode7_phif_didf_6"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode7_phif_didf_6"$incl}, 
+                $h$=\Sexpr{ppp$"periode7_phif_didf_6"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode7_phif_didf_6"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode7_phif_didf_6"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode7_phif_didf_6"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode7_phif_didf_6"$minus},
+                date= \Sexpr{iconv(ppp$"periode7_phif_didf_6"$date,"UTF-8")}               
                }
-                \label{periode11}
+                \label{periode7}
 \end{figure}
 
 
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode9_phis_didf_-7}
+                25mm,clip, width=0.5\textwidth]{2024/periode8_phi0_didf_6}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode9_phis_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode9_phis_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode9_phis_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode9_phis_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode9_phis_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode9_phis_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode9_phis_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode9_phis_didf_-7"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode8_phi0_didf_6"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode8_phi0_didf_6"$incl}, 
+                $h$=\Sexpr{ppp$"periode8_phi0_didf_6"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode8_phi0_didf_6"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode8_phi0_didf_6"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode8_phi0_didf_6"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode8_phi0_didf_6"$minus},
+                date= \Sexpr{iconv(ppp$"periode8_phi0_didf_6"$date,"UTF-8")}               
                }
-                \label{periode11}
+                \label{periode8}
 \end{figure}
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode10_phif_didf_6}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode10_phif_didf_6"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode10_phif_didf_6"$incl}, 
-                $h$=\Sexpr{ppp$"periode10_phif_didf_6"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode10_phif_didf_6"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode10_phif_didf_6"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode10_phif_didf_6"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode10_phif_didf_6"$minus},
-                date= \Sexpr{iconv(ppp$"periode10_phif_didf_6"$date,"UTF-8")}               
-               }
-                \label{periode11}
-\end{figure}
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode11_phis_didf_6}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode11_phis_didf_6"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode11_phis_didf_6"$incl}, 
-                $h$=\Sexpr{ppp$"periode11_phis_didf_6"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode11_phis_didf_6"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode11_phis_didf_6"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode11_phis_didf_6"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode11_phis_didf_6"$minus},
-                date= \Sexpr{iconv(ppp$"periode11_phis_didf_6"$date,"UTF-8")}               
-               }
-                \label{periode11}
-\end{figure}
-
 
 
 \clearpage
