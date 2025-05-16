@@ -1003,6 +1003,7 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
   Mots clés : anguille argentée \sep migration \sep dévalaison \sep didson \sep
 	Vilaine.
     
+    
   \textit{  
   \centering{\textbf{Abstract}}\\
   \smallskip
@@ -1030,7 +1031,7 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
   A quantitative estimation of downstream migration on the Vilaine, over the
   monitoring period is established at (N = \num {\Sexpr{vvv$N}}) or \Sexpr{vvv$total_weight} tonnes.
   The interannual trends of this migration are detailed in the
-  report ( global decrease).
+  report (global decrease).
 }
 
  Keywords: \textit{silver eel} \sep \textit{downtream migration}
@@ -1108,7 +1109,7 @@ briand_suivi_2021, briand_suivi_2022, briand_suivi_2023, briand_suivi_2024}.
 
 
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<database, echo=FALSE, eval=TRUE,results=hide >>=
+<<database, echo=FALSE, eval=FALSE,results=hide >>=
 require("safer")
 require("getPass")
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
@@ -1325,7 +1326,7 @@ save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 
 @
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<d3ej, echo=FALSE, eval=TRUE,results=hide >>=
+<<d3ej, echo=FALSE, eval=FALSE,results=hide >>=
 #CHUNK PRINCIPAL DE CALCUL
 load(file = str_c(datawdy, "ddde.all.Rdata"))
 load(file = str_c(datawdy, "dddp.all.Rdata"))
@@ -1603,7 +1604,7 @@ rm(hpas, vanne, volet)
     
   % METTRE EVAL TRUE / FALSE POUR CALCULER / ACCELERER
   
-<< d3ejperiodes, echo = FALSE, eval = TRUE, results = hide   >>=
+<< d3ejperiodes, echo=FALSE, eval=FALSE, results=hide   >>=
 ###########################################
 # FONCTION UTILISANT DES CRITERES DE CHOIX POUR TRACER LE GRAPHIQUE
 # ET GARDER DANS VVV UN RESUME DE LA PERIODE DE PASSAGE
@@ -3131,16 +3132,19 @@ round-precision = 0]{\Sexpr{vvv$perc$"4"}}\% du
  \end{itemize}
 \end{itemize}
 \end{samepage}
-Cette année, les problèmes de fonctionnement du didson en octobre, novembre,
-février, mars et avril sont visibles (en orange, Figure \ref{fig_position}). 
-Il s'agit essentiellement de problèmes de communication via le
-câble avec le didson. Globalement il y a très peu d'enregistrements sur des
-périodes où le didson est mal positionné (en marron), quand c'est le cas, il
-peut s'agir d'écoulement en volets ailleurs sur le barrage alors que la vanne 4
+Cette année, les problèmes de fonctionnement du didson existent (15
+plantages - 5 liés à des accès au disque dur, les autres venant de problèmes
+de communication entre le didson et l'ordinateur) mais ont été réglés rapidement
+(en orange , Figure \ref{fig_position}).
+Les problèmes d'écriture sont intervenus au début de la période de suivi, avant
+les ouvertures du barrage, il n'ont pas eu d'incidence. 
+L'automate a permis d'assurer le bon positionnement du didson (position dans la vanne)
+et il n'y a eu que 3 plantages de l'automate qui ont été réglés rapidement.
+Globalement il y a très peu d'enregistrements sur des périodes où le didson est mal positionné (en marron), quand c'est le cas, il peut s'agir d'écoulement en volets ailleurs sur le barrage alors que la vanne 4
 a été fermée. 
 Les fichiers non dépouillés en gris correspondent majoritairement aux fichiers
-le soir et le matin, qui n'ont pas fait de dépouillement car ils sont proches du
-lever ou du coucher du soleil (Figure \ref{fig_horairespb}).\\
+le soir et le matin, et au moment de l'ouverture de vannes (Figure
+\ref{fig_horairespb}).\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{\dimexpr.8pt+\fboxsep\relax}
@@ -4065,6 +4069,26 @@ C2 <- C1 %>% pivot_longer(cols=c("N","Ncor"),names_to="type",values_to="N")
 
 
 C2$type <- factor(C2$type, levels=c("Ncor","N"))
+sexe_ratio <- C2 %>%  
+    mutate(sexe = ifelse(taille<50,'male','femelle')) %>%    
+    group_by(saison, sexe) %>%
+    summarize(N= sum(N)) %>%
+    pivot_wider(id_cols=saison, names_from=sexe, values_from=N) %>%
+    mutate(sex_ratio = male/(male + femelle))
+vvv$sexe_ratio <- pull(sexe_ratio[sexe_ratio$saison==saison, "sex_ratio"])
+
+options(encoding = "UTF-8")
+xtsexeratio <- xtable::xtable(sexe_ratio,
+    label="tabsexeratio",
+    caption=iconv("Sexe ratio (pourcentage de mâles) dans les anguilles observées après correction de l'efficacité."),
+    digits=c(0,0,0,0,2)
+)
+print(xtsexeratio, file=str_c(tabwdy,"tabsexeratio.tex"),
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=FALSE)	
+options(encoding = "native.enc")
 
 pdf(str_c(imgwdy,"structure_taille.pdf"),width=5, height=5)
 ggplot(C2) + 
@@ -4117,9 +4141,10 @@ dddp1<-dddp
 levels(dddp1$distance_m) <- c(3,6,8,10,12,14)
 l.l <- list(set_varnames = c(psf_q="Qualite",
         distance_m="Centre de classe de distance (m)"))
-
-for (s in 1:length(unique(dddp$saison))){
-  saison1 <- unique(dddp1$saison)[s]
+saisons <- unique(dddp$saison)
+saisons <- saisons[order(saisons)]
+for (s in 1:length(saisons)){
+  saison1 <- saisons[s]
   png(filename=str_c(imgwdy,"qualite_distance",saison,".png"),width = 8, height = 8, units = 'in', res = 300)
   dddp1s <- dddp1[dddp1$saison==saison1,]
   if (saison1==saison) vvv$nqualite <- nrow(dddp1s)
@@ -4174,8 +4199,9 @@ fonction de la distance au didson $\delta$, de la position vanne ou volet ($k$),
 et de la taille des anguilles $\tau$ (Formule \ref{eq_efficacite3}).
 Toutes les variables sont traitées comme des facteurs qualitatifs. L'efficacité
 est ensuite calculée à l'aide d'un modèle linéaire généralisé binomial (Formule \ref{eq_efficacite31}).
-Le modèle retenu cette année est plus complexe que le modèle de 2021-2022. Il
-s'écrit $\delta + \tau + k + saison + \delta*\tau*k$. Il retient toutes les
+Le modèle retenu depuis la saison 2022-2023 est plus complexe que le modèle de
+2021-2022.
+Il s'écrit $\delta + \tau + k + saison + \delta*\tau*k$. Il retient toutes les
 interactions : entre la taille, la distance et la position ($\delta*\tau*k$) là
 ou le modèle de 2021-2022 ne retenait que l'interaction $\delta*\tau$)
 (Figure \ref{aovefficacite}, Tableau \ref{tab_aovefficacite}).
@@ -4726,7 +4752,10 @@ dev.off()
 # ci dessous la décomposition polymodale on y croit pas ....
 ####################################################
 require(mixdist)
+
 # travail sur les tailles à moins de 7 m de distance
+
+
 tailleinf7 <- dddp$psf_l_cm[dddp$psf_radius_m<7 & dddp$saison==saison]
 taille <- dddp$psf_l_cm[dddp$saison==saison]
 #tail(tailleinf7[order(tailleinf7)])
@@ -4755,7 +4784,7 @@ summary(mixtailledfinf7)
 plot(mixtailledfinf7)
 #Anthony Acou 2010 (Loire) donne la limite à 460 mmm		
 # sexe_ratio <- mixtailledf$parameters$pi[1] 16 % surestimé
-# pour
+# test pour voir
 sexe.ratio_inf7 <- sum(tailledfinf7$N[tailledfinf7$rightb<50])/sum(tailledfinf7$N)# 9% de mâles sur la structure en taille corrigée de près
 sexe.ratio <- sum(tailledf$N[tailledf$rightb<50])/sum(tailledf$N)# 8% de mâles sur la structure en taille globale corrigée... OK
 
@@ -4763,7 +4792,7 @@ sexe.ratio <- sum(tailledf$N[tailledf$rightb<50])/sum(tailledf$N)# 8% de mâles 
 tailledf$taille3 <- (tailledf$taille/100)^3
 tailledf$weight <- predict(rlmmod,newdata=tailledf)
 vvv$mean_weight <- sum(tailledf$weight*tailledf$N/sum(tailledf$N))# 516
-vvv$sexe_ratio <- sexe.ratio
+
 # 31.16 sum surface Vilaine, km2 voir sqldf commenté
 #TODO check here
 # EDA 31.16
@@ -4803,18 +4832,10 @@ Les sexes ratios calculés en utilisant une limite de
  taille entre les mâles et les femelles à 500 mm (450 mm pour
  \citep{acou_estimation_2010}, mais 500 dans notre échantillon après
  décomposition polymodale) s'établissent à
- \num{\Sexpr{round(100*vvv$sexe_ratio)}} \% de mâles en \Sexpr{saison}, soit la plus importante proportion de mâles observée jusqu'alors.
+ \num{\Sexpr{round(100*vvv$sexe_ratio)}} \% de mâles en \Sexpr{saison}.
  Les chiffres de sexe ratio montrent une diminution puis une réaugmentation de
- la proportion de mâles. Les premières années 2012-2013 et 2013-2014, ce
- pourcentage était de 12 et 15 \%  \citep{briand_suivi_2014, briand_suivi_2015}, 9\%
-en 2014-2015 et 2015-2016 \citep{briand_suivi_2016,
-briand_suivi_2017}, 7\% en 2016-2017 \citep{briand_suivi_2018}, 5\% en
-2017-2018 \citep{briand_suivi_2018}, 7 \% en 2018-2019
-\citep{briand_suivi_2019}, 8\% en 2019-2020 \citep{briand_suivi_2020}, 24\% en
-2020-2021 \citep{briand_suivi_2021},
-x\% en 2021-2022 \citep{briand_suivi_2022}
-et x\% de mâles en 2022-2023 \citep{briand_suivi_2023}.
-
+ la proportion de mâles (Table \ref{tabsexeratio}).
+\input{../table/2024/tabsexeratio.tex}
 % le pdf fait planter l'impression
 %\begin{figure}[htbp]
 %\centering
@@ -5027,7 +5048,7 @@ journalier (Formule \ref{eq_mu}).
 \subsubsection{Prédiction pour les données manquantes}
 
 
-<<load_all_years, echo=FALSE, eval=TRUE,results=hide>>=
+<<load_all_years, echo=FALSE, eval=FALSE, results=hide>>=
 # d3ej vient de ddde mais limité de jour
 # dans un premier temps je l'ai compilé à partir des fichiers, puis j'ai décidé de tout recharger directement à partir de la base
 
@@ -6027,7 +6048,7 @@ taille des anguilles amorcée en 2020-2021.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/horairespb}
+  \includegraphics[width=0.5\textwidth]{2024/horairespb2024}
   \caption[Fonctionnement du didson]{Fonctionnement du didson. Les rectangles
   correspondent chacun à une période d'enregistrement, 
   0  \textcolor{turquoise}{\rule[0mm]{1mm}{2mm}} enregistrement normal, 
