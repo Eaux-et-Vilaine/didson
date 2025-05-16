@@ -449,10 +449,11 @@ Eriau}}}
 # CHUNKS d3ej d3ejperiodes d3ejfinal didson... tout ce qui utilise la fonction drawdi !
 # options("encoding" = "UTF-8")
 # options(error = recover) # super usefull
-obj <- ls(all = TRUE)
-obj <- obj[!obj %in% c("passworddistant", "passwordlocal", "userdistant", "hostdistant", "mainpass")]
-
-rm(list = obj) # nettoyage complet sauf passwords
+# TODO uncomment to clean up
+#obj <- ls(all = TRUE)
+#obj <- obj[!obj %in% c("passworddistant", "passwordlocal", "userdistant", "hostdistant", "mainpass")]
+# TODO uncomment to clean up
+#rm(list = obj) # nettoyage complet sauf passwords
 load_library <- function(necessary) {
   if (!all(necessary %in% installed.packages()[, "Package"])) {
     install.packages(necessary[!necessary %in% installed.packages()[, "Package"]], dep = T)
@@ -966,7 +967,7 @@ load(file = str_c(datawdy, "ppp.Rdata"))
 PARM <- c(NA, 6, 2)
 # attention changement de la signification pour les stats bayésiennes
 load(file = str_c(datawdy, "vvv.Rdata"))
-
+load(file = str_c(datawdy,"bestg.Rdata")) # the best 
 @
 
 
@@ -976,9 +977,9 @@ load(file = str_c(datawdy, "vvv.Rdata"))
 Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième année
   consécutive, à l'aide d'un sonar multifaisceaux (didson). Le didson est placé
   sur un rail porteur au niveau du quatrième pertuis de vannes du barrage d'Arzal à la limite de l'estuaire de la Vilaine.
- Sur les douze années,  \num{\Sexpr{round(Nprim04all)}} anguilles
+ Sur les douze années,  \num{\Sexpr{round(vvv$Nprim04all)}} anguilles
  argentées ont été comptées lors des dépouillements. En \Sexpr{saison},
- \num{\Sexpr{round(Nprim04allCY)}} anguilles ont été comptées. L'efficacité de
+ \num{\Sexpr{round(vvv$Nprim04allCY)}} anguilles ont été comptées. L'efficacité de
  la détection a été calculée en fonction de la taille des anguilles, de la
  position du didson et de la distance au didson. Les effectifs migrants sont
  calculés en extrapolant à l'ensemble de la vanne le pourcentage de surface de
@@ -1003,7 +1004,6 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
   Mots clés : anguille argentée \sep migration \sep dévalaison \sep didson \sep
 	Vilaine.
     
-    
   \textit{  
   \centering{\textbf{Abstract}}\\
   \smallskip
@@ -1011,9 +1011,9 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
   in a row, using a multibeam sonar (didson). The didson is placed
   on a guiding rail at the level of the fourth sluice gate of the Arzal dam at
   the limit of the Vilaine estuary.
- Over twelve years, \num{\Sexpr{round(Nprim04all)}} silver eels
+ Over twelve years, \num{\Sexpr{round(vvv$Nprim04all)}} silver eels
  silver were counted during the readings. In \Sexpr{saison},
- \num{\Sexpr{round(Nprim04allCY)}} eels have been counted. The effectiveness of
+ \num{\Sexpr{round(vvv$Nprim04allCY)}} eels have been counted. The effectiveness of
  the detection was calculated according to the size of the eels, the
  position of the didson and distance to the didson. To extrapolate the
  numbers of silver eel to the entire dam, the percentage of gate area monitored
@@ -1031,7 +1031,7 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
   A quantitative estimation of downstream migration on the Vilaine, over the
   monitoring period is established at (N = \num {\Sexpr{vvv$N}}) or \Sexpr{vvv$total_weight} tonnes.
   The interannual trends of this migration are detailed in the
-  report (global decrease).
+  report ( global decrease).
 }
 
  Keywords: \textit{silver eel} \sep \textit{downtream migration}
@@ -1604,7 +1604,7 @@ rm(hpas, vanne, volet)
     
   % METTRE EVAL TRUE / FALSE POUR CALCULER / ACCELERER
   
-<< d3ejperiodes, echo=FALSE, eval=FALSE, results=hide   >>=
+<< d3ejperiodes, echo = FALSE, eval = FALSE, results = hide   >>=
 ###########################################
 # FONCTION UTILISANT DES CRITERES DE CHOIX POUR TRACER LE GRAPHIQUE
 # ET GARDER DANS VVV UN RESUME DE LA PERIODE DE PASSAGE
@@ -2905,7 +2905,7 @@ L'ensemble des problèmes techniques est résumé sur les Figures
 \input{../table/2024/tabfls.tex}
 \input{../table/2024/tabflsall.tex}
 \subsubsection{Positionnement du didson}
-<<positionnement, echo=FALSE, eval=TRUE, results=hide>>=
+<<positionnement, echo=FALSE, eval=FALSE, results=hide>>=
 # pour extrapoler d3ej$ex>1
 d3ej2 <- d3ej[d3ej$dsf_season==saison,]
 # JE passe sur un nouveau d3ej2 pour pas casser le dsf_position
@@ -3165,7 +3165,7 @@ La vanne 4 (ou le volet 4) sont fermés
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Qualité des images}
 
-<<taille_all, echo=FALSE, eval=TRUE,results=hide>>=
+<<taille_all, echo=FALSE, eval=FALSE,results=hide>>=
 # ce chunk c'est juste pour faires les graphes tous les calculs sont faits dans efficacité
 nat=nrow(dddp) # nombre anguilles taille 14360
 # Commenter la ligne qui suit pour prendre en compte toutes les données dans le calcul
@@ -3334,7 +3334,7 @@ table(round(dddp$psf_l_cm),dddp$mois)
 nrow(dddp[dddp$psf_l_cm>100,])/nrow(dddp) #2%
 
 # correlation significative entre la taille et la distance
-c_dddp<-cor.test(dddp$psf_radius_m,dddp$psf_l_cm) # highly significant
+vvv$cor_dddp<-cor.test(dddp$psf_radius_m,dddp$psf_l_cm) # highly significant
 
 # efficacite
 
@@ -3367,6 +3367,8 @@ dev.off()
 #matplot(t(prop))
 # references tailles >60
 save(dddp, file = str_c(datawdy,"dddp1.Rdata"))
+vvv$nat <- nat
+save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 La qualité des anguilles détectées est notée par l'opérateur avec un facteur allant de 1 (très mauvaise qualité) à 5 (très bonne
 qualité). Les images de qualité 1 sont écartées comme trop douteuses. L'analyse
@@ -3438,13 +3440,13 @@ didson, et on retrouve une meilleure qualité des images en surface.
 \subsection{Taille des anguilles et efficacité}\label{par_taille}
 
 L'analyse de l'efficacité a été conduite sur l'ensemble des anguilles détectées
-(\num{\Sexpr{round(nat,0)}}) en
+(\num{\Sexpr{round(vvv$nat,0)}}) en
 fonction de la distance au didson et de la taille des anguilles. 
 Les anguilles de plus petite taille sont clairement moins détectées loin du
 didson (Figures \ref{taille_distance}, \ref{taille_dist_mois_all}).
 La corrélation entre la taille des anguilles mesurées
 et la distance d'observation est significative (Pearson
-cor=\num{\Sexpr{round(c_dddp[["estimate"]],2)}}, p<0.001) (Figure
+cor=\num{\Sexpr{round(vvv$cor_dddp[["estimate"]],2)}}, p<0.001) (Figure
 \ref{taille_dist_mois}).
 
 
@@ -3533,7 +3535,7 @@ anguilles.}}
 \vspace{\dimexpr.8pt+\fboxsep\relax}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-<<taille_volets, echo=FALSE, eval=TRUE,results=hide>>=
+<<taille_volets, echo=FALSE, eval=FALSE,results=hide>>=
 ########################
 # Données volets
 ########################
@@ -3622,7 +3624,7 @@ dev.off()
 
 
 
-<<taille_vannes_dddpf5, echo=FALSE, eval=TRUE, results=hide>>=
+<<taille_vannes_dddpf5, echo=FALSE, eval=FALSE, results=hide>>=
 
 
 pdf(file=str_c(imgwdy,"taille_distance_vannefond.pdf"))
@@ -3660,7 +3662,7 @@ grid.text(str_c("N=",nrow(dddpf5)), x=0.5, y=0.5, rot=0,
     gp=gpar(fontsize=20, col="yellow"))
 upViewport()
 pushViewport(vplayout(1,2))
-grid.text(str_c("+6° 2-12m"), x=0.5, y=0.5, rot=-45,
+grid.text(str_c("5-15m"), x=0.5, y=0.5, rot=-45,
     gp=gpar(fontsize=20, col="black"))
 dev.off()
 
@@ -3691,7 +3693,7 @@ dev.off()
 
 
 
-<<efficacite, echo=FALSE, eval=TRUE, results=hide>>=
+<<efficacite, echo=FALSE, eval=FALSE, results=hide>>=
 
 # ce chunk attaque maintenant l'ensemble des années disponibles
 # lancer le chunk loadrdata puis taille_all avant
@@ -4069,26 +4071,6 @@ C2 <- C1 %>% pivot_longer(cols=c("N","Ncor"),names_to="type",values_to="N")
 
 
 C2$type <- factor(C2$type, levels=c("Ncor","N"))
-sexe_ratio <- C2 %>%  
-    mutate(sexe = ifelse(taille<50,'male','femelle')) %>%    
-    group_by(saison, sexe) %>%
-    summarize(N= sum(N)) %>%
-    pivot_wider(id_cols=saison, names_from=sexe, values_from=N) %>%
-    mutate(sex_ratio = male/(male + femelle))
-vvv$sexe_ratio <- pull(sexe_ratio[sexe_ratio$saison==saison, "sex_ratio"])
-
-options(encoding = "UTF-8")
-xtsexeratio <- xtable::xtable(sexe_ratio,
-    label="tabsexeratio",
-    caption=iconv("Sexe ratio (pourcentage de mâles) dans les anguilles observées après correction de l'efficacité."),
-    digits=c(0,0,0,0,2)
-)
-print(xtsexeratio, file=str_c(tabwdy,"tabsexeratio.tex"),
-    table.placement="htbp",
-    caption.placement = "top",
-    NA.string = "",
-    include.rownames=FALSE)	
-options(encoding = "native.enc")
 
 pdf(str_c(imgwdy,"structure_taille.pdf"),width=5, height=5)
 ggplot(C2) + 
@@ -4247,7 +4229,7 @@ L'efficacité moyenne (Formule \ref{eq_efficacite32}) est de
 
 \subsection{Migration}
 \subsubsection{Migration en fonction du cycle nycthéméral}
-<<horaires, echo=FALSE, eval=TRUE,results=hide>>=
+<<horaires, echo=FALSE, eval=TRUE, results=hide>>=
 #ATTENTION IL FAUT PASSER PAR LE CHUNK loadrdata pour créer xmin xmax....
 
 dddee<-merge(ddde,eph,by="date",all.x=TRUE,all.y=FALSE) #3476
@@ -4484,9 +4466,12 @@ print(xdat_h,file=str_c(tabwdy,"repartition_horaire.tex"),
     NA.string = "",
     include.rownames=TRUE)
 options(encoding = "native.enc")
-
+vvv$mu <- mu
+vvv$muobs <- muobs
+save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
-<<horairespb, echo=FALSE, eval=TRUE,results=hide>>=
+
+<<horairespb, echo=FALSE, eval=TRUE, results=hide>>=
 ### Horaires avec fichiers à pb
 d3ej$ouverturebarrage<-d3ej$vanne1|d3ej$vanne2|d3ej$vanne3|d3ej$vanne4|d3ej$vanne5|
     d3ej$volet1|d3ej$volet2|d3ej$volet3|d3ej$volet4|d3ej$volet5
@@ -4562,7 +4547,7 @@ En compilant l'ensemble des saisons avec des suivis toute la journée, nous
 disposons de \num[round-mode = places,
  round-precision = 0]{\Sexpr{length(fulldays)}} journées pour lesquelles le
 suivi a été effectué au delà de ces heures. Le pourcentage d'anguilles migrant
-de 9h30 à 17h30 est de $\mu$ = \Sexpr{mu}\% \footnote{Les deux années
+de 9h30 à 17h30 est de $\mu$ = \Sexpr{vvv$mu}\% \footnote{Les deux années
 2013--2014 et 2014--2015, un coefficient de $\mu$ =  11.9\% avait été
 utilisé \citep{briand_suivi_2015, briand_suivi_2016}, 
 puis une valeur de 5.6 \%.} (Figure\ref{fig_heure_jourcomplet}).
@@ -4792,7 +4777,7 @@ sexe.ratio <- sum(tailledf$N[tailledf$rightb<50])/sum(tailledf$N)# 8% de mâles 
 tailledf$taille3 <- (tailledf$taille/100)^3
 tailledf$weight <- predict(rlmmod,newdata=tailledf)
 vvv$mean_weight <- sum(tailledf$weight*tailledf$N/sum(tailledf$N))# 516
-
+vvv$sexe_ratio <- sexe.ratio
 # 31.16 sum surface Vilaine, km2 voir sqldf commenté
 #TODO check here
 # EDA 31.16
@@ -4816,6 +4801,7 @@ vvv$mean_weight <- sum(tailledf$weight*tailledf$N/sum(tailledf$N))# 516
 #select 150000*1.053 --157950
 #select 157950/160400 --0.98
 save(tailledf,tailledfinf7,file=str_c(datawdy,"tailledf.Rdata"))
+save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
  La courbe taille poids calculée en 2012--2013 est utilisée pour prédire les
@@ -4832,10 +4818,18 @@ Les sexes ratios calculés en utilisant une limite de
  taille entre les mâles et les femelles à 500 mm (450 mm pour
  \citep{acou_estimation_2010}, mais 500 dans notre échantillon après
  décomposition polymodale) s'établissent à
- \num{\Sexpr{round(100*vvv$sexe_ratio)}} \% de mâles en \Sexpr{saison}.
+ \num{\Sexpr{round(100*vvv$sexe_ratio)}} \% de mâles en \Sexpr{saison}, soit la plus importante proportion de mâles observée jusqu'alors.
  Les chiffres de sexe ratio montrent une diminution puis une réaugmentation de
- la proportion de mâles (Table \ref{tabsexeratio}).
-\input{../table/2024/tabsexeratio.tex}
+ la proportion de mâles. Les premières années 2012-2013 et 2013-2014, ce
+ pourcentage était de 12 et 15 \%  \citep{briand_suivi_2014, briand_suivi_2015}, 9\%
+en 2014-2015 et 2015-2016 \citep{briand_suivi_2016,
+briand_suivi_2017}, 7\% en 2016-2017 \citep{briand_suivi_2018}, 5\% en
+2017-2018 \citep{briand_suivi_2018}, 7 \% en 2018-2019
+\citep{briand_suivi_2019}, 8\% en 2019-2020 \citep{briand_suivi_2020}, 24\% en
+2020-2021 \citep{briand_suivi_2021},
+x\% en 2021-2022 \citep{briand_suivi_2022}
+et x\% de mâles en 2022-2023 \citep{briand_suivi_2023}.
+
 % le pdf fait planter l'impression
 %\begin{figure}[htbp]
 %\centering
@@ -4863,192 +4857,152 @@ dévalaison 2023--2024. }}
 \subsubsection{Estimation des effectifs migrants}
 \label{parestimationodot}
 
-<<nombre, echo=FALSE, eval=TRUE, results=hide>>=
-#stop("on travaille ici")
+<<nombre_deprecated, echo=FALSE, eval=FALSE, results=hide>>=
+# # stop("on travaille ici")
 # load(file=str_c(datawdy,"d3ej.all.Rdata"))
 # if ("efficiency" %in% colnames(d3ej)) d3ej<-d3ej[,-grep("efficiency",colnames(d3ej))]
 #plot(d3edj$enj_date,d3edj$sum_eel_plus,ylim=c(-20,200))
 #points(d3edj$enj_date,-d3edj$sum_eel_minus,col="red")
-
-#sum(d3edj$sum_eel_plus,na.rm=TRUE)+sum(d3edj$sum_eel_minus,na.rm=TRUE
-# d3ej vient de ddde mais limité de jour
-# je remet les positionnements de vanne
+##sum(d3edj$sum_eel_plus,na.rm=TRUE)+sum(d3edj$sum_eel_minus,na.rm=TRUE)
+# #d3ej vient de ddde mais limité de jour
+# #je remet les positionnements de vanne
 #plot(d3ej$dsf_timeinit,d3ej$dsf_fls_id)
-efficacitedata <- as.data.frame(efficacite_moyenne[,c("saison","position","E")])
-colnames(efficacitedata) <- c("dsf_season","dsf_position","E")
-efficacitedata$dsf_position[efficacitedata$dsf_position == "vanne"] <- "f"
-efficacitedata$dsf_position[efficacitedata$dsf_position == "volet"] <- "s"
-efficacitedata$dsf_position[is.na(efficacitedata$dsf_position)] <- "n"
-
-
-d3ej <- left_join(d3ej,efficacitedata,by=c("dsf_position","dsf_season"))
-d3ej <- d3ej[order(d3ej$dsf_timeinit),]
-
-d3ej$Nprimo4 <- rowSums(d3ej[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)
-
-# Ensemble des détections du fichier poisson
-(Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 22373
-(Nprim04allCY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1116
-sum(d3ej$Nprimo4) # plus faible car limité de jour #20650
-
-duree <- d3ej$dsf_timeend-d3ej$dsf_timeinit
-duree[duree>30]<-duree[which(duree>30)+1] # je décale et je prends le temps du voisin
-d3ej$rho <- 30/as.numeric(duree) 
-# 30 tout le temps car pas d'utilisation du rotateur
-d3ej$No4 <- (d3ej$Nprimo4/d3ej$E)*d3ej$rho # rho vaut 1 sans le rotateur
-
-
-
-d3ej$N4 <- d3ej$No4/d3ej$psurface
-d3ej$N <- d3ej$N4/d3ej$pvol4
-d3ej$H <- strftime(d3ej$dsf_timeinit,format="%H")
-d3ej$W <- strftime(d3ej$dsf_timeinit,format="%W")
-d3ej$W <- as.factor(d3ej$W)
-d3ej$H <- as.factor(d3ej$H)
-d3ej$hourm <- as.numeric(as.character(d3ej$H))
-d3ej$hourm[d3ej$hourm<=8] <- 24+d3ej$hourm[d3ej$hourm<=8]
-d3ej$hourm <- d3ej$hourm-18 # 0 à 18h00
-d3ej$position <- as.factor(d3ej$position)
-#d3ej$ndays <- as.numeric(as.Date(d3ej$dsf_timeinit)-as.Date(min(d3ej$dsf_timeinit)))
-d3ej$day <- as.numeric(strftime(d3ej$dsf_timeinit,format="%j"))
-d3ej$day[d3ej$day<250] <- d3ej$day[d3ej$day<250]+365
-d3ej$ndays <- d3ej$day-min(d3ej$day)+1
-stopifnot(length(indexOK)==nrow(d3ej))
-percOK <- round(100* sum(indexOK)/length(indexOK))
-d3ejok <- d3ej[d3ej$dsf_id%in%dsfindexOK,] # 31 %
-d3ejokex3 <- d3ej[d3ej$dsf_id%in%dsfindexOKex3,] #sum(d3ej$dsf_id%in%dsfindexOKex3) 18%
-# Quelques extrapolations en divisant par zéro, correspond
-# à l'ouverture de la vanne, ouverture très faible, dans la fonction de calcul
-# dans d3ej
-if (sum(is.infinite(d3ejok$N4))>0){
-  warning(str_c("il y a ",sum(is.infinite(d3ejok$N4))," de valeurs NaN pour N4"))
-  d3ejok[is.infinite(d3ejok$N4),"N4"] <- NA 
-  
-}
-# d3ejok[is.na(d3ejok$N),c("Nprimo4","pdebit4","psurface","position")]
-if (sum(is.infinite(d3ej$N))>0){
-  warning(str_c("il y a ",sum(is.infinite(d3ej$N))," de valeurs NaN pour N"))
-  d3ejok[is.infinite(d3ejok$N),"N"] <- NA 
-  d3ej[is.infinite(d3ej$N),"N"] <- NA 
-}
-##################
-# ci dessous ne sert pas vraiment, on préfère passer par d3ejok et d3ejko
-##################
-
-# ensemble des détections y compris celles pour lesquelles le didson est mal positionné
-(Nprimo4 <- sum(d3ej$Nprimo4,na.rm=TRUE))
-# extrapolation en utilisation l'efficacité, pour l'ensemble des détections
-(No4 <- sum(d3ej$No4,na.rm=TRUE))
-# extrapolation à la vanne pour l'ensemble des détections
-(N4 <- sum(d3ej$N4,na.rm=TRUE))
-muinv <- (100-mu)/100
-# extrapolation jour/ nuit pour l'ensemble des détections
-(N<-sum(d3ej[,"N"],na.rm=TRUE)/muinv)
-#100*N/mu
-
-# Même calcul que précédemment mais par position
-
-(Nprimo4k <- tapply(d3ej$Nprimo4,d3ej$position,sum,na.rm=TRUE))
-(No4k <- tapply(d3ej$No4,d3ej$position,sum,na.rm=TRUE))
-(N4k <- tapply(d3ej$N,d3ej$position,sum,na.rm=TRUE))
-
-#tapply(d3ej$pdebit4,d3ej$position,mean,na.rm=TRUE)
-#tapply(d3ej$psurface,d3ej$position,mean,na.rm=TRUE)
-# Dévalaison observée dans le champ de détection de la vanne 4
-
-
-
-##################
-# Calculs pour les détections ou le didson est bien positionné
-##################
-# Detections dans le champ de détection avant correction de l'efficacité
-(Nprimo4ok <- sum(d3ejok$Nprimo4,na.rm=TRUE))
-# Dévalaison réelle dans le champ de détection du didson sur la vanne 4
-# 4, c'est à dire corrigee des problemes d'efficacite de détection
-(No4ok <- sum(d3ejok$No4,na.rm=TRUE))
-# Devalaison N4 conditions ok. Dévalaison sur l'ensemble de la vanne 4
-(N4ok <- sum(d3ejok$N4,na.rm=TRUE))
-# Devalaison par pas de temps, dans les condiditions ou le didson permet le
-# suivi de la migration (ok)
-(Nok <- sum(d3ejok$N,na.rm=TRUE)/muinv)
-#####################################
-# Dévalaison réelle dans le champ de détection du didson sur la vanne 4 par positions
-############################################
-# Detections dans le champ de détection avant correction de l'efficacité
-(Nprimo4okk <- tapply(d3ejok$Nprimo4,d3ejok$position,sum,na.rm=TRUE))
-# n est NA, on vire (n est utilisé pour éviter les plantages sur le calcul des surfaces
-# il correspond aux enregistrements ou la position du didson est inconnue (pas de données du barrage)
-(Nprimo4okk <- Nprimo4okk[!is.na(Nprimo4okk)])
-
-# Detections après correction de l'efficacité
-(No4okk <- tapply(d3ejok$No4,d3ejok$position,sum,na.rm=TRUE))
-# pareil on vire les NA pour n
-(No4okk <- No4okk[!is.na(No4okk)])
-
-# Extrapolation dans le champ de la vanne
-(N4okk <- tapply(d3ejok$N4,d3ejok$position,sum,na.rm=TRUE))
-# pareil on vire les NA pour n
-(N4okk <- N4okk[!is.na(N4okk)])
-
-# Extrapolation à l'ensemble du barrage.
-(Nokk <-  tapply(d3ejok$N,d3ejok$position,sum,na.rm=TRUE)/muinv)
-(Nokk <- Nokk[!is.na(Nokk)])
-
-#ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=Nprimo4,col=position))
-#ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=N4,col=position))
-#ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=N,col=position))
-
-
-# Anguilles à la montée
-pminus=data.frame(cbind(tapply(d3ej$drr_eelminus,d3ej$mois,sum,na.rm=TRUE),
-        tapply(rowSums(d3ej[,c("drr_eelplus","drr_eelminus")]),na.rm=TRUE,d3ej$mois,sum)))
-pminus<-pminus[-1,]
-pminus=rbind(pminus,colSums(pminus))
-pminus$percminus<-pminus[,1]/pminus[,2]
-colnames(pminus)<-c("minus","tous","percminus")
-rownames(pminus)[nrow(pminus)]<-"total"
-save(Nprim04all,Nprim04allCY, file=str_c(datawdy,"Nprim04all.Rdata"))
+#efficacitedata <- as.data.frame(efficacite_moyenne[,c("saison","position","E")])
+#colnames(efficacitedata) <- c("dsf_season","dsf_position","E")
+#efficacitedata$dsf_position[efficacitedata$dsf_position == "vanne"] <- "f"
+#efficacitedata$dsf_position[efficacitedata$dsf_position == "volet"] <- "s"
+#efficacitedata$dsf_position[is.na(efficacitedata$dsf_position)] <- "n"
+#
+#
+#d3ej <- left_join(d3ej,efficacitedata,by=c("dsf_position","dsf_season"))
+#d3ej <- d3ej[order(d3ej$dsf_timeinit),]
+#
+#d3ej$Nprimo4 <- rowSums(d3ej[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)
+# # Ensemble des détections du fichier poisson
+#sum(d3ej$Nprimo4) # plus faible car limité de jour #20650
+#(vvv$Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 24049
+#(vvv$Nprim04CY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE))) # 1116
+#duree <- d3ej$dsf_timeend-d3ej$dsf_timeinit
+#duree[duree>30]<-duree[which(duree>30)+1] # je décale et je prends le temps du voisin
+#d3ej$rho <- 30/as.numeric(duree) 
+## 30 tout le temps car pas d'utilisation du rotateur
+#d3ej$No4 <- (d3ej$Nprimo4/d3ej$E)*d3ej$rho # rho vaut 1 sans le rotateur
+#
+#
+#d3ej$N4 <- d3ej$No4/d3ej$psurface
+#d3ej$N <- d3ej$N4/d3ej$pvol4
+#d3ej$H <- strftime(d3ej$dsf_timeinit,format="%H")
+#d3ej$W <- strftime(d3ej$dsf_timeinit,format="%W")
+#d3ej$W <- as.factor(d3ej$W)
+#d3ej$H <- as.factor(d3ej$H)
+#d3ej$hourm <- as.numeric(as.character(d3ej$H))
+#d3ej$hourm[d3ej$hourm<=8] <- 24+d3ej$hourm[d3ej$hourm<=8]
+#d3ej$hourm <- d3ej$hourm-18 # 0 à 18h00
+#d3ej$position <- as.factor(d3ej$position)
+##d3ej$ndays <- as.numeric(as.Date(d3ej$dsf_timeinit)-as.Date(min(d3ej$dsf_timeinit)))
+#d3ej$day <- as.numeric(strftime(d3ej$dsf_timeinit,format="%j"))
+#d3ej$day[d3ej$day<250] <- d3ej$day[d3ej$day<250]+365
+#d3ej$ndays <- d3ej$day-min(d3ej$day)+1
+#stopifnot(length(indexOK)==nrow(d3ej))
+#percOK <- round(100* sum(indexOK)/length(indexOK))
+#d3ejok <- d3ej[d3ej$dsf_id%in%dsfindexOK,] # 31 %
+#d3ejokex3 <- d3ej[d3ej$dsf_id%in%dsfindexOKex3,] #sum(d3ej$dsf_id%in%dsfindexOKex3) 18%
+## Quelques extrapolations en divisant par zéro, correspond
+## à l'ouverture de la vanne, ouverture très faible, dans la fonction de calcul
+## dans d3ej
+#if (sum(is.infinite(d3ejok$N4))>0){
+#  warning(str_c("il y a ",sum(is.infinite(d3ejok$N4))," de valeurs NaN pour N4"))
+#  d3ejok[is.infinite(d3ejok$N4),"N4"] <- NA 
+#  
+#}
+## d3ejok[is.na(d3ejok$N),c("Nprimo4","pdebit4","psurface","position")]
+#if (sum(is.infinite(d3ej$N))>0){
+#  warning(str_c("il y a ",sum(is.infinite(d3ej$N))," de valeurs NaN pour N"))
+#  d3ejok[is.infinite(d3ejok$N),"N"] <- NA 
+#  d3ej[is.infinite(d3ej$N),"N"] <- NA 
+#}
+###################
+## ci dessous ne sert pas vraiment, on préfère passer par d3ejok et d3ejko
+###################
+#
+## ensemble des détections y compris celles pour lesquelles le didson est mal positionné
+#(Nprimo4 <- sum(d3ej$Nprimo4,na.rm=TRUE))
+## extrapolation en utilisation l'efficacité, pour l'ensemble des détections
+#(No4 <- sum(d3ej$No4,na.rm=TRUE))
+## extrapolation à la vanne pour l'ensemble des détections
+#(N4 <- sum(d3ej$N4,na.rm=TRUE))
+#muinv <- (100-mu)/100
+## extrapolation jour/ nuit pour l'ensemble des détections
+#(N<-sum(d3ej[,"N"],na.rm=TRUE)/muinv)
+##100*N/mu
+#
+## Même calcul que précédemment mais par position
+#
+#(Nprimo4k <- tapply(d3ej$Nprimo4,d3ej$position,sum,na.rm=TRUE))
+#(No4k <- tapply(d3ej$No4,d3ej$position,sum,na.rm=TRUE))
+#(N4k <- tapply(d3ej$N,d3ej$position,sum,na.rm=TRUE))
+#
+##tapply(d3ej$pdebit4,d3ej$position,mean,na.rm=TRUE)
+##tapply(d3ej$psurface,d3ej$position,mean,na.rm=TRUE)
+## Dévalaison observée dans le champ de détection de la vanne 4
+#
+#
+#
+###################
+## Calculs pour les détections ou le didson est bien positionné
+###################
+## Detections dans le champ de détection avant correction de l'efficacité
+#(Nprimo4ok <- sum(d3ejok$Nprimo4,na.rm=TRUE))
+## Dévalaison réelle dans le champ de détection du didson sur la vanne 4
+## 4, c'est à dire corrigee des problemes d'efficacite de détection
+#(No4ok <- sum(d3ejok$No4,na.rm=TRUE))
+## Devalaison N4 conditions ok. Dévalaison sur l'ensemble de la vanne 4
+#(N4ok <- sum(d3ejok$N4,na.rm=TRUE))
+## Devalaison par pas de temps, dans les condiditions ou le didson permet le
+## suivi de la migration (ok)
+#(Nok <- sum(d3ejok$N,na.rm=TRUE)/muinv)
+######################################
+## Dévalaison réelle dans le champ de détection du didson sur la vanne 4 par positions
+#############################################
+## Detections dans le champ de détection avant correction de l'efficacité
+#(Nprimo4okk <- tapply(d3ejok$Nprimo4,d3ejok$position,sum,na.rm=TRUE))
+## n est NA, on vire (n est utilisé pour éviter les plantages sur le calcul des surfaces
+## il correspond aux enregistrements ou la position du didson est inconnue (pas de données du barrage)
+#(Nprimo4okk <- Nprimo4okk[!is.na(Nprimo4okk)])
+#
+## Detections après correction de l'efficacité
+#(No4okk <- tapply(d3ejok$No4,d3ejok$position,sum,na.rm=TRUE))
+## pareil on vire les NA pour n
+#(No4okk <- No4okk[!is.na(No4okk)])
+#
+## Extrapolation dans le champ de la vanne
+#(N4okk <- tapply(d3ejok$N4,d3ejok$position,sum,na.rm=TRUE))
+## pareil on vire les NA pour n
+#(N4okk <- N4okk[!is.na(N4okk)])
+#
+## Extrapolation à l'ensemble du barrage.
+#(Nokk <-  tapply(d3ejok$N,d3ejok$position,sum,na.rm=TRUE)/muinv)
+#(Nokk <- Nokk[!is.na(Nokk)])
+#
+##ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=Nprimo4,col=position))
+##ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=N4,col=position))
+##ggplot(d3ej)+geom_point(aes(x=dsf_timeinit,y=N,col=position))
+#
+#
+## Anguilles à la montée
+#pminus=data.frame(cbind(tapply(d3ej$drr_eelminus,d3ej$mois,sum,na.rm=TRUE),
+#        tapply(rowSums(d3ej[,c("drr_eelplus","drr_eelminus")]),na.rm=TRUE,d3ej$mois,sum)))
+#pminus<-pminus[-1,]
+#pminus=rbind(pminus,colSums(pminus))
+#pminus$percminus<-pminus[,1]/pminus[,2]
+#colnames(pminus)<-c("minus","tous","percminus")
+#rownames(pminus)[nrow(pminus)]<-"total"
+#save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 
 @
 
 
-[TODO CHECK ICI APPEL A e3ejok QUI EST SEULEMENT DANS LES ANCIENS CALCULS, 
-DEPLACER CHUNK NOMBRE ALL AVANT ET FAIRE REFERENCE A CELUI CI ]
-Un total de
-\num{\Sexpr{round(Nprim04all)}}
-anguilles a été compté au didson sur l'ensemble de la période de suivi depuis
-2012 dont \num{\Sexpr{round(Nprim04allCY)}} pour l'année en cours. Lorsque
-plusieurs lectures sont disponibles pour un même fichier, les fichiers correspondant au
-meilleur filtre (CSOT) de dépouillement sont utilisés.
-Ce nombre diminue à
-\num{\Sexpr{round(sum(colSums(d3ej[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)))}}
-anguilles lorsqu'on ne sélectionne que les
-anguilles comptées entre 18h et 8h . Puis il diminue encore à
-\num{\Sexpr{round(sum(colSums(d3ejok[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)))}}
-lorsqu'on ne sélectionne que les fichiers pour lesquels le didson est positionné
-correctement, et qui ne présentent pas de problème de qualité, d'écriture ou
-d'acquisition. Les fichiers pour lesquels l'acquisition est jugée correcte $\odot$ correspondent
-à \num{\Sexpr{round(percOK)}}\% du temps.\\
-A partir de cette sélection, les différentes étapes d'extrapolation conduisent
-aux effectifs N$\odot$ décrits au tableau \ref{tabfinal}. Les effectifs comptés
-pour chaque position du didson et chaque pas de temps $N'_{o4}(t,k)$ sont
-divisés par l'efficacité $\bar{E(k)}$ et le facteur $\rho$ pour obtenir les effectifs corrigés au droit du didson
-$N_{o4}(t,k)$ suivant la formule \ref{eq_efficacite32}.\\
-A partir de ces effectifs, les données sont extrapolées au niveau de la vanne
-$N_{4}(t,k)$ en utilisant la surface totale diminuée d'une tranche d'eau de 2 m
-en surface lorsque les écoulements se font par le fond. Elles sont extrapolées
-comme les autres années à une zone correspondant à 6
-fois la charge sur le volet lorsque les écoulements se font en surface (coefficient $\lambda$=6).
-%en utilisant des coefficients de valeur $\Lambda$=2 pour les vannes et $\lambda$=6 pour les volets (Formule \ref{eqmigvan2})
-Enfin, les effectifs sont extrapolés à l'ensemble du barrage pour obtenir la prédiction $N\odot$ (Formule
-\ref{eq_Ntotal}). Lors de cette dernière extrapolation, on corrige aussi des
-effectifs estimés de jour pour obtenir la migration sur l'ensemble du cycle
-journalier (Formule \ref{eq_mu}).
-
-\subsubsection{Prédiction pour les données manquantes}
-
-
-<<load_all_years, echo=FALSE, eval=FALSE, results=hide>>=
+<<load_all_years_deprecated, echo=FALSE, eval=FALSE,results=hide>>=
 # d3ej vient de ddde mais limité de jour
 # dans un premier temps je l'ai compilé à partir des fichiers, puis j'ai décidé de tout recharger directement à partir de la base
 
@@ -5124,7 +5078,7 @@ journalier (Formule \ref{eq_mu}).
 
 @
 
-<<Nombre_all, echo=FALSE, eval=TRUE,results=hide>>=
+<<Nombre_all, echo=FALSE, eval=FALSE,results=hide>>=
 # chargement
 
 load(file=str_c(datawdy,"d3ej.all.Rdata")) 
@@ -5443,6 +5397,8 @@ cat(besttg,
     sep="\n")
 options(encoding = "native.enc")
 
+
+
 ######################################
 # predictions pour les jours manquants
 # utilisation d'un modèle gam moins performant mais plus sûr g10
@@ -5473,22 +5429,19 @@ D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",value
 dev.off()
 
 
-
+save(bestg, file = str_c(datawdy,"bestg.Rdata"))
 save(D2, D7j, file=str_c(datawdy,"D2D7j.Rdata"))
 
 
 @
 
-
-
-
-
-
-<<tableaufinal, echo=FALSE, eval=TRUE,results=hide>>=
+<<tableaufinal, echo=FALSE, eval=FALSE,results=hide>>=
 # Devalaison observée dans le champ de la vanne pour positions mauvaise ...
 # didson en vanne alors que en volet, ou en volet alors que écoulement en vanne
 
 load(file=str_c(datawdy,"D2D7j.Rdata"))
+
+# numbers for report
 
 # ci dessous vérification de la cohérence des chiffres
 D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
@@ -5687,12 +5640,18 @@ toto <- latex(final,
 options(encoding = "native.enc")
 final <- res
 save(final,file=str_c(datawdy,"final.Rdata"))
-
+vvv$percOK <- round(100* sum(indexOK)/length(indexOK))
+vvv$Nprim04all <- sum(colSums(ddde[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)) # 24049 (2024)
+vvv$Nprim04CY <- sum(colSums(ddde[ddde$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)) # 1655 (2024)
+vvv$Nprim04CY19_8 <- round(sum(colSums(d3ej[d3ej$dsf_season==saison,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)))
+vvv$Nprim04all19_8 <- round(sum(colSums(d3ej[,c("drr_eelplus","drr_eelminus")],na.rm=TRUE)))
 vvv$number.odot.all <- D7j %>% filter(!is.na(N.0)) %>%group_by(dsf_season) %>% summarize(N=n())
 vvv$number.odot <-  round(vvv$number.odot.all[vvv$number.odot.all$dsf_season==saison, "N"]) %>% pull()
 vvv$number.otimes.all <- D7j %>% filter(!is.na(N.1)) %>%group_by(dsf_season) %>% summarize(N=n())
 vvv$number.otimes <-  round(vvv$number.otimes.all[vvv$number.otimes.all$dsf_season==saison, "N"]) %>% pull()
 vvv$Nprim04.odot <- res %>% filter(Saison==saison & type =="$\\sum\\odot$") %>% pull("$N'_{o4}$") %>% round()
+vvv$Nprim04.odot.all <- res %>% filter(type =="$\\sum\\odot$") %>% pull("$N'_{o4}$") %>% round()
+
 vvv$N.otimes <- res %>% filter(Saison==saison & type =="$\\otimes$(?)") %>% pull("$N$") %>% round()
 vvv$N.oplus <- res %>% filter(Saison==saison & type =="$\\oplus$(?)") %>% pull("$N$") %>% round()
 vvv$N.odot <- res %>% filter(Saison==saison & type =="$\\sum\\odot$") %>% pull("$N$") %>% round()
@@ -5708,7 +5667,48 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 
 @
 
-<<figurefinal, echo=FALSE, eval=TRUE, results=hide>>=
+
+Un total de $N_{obs}$ =                                   
+ \num{\Sexpr{round(vvv$Nprim04allCY)}} anguilles argentées a été comptés pour la saison \Sexpr{saison}.
+Pour l'ensemble de la période de suivi depuis 2012  cet
+effectif correspond à $\sum_{saison}N_{obs}$\num{\Sexpr{round(vvv$Nprim04all)}}
+anguilles argentées. Il y a plus de lectures d'anguilles disponibles dans la base, mais
+lorsque plusieurs lectures sont disponibles pour un même fichier, 
+les fichiers correspondant au meilleur filtre (CSOT) de dépouillement sont utilisés.
+Ce nombre diminue à
+\num{\Sexpr{vvv$Nprim04CY19_8}}
+($\sum_{saison}N_{obs(18h-8h)}$ = \num{\Sexpr{vvv$Nprim04all19_8}}) anguilles
+lorsqu'on ne sélectionne que les anguilles comptées entre 18h et 8h. Puis il diminue encore à
+\num{\Sexpr{vvv$Nprim04.odot}} 
+($\sum_{saison}N_\odot$ =\num{\Sexpr{sum(vvv$Nprim04.odot.all)}})
+lorsqu'on ne sélectionne que les fichiers pour lesquels le didson est positionné
+correctement, et qui ne présentent pas de problème de qualité, d'écriture ou
+d'acquisition. 
+Les fichiers pour lesquels l'acquisition est jugée correcte $\odot$ correspondent
+à \num{\Sexpr{round(vvv$percOK)}}\% du temps.\\
+A partir de cette sélection, les différentes étapes d'extrapolation conduisent
+aux effectifs N$\odot$ décrits au tableau \ref{tabfinal}.
+
+Les effectifs comptés
+pour chaque position du didson et chaque pas de temps $N'_{o4}(t,k)$ sont
+divisés par l'efficacité $\bar{E(k)}$ et le facteur $\rho$ pour obtenir les effectifs corrigés au droit du didson
+$N_{o4}(t,k)$ suivant la formule \ref{eq_efficacite32}.\\
+A partir de ces effectifs, les données sont extrapolées au niveau de la vanne
+$N_{4}(t,k)$ en utilisant la surface totale diminuée d'une tranche d'eau de 2 m
+en surface lorsque les écoulements se font par le fond. Elles sont extrapolées
+comme les autres années à une zone correspondant à 6
+fois la charge sur le volet lorsque les écoulements se font en surface (coefficient $\lambda$=6).
+%en utilisant des coefficients de valeur $\Lambda$=2 pour les vannes et $\lambda$=6 pour les volets (Formule \ref{eqmigvan2})
+Enfin, les effectifs sont extrapolés à l'ensemble du barrage pour obtenir la prédiction $N\odot$ (Formule
+\ref{eq_Ntotal}). Lors de cette dernière extrapolation, on corrige aussi des
+effectifs estimés de jour pour obtenir la migration sur l'ensemble du cycle
+journalier (Formule \ref{eq_mu}).
+
+\subsubsection{Prédiction pour les données manquantes}
+
+
+
+<<figurefinal, echo=FALSE, eval=FALSE, results=hide>>=
 #d3ejok$"fit" <- NA                    
 #d3ejok$"se.fit" <- NA           
 #d3ejok$"residual.scale" <- NA  
@@ -5883,6 +5883,8 @@ dev.off()
 @
 
 
+
+
 La deuxième étape du calcul des effectifs correspond à la prédiction des
 migrations lorsque le didson est dans une mauvaise position ($\otimes$), c'est à
 dire en surface alors que les écoulements sont au fond, et au fond alors que les
@@ -6048,7 +6050,7 @@ taille des anguilles amorcée en 2020-2021.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/horairespb2024}
+  \includegraphics[width=0.5\textwidth]{2024/horairespb2024.png}
   \caption[Fonctionnement du didson]{Fonctionnement du didson. Les rectangles
   correspondent chacun à une période d'enregistrement, 
   0  \textcolor{turquoise}{\rule[0mm]{1mm}{2mm}} enregistrement normal, 
