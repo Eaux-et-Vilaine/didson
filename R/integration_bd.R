@@ -12,26 +12,20 @@ load_package("stacomirtools")
 load_package("stringr")
 load_package("plyr")
 load_package("lubridate")
-load_package("safer")
-load_package("getPass")
 load_package("DBI")
 load_package('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 setwd("C:/workspace/didson/")
 load_package("SIVA")
-#install.packages("xlsx")
--#install.packages("D:/temp/didson/2022-2023/SIVA_0.1.4.3.tar.gz")
-load_package("xlsx")
-
+load_packag("readl")
 if (!exists("userdistant") |
     !exists("passworddistant"))
     stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
-pois <- getPass(msg = "Main password")
-host <- decrypt_string(hostdistant, pois)
-user <- decrypt_string(userdistant, pois)
-password <- decrypt_string(passworddistant, pois)
+host <- Sys.getenv("hostmercureinternal")  
+password <- Sys.getenv("passmercure") 
+user <-  Sys.getenv("usermercure")
 Sys.timezone()
 #Sys.setenv(TZ='GMT')
-datawd <- "C:/temp/didson/2023-2024/"
+datawd <- "C:/temp/2024_2025/"
 #######################################################################
 ## essai de connection à la base didson
 #req<-new("RequeteODBC")
@@ -47,44 +41,42 @@ datawd <- "C:/temp/didson/2023-2024/"
 # récupération du fichier excel
 
 
-xls.file <- str_c(datawd, "depouillement_2023_TOTAL.xlsx")
+xls.file <- str_c(datawd, "depouillement_2024_TOTAL2.xlsx")
 file.exists(xls.file)
-ta <- xlsx::read.xlsx(
-    xls.file ,
-    sheetName = "depouillement",
-    colIndex = 1:19,
-    as.data.frame = TRUE,
-    header = TRUE,
-    colClasses =
+ta <- readxl::read_xlsx(
+    path = xls.file,
+    sheet = "depouillement",
+    range = readxl::cell_cols("A:S"),
+    col_names = TRUE,
+    col_types =
         c(
-            rep("POSIXct", 2),
-            "character",
+            rep("date", 2),
+            "text",
             rep("numeric", 4),
             "logical",
-            "character",
+            "text",
             #"character", # to fix when format is 1970 see below erreur 2023
-            rep("POSIXct",2),
-            "character",
+            rep("date",2),
+            "text",
             rep("numeric", 2),
-            rep("character", 2),
+            rep("text", 2),
             rep("numeric", 2),
-            "character"
+            "text"
         )
 )
-# read.xlsx convertit tout en GMT car il n'y a pas de tz dans excel
-# Il faut donc remettre les données à la main
-attributes (ta$dsf_timeinit) #GMT OK
-attributes (ta$dsf_timeend) # GMT OK
+# verification que readxl prend bien la locale
+attributes (ta$dsf_timeinit) #UTC OK
+attributes (ta$dsf_timeend) # UTC OK
 # erreur en 2023 le format ne passait pas
 #ta$dsr_readinit <- openxlsx::convertToDateTime(ta$dsr_readinit, origin = "1900-01-01")
-ta$dsr_readinit
-ta$dsr_readend 
+ta$dsr_readinit #UTC OK
+ta$dsr_readend  #UTC OK
 head(ta$dsf_timeinit)
 #head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
 #ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
 #ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
-ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
-ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
+#ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
+#ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
 
 # vérifier que le nom du fichier correspond bien à la date
 View(head(ta))
@@ -123,7 +115,7 @@ dsf[is.na(dsf$dsf_filename), ]
 
 
 
-table(dsf$dsf_distancestart) # 5 9482
+table(dsf$dsf_distancestart) # 5 9232
 # 2015 correction
 
 #-7 3.75    5   =>  3.75    5
@@ -143,6 +135,7 @@ dupl <- dsf$dsf_filename[duplicated(dsf$dsf_filename)]
 # 2019 0
 # 2022 0
 # 2023 11
+# 2024 1 => viré c'est une erreur
 #stopifnot(is.null(dupl))
 dsf <- dsf[!duplicated(dsf$dsf_filename), ]
 # 2015 8886
@@ -150,6 +143,7 @@ dsf <- dsf[!duplicated(dsf$dsf_filename), ]
 # 2018 7681
 # 2019 9552
 # 2023 9471
+# 2025 9229
 #str(dsf)
 #dsf<-prepare_for_sql(dsf) # quote character et POSIXt>> character
 #str(dsf)
