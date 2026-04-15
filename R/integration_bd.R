@@ -218,7 +218,7 @@ DBI::dbExecute(con, statement =
         dsf_readok,
         dsf_filename
  from temp_dsf"
-) # 9993 # 8373 # 9471
+) # 9993 # 8373 # 9471 # 9229
 
 
 
@@ -283,6 +283,7 @@ table(dsr$dsr_reader)
 #3569   452
 #70     3124
 #1182   1827 
+#500     2713
 dsf <- DBI::dbGetQuery(con,"select * from   did.t_didsonfiles_dsf")
 dsf <- dsf[, c("dsf_id", "dsf_filename")]
 
@@ -332,12 +333,12 @@ DBI::dbExecute(con, statement =
         dsr_muletscore,
         dsr_fryscore,
         dsr_comment from temp_dsr"
-) # 4021 #3194 # 3009
+) # 4021 #3194 # 3009 #3213
 
 DBI::dbExecute(con, statement =
         
         "update did.t_didsonread_dsr set
         dsr_readinit=temp_dsr.dsr_readinit::timestamp FROM temp_dsr
         WHERE (t_didsonread_dsr.dsr_dsf_id, t_didsonread_dsr.dsr_readend::timestamp)=(temp_dsr.dsr_dsf_id,temp_dsr.dsr_readend::timestamp)"
-) # 4021 #3194
+) # 4021 #3194 #3213
 
