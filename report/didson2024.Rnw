@@ -25,12 +25,14 @@
 \usepackage{dirtytalk} % pour les guillemet \say{ceci sera quoté  et \say{nested quote}}
 %https://tex.stackexchange.com/questions/464585/what-tips-and-tricks-should-i-know-when-using-the-georgia-font-in-latex/464586
 % \usepackage{fontspec} % charte graphique EPTB
+\usepackage{marvosym} % \male and \female
 \usepackage{amsmath}
 \usepackage[math-style=ISO]{unicode-math}
 \usepackage{microtype}
 \defaultfontfeatures{Scale=MatchLowercase}
 \setmainfont{Georgia}[Scale = 1.0]
 \setmathfont{Asana Math.otf}
+\usepackage[nodayofweek]{datetime}
 \addto\captionsfrench{\def\tablename{Tableau}}
 \addto\captionsfrench{\renewcommand*{\contentsname}{Sommaire:}}
 \addto{\captionsfrench}{\renewcommand*{\abstractname}{Résumé}}
@@ -367,7 +369,7 @@ année) sur la Vilaine à l'aide d'un didson.\\
 Date d'édition :\\}
 \color{orange_EV}
 \Large
-Mars 2025
+Avril 2025
 \end{center}
 \vspace{1cm}\\
 \end{minipage}
@@ -435,7 +437,7 @@ Eriau}}}
 \end{center}
 \end{minipage}
 \vfill
-\hfill \Large Mars 2025
+\hfill \Large Avril 2025
 
 \normalsize
 
@@ -964,7 +966,7 @@ load(file = str_c(datawdy, "ppp.Rdata"))
 # deuxième paramètre = hauteur de migration pour la tranche de surface.
 # (en coefficient multiplicateur de la charge)
 # troisième paramètre couche de surface sans migration
-PARM <- c(NA, 6, 2)
+PARM <- c(1, 6, 2)
 # attention changement de la signification pour les stats bayésiennes
 load(file = str_c(datawdy, "vvv.Rdata"))
 load(file = str_c(datawdy,"bestg.Rdata")) # the best 
@@ -1325,7 +1327,7 @@ save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 
 
 @
-% METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
+% METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER
 <<d3ej, echo=FALSE, eval=FALSE,results=hide >>=
 #CHUNK PRINCIPAL DE CALCUL
 load(file = str_c(datawdy, "ddde.all.Rdata"))
@@ -1623,7 +1625,7 @@ print(res, n = Inf, width = Inf)
 ppp <- list()
 #print= "sortieecran" # pour ne pas voir les graphes, peut importe ce qui est écrit ici
 print = "png"
-
+# pour les dessins hpas c'est la hauteur de la vanne, mais dans les calculs c'est la hauteur d'eau.
 for (j in 1:nrow(res)) {
   ppp <- drawdicriter(
       profdid = res$dsf_depth[j],
@@ -1651,6 +1653,7 @@ for (j in 1:nrow(res)) {
       ),
       res=300
   )
+
 }
 # les periodes sont écrites par la fonction dans dddp$periode,
 # sur la nouvelle version dddp contient toutes les années, mais les données mises à jour sont écrites sur l'année en cours
@@ -4067,6 +4070,8 @@ C1$Ncor <- C1$N*C1$coeff-C1$N
 C2 <- C1 %>% pivot_longer(cols=c("N","Ncor"),names_to="type",values_to="N")
 
 
+
+
 C2$type <- factor(C2$type, levels=c("Ncor","N"))
 
 pdf(str_c(imgwdy,"structure_taille.pdf"),width=5, height=5)
@@ -4077,7 +4082,8 @@ ggplot(C2) +
     labs(x="Classe de taille",
         y="Effectifs observés et corrigés de l'efficacité")
 dev.off()
-# travail sur les tailles à moins de 7 m de distance
+save(C2, file = str_c(datawdy,"C2.Rdata"))
+
 resolution<-(c(2,5,7,9,11,13)/2)/96		
 save(dddp, file= str_c(datawdy,"dddp_2.Rdata"))
 save(efficacite_moyenne, file= str_c(datawdy,"efficacite_moyenne.Rdata"))
@@ -4087,6 +4093,35 @@ vvv$efficacite$fond <-round(100*efficacite_moyenne[efficacite_moyenne$position==
 save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
+
+<<sexe_ratio, echo=FALSE, eval=FALSE, results=hide>>=
+
+load(file= str_c(datawdy, "C2.Rdata"))
+tbl_sexe_ratio <- C2 %>% 
+  filter(type == "Ncor") %>%
+  mutate(sexe = case_when(taille<45 ~ "male", .default = "female")) %>%
+  group_by(saison, sexe) %>%
+  summarize(N=sum(N)) %>%
+  pivot_wider(names_from ="sexe", values_from = "N") %>%
+  mutate( total = male + female,
+  prop_male = round(male /total, 2)) %>%
+  rename("\\female"=female, "\\male"=male )
+
+options(encoding = "UTF-8")
+xta1 <- xtable(tbl_sexe_ratio,
+    label="tab_prop_male",
+    digits=c(0,0,0,0,0,2),
+    caption=c(
+        str_c("Pourcentage de mâles \\male par saison, calculé à partir des anguilles de taille 
+inférieure à 45 cm et des effectifs corrigés de l'efficacité (on augmente la proportion des
+mâles (prop \\male) qui sont moins visibles.")))
+print(xta1,file=str_c(tabwdy,"tab_prop_male.tex"),
+    table.placement="htbp",
+    caption.placement = "top",
+    NA.string = "",
+    include.rownames=FALSE)
+options(encoding = "native.enc")
+@
 
 <<qualite, echo=FALSE, eval=FALSE, results=hide>>=
 load(file= str_c(datawdy,"dddp_2.Rdata"))
@@ -4666,7 +4701,7 @@ Comme pour les autres saisons, cette prospection est plus importante lorsque le 
 %  faisceau par-dessus ou dessous, $InOut$ l'anguille rentre et ressort, $Out$ l'anguille sort du faisceau}
 %  \label{comportement}
 %\end{figure}
-\subsubsection{Biomasses et sexe ratios}
+\subsubsection{Biomasses}
 \label{parpoids}
 <<biomasse, echo=FALSE, eval=TRUE, results=hide>>=
 #load("C:/workspace/pdata/devalpomi/ang_laurent/data/big_anguille.RData")
@@ -4806,21 +4841,21 @@ des anguilles est estimé à \num{\Sexpr{round(vvv$mean_weight)}}g.
    effectifs bruts (N), en bleu foncé effectifs corrigés de l'efficacité (Ncor).}
   \label{structure_taille}
 \end{figure}
-Les sexes ratios calculés en utilisant une limite de 
- taille entre les mâles et les femelles à 500 mm (450 mm pour
- \citep{acou_estimation_2010}, mais 500 dans notre échantillon après
- décomposition polymodale) s'établissent à
- \num{\Sexpr{round(100*vvv$sexe_ratio)}} \% de mâles en \Sexpr{saison}, soit la plus importante proportion de mâles observée jusqu'alors.
- Les chiffres de sexe ratio montrent une diminution puis une réaugmentation de
- la proportion de mâles. Les premières années 2012-2013 et 2013-2014, ce
- pourcentage était de 12 et 15 \%  \citep{briand_suivi_2014, briand_suivi_2015}, 9\%
-en 2014-2015 et 2015-2016 \citep{briand_suivi_2016,
-briand_suivi_2017}, 7\% en 2016-2017 \citep{briand_suivi_2018}, 5\% en
-2017-2018 \citep{briand_suivi_2018}, 7 \% en 2018-2019
-\citep{briand_suivi_2019}, 8\% en 2019-2020 \citep{briand_suivi_2020}, 24\% en
-2020-2021 \citep{briand_suivi_2021},
-x\% en 2021-2022 \citep{briand_suivi_2022}
-et x\% de mâles en 2022-2023 \citep{briand_suivi_2023}.
+La proportion de mâles correspond à la proportion d'anguilles observée
+au droit du didson. Elle est calculée en utilisant une limite de taille entre
+les mâles et les femelles à 450 mm \citep{acou_estimation_2010}.
+ Les chiffres  montrent une diminution puis une réaugmentation de
+ la proportion de mâles. La proportion diffère en fonction de la méthode
+ utilisée pour répartir les tailles en sexe, on peut aussi utiliser une fonction
+ de décomposition polymodale ou une coupure simple au seuil de 45 mm.
+Elle ne correspond pas à la proportion de mâles ayant franchi le barrage.
+Pour obtenir cette dernière il faudrait calculer séparément les flux migratoires
+par classe de taille car lors des grandes crues d'hiver la proportion
+d'anguilles se présentant au droit du didson diminue - les anguilles
+franchissent le barrage par toutes les vannes en grande ouverture et ont peu de
+chance de se retrouver au droit du didson.
+
+\input{../table/2024/tab_prop_male.tex}
 
 % le pdf fait planter l'impression
 %\begin{figure}[htbp]
@@ -6202,9 +6237,9 @@ $Q_{j~max}~m^{3}s^{-1}$= débit maximum journalier,
 2021--2022 & {-} & 
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2021-2022" &final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\
 2022--2023 & {-} & 
-\num{\Sexpr{round(as.numeric(final[final$Saison=="2022-2023" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2022-2023" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 400\\
 2023--2024 & {-} & 
-\num{\Sexpr{round(as.numeric(final[final$Saison=="2023-2024" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 100\\
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2023-2024" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 600\\
  \hline
 \end{tabular}
 \normalsize
@@ -6592,7 +6627,7 @@ Bretagne et la Région Bretagne.
 
 \begin{center}
    Rapport \LaTeX \\
-   Dernière compilation le 26 février 2024\\
+   Dernière compilation le \today \\
 \Sexpr{str_c("version R ",version$major,".",version$minor)} 
 \end{center}
 
