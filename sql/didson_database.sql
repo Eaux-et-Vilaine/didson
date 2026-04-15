@@ -1,6 +1,9 @@
 ﻿--create schema did;
 --CREATE EXTENSION tablefunc;
 -- set search_path to did,public
+
+
+Select current_setting('timezone'); # Europe/Berlin
 drop table if exists did.tr_filestatus_fls cascade;
 create table did.tr_filestatus_fls
 (

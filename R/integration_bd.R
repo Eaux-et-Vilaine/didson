@@ -15,8 +15,8 @@ load_package("lubridate")
 load_package("DBI")
 load_package('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 setwd("C:/workspace/didson/")
-load_package("SIVA")
-load_packag("readl")
+#load_package("SIVA")
+load_package("readxl")
 if (!exists("userdistant") |
     !exists("passworddistant"))
     stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
@@ -191,11 +191,13 @@ con <- dbConnect(Postgres(),
     port=5432, 		
     user= user, 		
     password= password)
-# DO THIS, OVERWRITE DOES NOT RAISE ERROR AND THEN NOTHING IS WRITTEN
+# Here I create a table with timezone, it doesn't help, when writing dbWrite table adds two hours
+# in the doc they say that dbWriteTable might do mistakes... Well here it's a big one !
 DBI::dbExecute(con, "DROP TABLE IF exists temp_dsf")
-dsf$dsf_timeinit <- format(dsf$dsf_timeinit)
-dsf$dsf_timeend <- format(dsf$dsf_timeend)
-DBI::dbWriteTable(con, "temp_dsf",dsf)
+DBI::dbExecute(con, "CREATE TABLE temp_dsf (like did.t_didsonfiles_dsf)")
+DBI::dbWriteTable(con, "temp_dsf", dsf, overwrite = TRUE)
+# so now we have gained one to two hours ... figure...
+# this seems to work 	(cast(dsf_timeinit as timestamptz) at time zone 'GMT')::timestamptz 
 DBI::dbExecute(con, statement =
     "insert into did.t_didsonfiles_dsf(
         dsf_timeinit,
@@ -208,8 +210,8 @@ DBI::dbExecute(con, statement =
         dsf_readok,
         dsf_filename)
         select 
-				dsf_timeinit::timestamp,
-        dsf_timeend::timestamp,
+				(cast(dsf_timeinit as timestamptz) at time zone 'GMT')::timestamptz   ,
+        (cast(dsf_timeend as timestamptz) at time zone 'GMT')::timestamptz ,
         dsf_position,
         dsf_incl,
         dsf_distancestart,
@@ -219,6 +221,8 @@ DBI::dbExecute(con, statement =
         dsf_filename
  from temp_dsf"
 ) # 9993 # 8373 # 9471 # 9229
+
+
 
 
 
@@ -323,8 +327,8 @@ DBI::dbExecute(con, statement =
         dsr_fryscore,
         dsr_comment)
         select dsr_dsf_id,
-        dsr_readinit::timestamp,
-        dsr_readend::timestamp,
+         (cast(dsr_readinit as timestamptz) at time zone 'GMT')::timestamptz,
+         (cast(dsr_readend as timestamptz) at time zone 'GMT')::timestamptz ,
         dsr_reader,
         dsr_eelplus,
         dsr_eelminus,
@@ -335,10 +339,10 @@ DBI::dbExecute(con, statement =
         dsr_comment from temp_dsr"
 ) # 4021 #3194 # 3009 #3213
 
-DBI::dbExecute(con, statement =
-        
+DBI::dbExecute(con, statement =        
         "update did.t_didsonread_dsr set
         dsr_readinit=temp_dsr.dsr_readinit::timestamp FROM temp_dsr
         WHERE (t_didsonread_dsr.dsr_dsf_id, t_didsonread_dsr.dsr_readend::timestamp)=(temp_dsr.dsr_dsf_id,temp_dsr.dsr_readend::timestamp)"
 ) # 4021 #3194 #3213
 
+# !! CHECK THAT dsr_readinit has not shifted from the content in R
