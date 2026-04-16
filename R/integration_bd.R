@@ -20,7 +20,7 @@ load_package("readxl")
 if (!exists("userdistant") |
     !exists("passworddistant"))
     stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
-host <- Sys.getenv("hostmercureinternal")  
+host <- Sys.getenv("hostmercure")  # hostmercureinternal
 password <- Sys.getenv("passmercure") 
 user <-  Sys.getenv("usermercure")
 Sys.timezone()
@@ -65,18 +65,18 @@ ta <- readxl::read_xlsx(
         )
 )
 # verification que readxl prend bien la locale
-attributes (ta$dsf_timeinit) #UTC OK
-attributes (ta$dsf_timeend) # UTC OK
+attributes (ta$dsf_timeinit) #UTC wrong
+attributes (ta$dsf_timeend) # UTC wrong
 # erreur en 2023 le format ne passait pas
 #ta$dsr_readinit <- openxlsx::convertToDateTime(ta$dsr_readinit, origin = "1900-01-01")
 ta$dsr_readinit #UTC OK
 ta$dsr_readend  #UTC OK
 head(ta$dsf_timeinit)
 #head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
-#ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
-#ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
-#ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
-#ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
+ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
+ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
+ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
+ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
 
 # vérifier que le nom du fichier correspond bien à la date
 View(head(ta))
@@ -210,8 +210,8 @@ DBI::dbExecute(con, statement =
         dsf_readok,
         dsf_filename)
         select 
-				(cast(dsf_timeinit as timestamptz) at time zone 'GMT')::timestamptz   ,
-        (cast(dsf_timeend as timestamptz) at time zone 'GMT')::timestamptz ,
+			dsf_timeinit, 
+       dsf_timeend,
         dsf_position,
         dsf_incl,
         dsf_distancestart,
@@ -327,7 +327,7 @@ DBI::dbExecute(con, statement =
         dsr_fryscore,
         dsr_comment)
         select dsr_dsf_id,
-         (cast(dsr_readinit as timestamptz) at time zone 'GMT')::timestamptz,
+         (cast(dsr_readinit as timestamptz) at time zone 'GMT' at time zone 'UTC')::timestamptz,
          (cast(dsr_readend as timestamptz) at time zone 'GMT')::timestamptz ,
         dsr_reader,
         dsr_eelplus,
