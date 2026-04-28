@@ -69,11 +69,12 @@ attributes (ta$dsf_timeinit) #UTC wrong
 attributes (ta$dsf_timeend) # UTC wrong
 # erreur en 2023 le format ne passait pas
 #ta$dsr_readinit <- openxlsx::convertToDateTime(ta$dsr_readinit, origin = "1900-01-01")
-ta$dsr_readinit #UTC OK
-ta$dsr_readend  #UTC OK
+attributes (ta$dsr_readinit) #UTC wrong
+attributes (ta$dsr_readend)  #UTC wrong
 head(ta$dsf_timeinit)
 #head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
 ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
+# ATTENTION LORS DU CHANGEMENT d'HEURE ON PEUT VIRER LES TIMES ! vérifier la sortie !
 ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
 ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
 ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
