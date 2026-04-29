@@ -379,3 +379,62 @@ WHERE dsr_total>0 AND drr_total IS NULL
 AND dsr_csotismin
 AND dsf_season = '2012-2013';
 --zero fichiers
+
+SELECT * FROM t_didsonfiles_dsf JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id WHERE (dsr_eelplus>0 or dsr_eelminus>0) and
+dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr) AND dsr_csotismin ORDER BY dsf_timeinit; --12 lines now corrected
+
+|dsf_id|dsf_timeinit                 |dsf_timeend                  |dsf_position|dsf_incl|dsf_distancestart|dsf_depth|dsf_fls_id|dsf_readok|dsf_filename        |
+|------|-----------------------------|-----------------------------|------------|--------|-----------------|---------|----------|----------|--------------------|
+|5 938 |2012-09-25 00:00:00.000 +0200|2012-09-25 00:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-25_000000_HF|
+|5 995 |2012-09-25 20:00:00.000 +0200|2012-09-25 20:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-25_200000_HF|
+|6 015 |2012-09-26 01:00:00.000 +0200|2012-09-26 01:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-26_010000_HF|
+|6 071 |2012-09-26 21:00:00.000 +0200|2012-09-26 21:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-26_210000_HF|
+|6 075 |2012-09-26 22:00:00.000 +0200|2012-09-26 22:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-26_220000_HF|
+|6 177 |2012-09-28 07:30:00.000 +0200|2012-09-28 08:00:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-28_073000_HF|
+|6 215 |2012-09-28 22:00:00.000 +0200|2012-09-28 22:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-28_220000_HF|
+|6 245 |2012-09-29 07:00:00.000 +0200|2012-09-29 07:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-29_070000_HF|
+|6 277 |2012-09-29 20:00:00.000 +0200|2012-09-29 20:30:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-29_200000_HF|
+|6 291 |2012-09-29 23:30:00.000 +0200|2012-09-30 00:00:00.000 +0200|volet       |-7      |5                |1,03     |0         |false     |2012-09-29_233000_HF|
+|10 636|2012-12-27 18:00:00.000 +0100|2012-12-27 18:29:00.000 +0100|vanne       |-3      |2,08             |-6,82    |3         |false     |2012-12-27_180000_HF|
+
+
+SELECT * FROM t_didsonreadresult_drr WHERE drr_dsf_id IN (5938,5995,6015,6071,6075,6177,6215,6245,6277,6291,10636)
+SELECT * FROM t_didsonread_dsr WHERE dsr_dsf_id IN (5938,5995,6015,6071,6075,6177,6215,6245,6277,6291,10636) ORDER BY dsr_dsf_id, dsr_csotdb
+
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3657;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3691;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3711;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3743;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3747;
+
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3818;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3836;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3860;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3872;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=3886;
+UPDATE did.t_didsonread_dsr
+  SET dsr_csotismin=false
+  WHERE dsr_id=5514;
+UPDATE did.t_didsonread_dsr
+  SET dsr_comment='Le fichier plein est perdu mais ici c''est le même nombre',dsr_csotismin=true
+  WHERE dsr_id=5515;
