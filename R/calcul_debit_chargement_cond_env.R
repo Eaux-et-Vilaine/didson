@@ -23,8 +23,8 @@ load_library("getPass")
 load_library("pool")
 library(SIVA)
 
-CY<-2024
-label<-2024# season is CY-1 - CY
+CY <- 2025
+label <- 2025# season is CY-1 - CY
 # adaptation : le script n'est pas lancer avec les params passés par le Rmarkdown
 params <-list()
 params$work_with_db <- TRUE
@@ -39,7 +39,8 @@ load_library('sqldf') # mimict sql queries in a data.frame #citation("sqldf")
 # setting options to access postgres using sqldf
 load_library('plyr')# join fuction
 load_library('ggplot2')# join fuction
-load_library('gpclib') # to calculate polygons intersections
+load_library('gpclib') # to calculate polygons intersections 
+#devtools::install_github('https://github.com/rdpeng/gpclib')
 load_library('reshape2')
 load_library('dplyr')	
 load_library('stringr')
@@ -91,7 +92,7 @@ if (!exists("userdistant")) {
 # attention il faut avaoir définit mainpass <- "xxxxx"
 
 poolsiva <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
+    drv = RMySQL::MySQL(),
     dbname = "archive_IAV",
     host = hostmysql.,
     username = umysql.,
@@ -141,12 +142,13 @@ debit_barrage <- traitement_siva(debit_barrage)
 
 
 # debit_barrage$tot_vol_vanne[debit_barrage$tot_vol_vanne > 480000 & !is.na(debit_barrage$tot_vol_vanne)]
-
+debit_barrage$horodate  <- as.POSIXct(debit_barrage$horodate, tz= "Europe/Paris")
 
 ###############################
 # STEP 2 TRAITEMENT DES DONNEES ABERRANTES
 ################################
 dat <- debit_barrage
+
 dat$day<-yday(dat$horodate)
 dat$week<-week(dat$horodate)
 
@@ -159,10 +161,11 @@ sum(abs(dat$diffniveaumer)>0.6,na.rm=TRUE)
 
 png(file=str_c(imgwdy,"niveaumer",label,".png"),width=600,height=480)
 ggplot(dat)+
-    geom_point(aes(x=horodate,y=niveaumer))+
-    geom_point(aes(x=horodate,y=niveaumer),col="red", 
-        data =subset(dat,abs(dat$diffniveaumer)>0.6 & dat$niveaumer< -0.5))
-dev.off()
+  geom_point(aes(x=as.POSIXct(horodate),y=niveaumer))+
+  geom_point(aes(x=as.POSIXct(horodate),y=niveaumer),col="red", 
+             data =subset(dat,abs(dat$diffniveaumer)>0.6 & dat$niveaumer< -0.5)) +
+  theme_bw()
+  dev.off()
 
 # 2020-2021
 dat$niveaumer[dat$niveaumer==-4] <-NA
@@ -183,10 +186,10 @@ dat$niveauvilaineb[dat$niveauvilaineb==-1] <-NA
 getdatefromlocator <- function(){
   myloc <- locator()
   times <- structure(myloc$x,class=c('POSIXt','POSIXct'))
+  times <- force_tz(times, "Europe/Paris")
   return(times)
 } 
 plot(dat$horodate, dat$niveauvilaineb)
-getdatefromlocator()
 
 
 plot(dat$horodate, dat$niveaumer)
@@ -279,7 +282,8 @@ while(length(w>0)){
 while(length(w>0)){
   dat[w,"niveaumerb"]<-dat[w-1,"niveaumerb"]
   w <- which(is.na(dat$niveaumerb))
-  cat(w, "\n")}
+  cat(w, "\n")
+}
 
 
 
@@ -328,7 +332,19 @@ plot(dat$horodate,dat$volet2)
 plot(dat$horodate,dat$volet3) 
 plot(dat$horodate,dat$volet4)
 plot(dat$horodate,dat$volet5)
-dat$volet5[dat$volet5<4.030 & dat$volet5>1.380 & dat$horodate < '2023-09-10 00:00:00 '] <- 4.030
+# défives de codeur sur volets 3 et 5
+#dat$volet5[dat$volet5<4.030 & dat$volet5>1.380 & dat$horodate < '2023-09-10 00:00:00 '] <- 4.030
+
+#getdatefromlocator()
+#
+#
+dat$deltav3[2:nrow(dat)] <- diff(dat$volet3)
+with(subset(dat,dat$volet3>3.8 & dat$volet3<4.030 & abs(deltav3)<0.2), points(horodate, volet3, col="red"))
+dat$volet3[dat$volet3>3.8 & dat$volet3<4.030 & abs(dat$deltav3)<0.2] <- 4.030
+dat$deltav5[2:nrow(dat)] <- diff(dat$volet5)
+with(subset(dat,dat$volet5>3.5 & dat$volet5<4.030 & abs(deltav5)<0.2), points(horodate, volet5, col="red"))
+dat$volet5[dat$volet5>3.5 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
+
 #dat$deltav5[2:nrow(dat)] <- diff(dat$volet5)
 #with(subset(dat,dat$volet5>3.8 & dat$volet5<4.030 & abs(deltav5)<0.2), points(horodate, volet5, col="red"))
 #dat$volet5[dat$volet5>3.8 & dat$volet5<4.030 & abs(dat$deltav5)<0.2] <- 4.030
@@ -559,26 +575,34 @@ dev.off()
 # IMPORT DES DONNES DE TURBIDITE
 ###################################################################
 # utilise la classe Tabkesiva pour une seule table
-poolsiva <- pool::dbPool(
-    drv = RMariaDB::MariaDB(),
-    dbname = "archive_IAV",
-    host = hostmysql.,
-    username = umysql.,
-    password = pwdmysql.,
-    port=3306
-)
-ta <- new("tablesiva",
-    table="b_ferel_mesure",
-    nom="turbidite",
-    tag=	as.integer(9042),
-    debut=as.POSIXct(strptime(str_c(CY-1,"-09-01 00:00:00"),format="%Y-%m-%d %H:%M:%S")),
-    fin=as.POSIXct(strptime(str_c(CY,"-05-01 00:00:00"),format="%Y-%m-%d %H:%M:%S"))
-)
-tur <- loaddb(ta, poolsiva)@rawdata
-tur$date <- as.Date(tur$horodate)
-plot(tur$date, tur$turbidite)
+# poolsiva <- pool::dbPool(
+#   drv = RMariaDB::MariaDB(),
+#   dbname = "archive_IAV",
+#   host = hostmysql.,
+#   username = umysql.,
+#   password = pwdmysql.,
+#   port=3306
+# )
+# ta <- new("tablesiva",
+#           table="b_ferel_mesure",
+#           nom="turbidite",
+#           tag=	as.integer(9042),
+#           debut=as.POSIXct(strptime(str_c(CY-1,"-09-01 00:00:00"),format="%Y-%m-%d %H:%M:%S")),
+#           fin=as.POSIXct(strptime(str_c(CY,"-05-01 00:00:00"),format="%Y-%m-%d %H:%M:%S"))
+# )
+# tur <- loaddb(ta, poolsiva)@rawdata
+# tur$date <- as.Date(tur$horodate)
+# plot(tur$date, tur$turbidite)
+# 
+# debitjour=left_join(QV,tu)
+# 
+# Aller dans https://eau.toutsurmesservices.fr/
+# Aller dans BILANS ET MESURES
+# Cliquer sur télécharger le rapport annuel
+# En attendant la réponse 
+debitjour <- QV
+debitjour$turbidite <- NA
 
-debitjour=left_join(QV, tur[,c("date","turbidite")])
 #nrow(debitjour) # 239
 #debitjour est une table temporaire.
 # dbWriteTable(pooldidson, DBI::Id(schema= "did", table = "debitjour21102021"), debitjour[debitjour$date=='2021-10-21',])
@@ -593,7 +617,7 @@ Q12345$Qsiphon <- Q12345$tot_vol_siphon/600 #env_debitsipon
 dbExecute(pooldidson,  "drop table if exists did.t_env_env_temp")
 dbExecute(pooldidson,"create table did.t_env_env_temp(
         env_id serial primary key,
-        env_time timestamp,
+        env_time timestamp with time zone,
         env_volet1 numeric,
         env_volet2 numeric,
         env_volet3 numeric,
@@ -701,7 +725,7 @@ colnames(t_env_env_temp) <- c(
   "env_qvolet3",
   "env_qvolet4",
   "env_qvolet5")
-    
+head(t_env_env_temp$env_time) # "2024-09-01 00:00:00 CEST" OK
 dbAppendTable(pooldidson,DBI::Id(schema="did",table="t_env_env_temp"),t_env_env_temp) 
         
 #t_env_env_21102021 <- t_env_env_temp[strftime(t_env_env_temp$env_time, "%Y-%m-%d")=="2021-10-21",]
@@ -731,7 +755,7 @@ Qi_insert$HoroDate<-sQuote(strftime(Qi_insert$HoroDate,format="%Y-%m-%d %H:%M:%S
 
 Qi_insert$Valeur<-round(Qi_insert$Valeur,3)
 
-dbWriteTable(poolsiva, "archive_IAV.temp_calc_barrage_debit",Qi_insert)
+dbWriteTable(poolsiva, "archive_IAV.temp_calc_barrage_debit",Qi_insert, row.names = FALSE, append =TRUE)
 dbExecute(poolsiva, "INSERT INTO archive_iav.calc_barrage_debit SELECT * FROM archive_IAV.temp_calc_barrage_debit;")
 dbExecute(poolsiva, "SELECT * FROM archive_IAV.temp_calc_barrage_debit")
 dbExecute(poolsiva, "DROP TABLE IF EXISTS archive_IAV.temp_calc_barrage_debit;")
