@@ -601,7 +601,7 @@ dev.off()
 # Cliquer sur télécharger le rapport annuel
 # En attendant la réponse 
 debitjour <- QV
-debitjour$turbidite <- NA
+debitjour$turbidite <- NA_real_
 
 #nrow(debitjour) # 239
 #debitjour est une table temporaire.
