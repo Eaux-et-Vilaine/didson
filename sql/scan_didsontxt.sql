@@ -292,7 +292,7 @@ JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename
 ORDER BY countdsr, dsf_id desc) sub
 WHERE dsf_season='2024-2025'
-AND countdrr>1
+and countdrr>1
 ; --128 2015 4 2016 8 2017 44 2018 0 2019 0 2020 0 2021 0 2022 4 2023 32 2024 0 2025
 
 
@@ -654,7 +654,7 @@ WHERE dsr_csotdb IS NULL and
  dsr_id in (
 	SELECT dsr_id FROM t_didsonfiles_dsf 
 	JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id 
-	WHERE dsf_season='2024-2025'
+	--WHERE dsf_season='2024-2025'
 	); --2019 ---317 2020 804 2021 138 2022 7 2023 79 2024 112 2025 64
 -- ci dessous deux fois des fichiers avec dsr_csot NULL (pas possible)
 -- SELECT * FROM t_didsonread_dsr WHERE dsr_dsf_id=133245
@@ -2335,17 +2335,17 @@ FROM  t_didsonfiles_dsf
 	ORDER BY dsf_season;  
 /*
 dsf_season;count
-2012-2013;2615 2722 (2025)
-2013-2014;1999 2012 (2025)
-2014-2015;1937 2007 (2025)
+2012-2013;2615 2586 (2025)
+2013-2014;1999 1984 (2025)
+2014-2015;1937 1937 (2025)
 2015-2016;3808
-2016-2017;2020 2023 (2025)
-2017-2018;1338 => 1425 1439 (2025)
+2016-2017;2020 2020 (2025)
+2017-2018;1338 => 1425 1425 (2025)
 2018-2019;1739 ==> 1736 
 2019-2020;1434 
 2020-2021 1985
 2021-2022 1937
-2022-2023 1581 1582 (2025)
+2022-2023 1581 1581 (2025)
 2023-2024 1685 1691 (2025)
 2024-2025 1747 (2025)
 
@@ -2363,17 +2363,17 @@ FROM  t_didsonfiles_dsf
 	group by dsf_season
 	ORDER BY dsf_season; 
 /*
-"2012-2013";2615 (2025) 2722
-"2013-2014";1999 (2025) 2012
-"2014-2015";1937 (2025) 2007
+"2012-2013";2615 (2025) 2586
+"2013-2014";1999 (2025) 1984
+"2014-2015";1937 (2025) 1937
 "2015-2016";4071->3809=> 3808
-"2016-2017";2020 (2025) 2023
-"2017-2018";1338 => 1425 (2025) 1439
+"2016-2017";2020 (2025) 2020
+"2017-2018";1338 => 1425 (2025) 1425
 "2018-2019";1739 =>1736
 "2019-2020";1434
 2020-2021 1985
 2021-2022 1937
-2022-2023 1581 (2025) 1582
+2022-2023 1581 (2025) 1581
 2023-2024 1685 (2025) 1691
 2024-2025 1747 (2025)
 */
@@ -2391,7 +2391,7 @@ SELECT sub1.dsf_timeinit, dsf_id, count_psf, count_dsr from(
   	JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id
   	JOIN t_didsonreadresult_drr ON drr_dsr_id=dsr_id
   	JOIN t_poissonfile_psf ON psf_drr_id=drr_id
-  	WHERE dsr_csotismin
+  	WHERE dsr_csotismin 
   	AND dsr_pertefichiertxt IS FALSE
   	AND psf_species='2038'
   	group by dsf_timeinit, dsf_id) sub1
@@ -2461,14 +2461,14 @@ SELECT count(*) FROM did.t_didsonfiles_dsf  dsf
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species!='2014'
 				AND  psf_species!='2338'
-				AND dsr_csotismin; --6701 --10624 --13720 --15546 --16977 --18965 --20902 --22483 --24365 (2023-2024) 26470 (2024-2025)
+				AND dsr_csotismin; --6701 --10624 --13720 --15546 --16977 --18965 --20902 --22483 --24365 (2023-2024) 26212 (2024-2025)
 -- lamproies
 SELECT count(*) FROM did.t_didsonfiles_dsf  dsf 	
 				JOIN  did.t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
 				JOIN did.t_didsonreadresult_drr drr ON 	drr_dsr_id=dsr_id
 				JOIN did.t_poissonfile_psf ON psf_drr_id=drr_id
 				WHERE psf_species='2014'
-				AND dsr_csotismin; --2592 --657 -- 799 --1614 --1896 --1898 --1899 --1957 --1962 --2874 (2023) 3020 (2023-2024) 3113 (2024-2025)
+				AND dsr_csotismin; --2592 --657 -- 799 --1614 --1896 --1898 --1899 --1957 --1962 --2874 (2023) 3020 (2023-2024) 3075 (2024-2025)
 				
 SELECT count(*), dsf_season, psf_dir FROM did.t_didsonfiles_dsf  dsf   
         JOIN  did.t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
@@ -2502,6 +2502,8 @@ SELECT count(*), dsf_season, psf_dir FROM did.t_didsonfiles_dsf  dsf
 |37   |2024-2025 |Dn     |
 |2    |2024-2025 |Up     |
 */
+
+-- note ce résulat est probablement faux, il faut prendre les csotismin
 
 SELECT count(*),  psf_species FROM t_poissonfile_psf group by psf_species
 /* (2020)
@@ -2560,7 +2562,7 @@ dsr_id not in (SELECT drr_dsr_id FROM t_didsonreadresult_drr)) sub; --0 (2018) N
 SELECT * FROM t_didsonread_dsr 
 JOIN t_didsonreadresult_drr
 ON drr_dsr_id=dsr_id WHERE dsr_csotismin=FALSE; 
--- 0 2025
+-- 99 2025 c'est les fichiers qui ne sont pas sélectionnés OK
 
 
 
