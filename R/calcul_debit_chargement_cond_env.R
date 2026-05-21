@@ -117,7 +117,7 @@ imgwd <- "C:/workspace/didson/image/"
 imgwdy <- str_c(imgwd,CY,"/")
 dir.create(imgwdy,showWarnings = FALSE)
 dir.create(datawdy,showWarnings = FALSE)
-Sys.setenv(TZ='GMT') # pour prendre en compte le format des heures au barrage
+#Sys.setenv(TZ='GMT') # pour prendre en compte le format des heures au barrage
 
 
 ###############################
@@ -407,8 +407,11 @@ load(file=str_c(datawdy,"dat.Rdata"))
 # STEP 3 CALCUL DES DEBITS
 ################################
 # Calcul du débit journalier
-
-
+# lancer fix pb debit .R pour règler le pb de débit loi Canal
+param <- SIVA::param
+param["Cvg"] <- 1.2894710
+param["Cvgs"] <- 1.0194351 
+param["Cvw"] <- 0.4226267  
 Q12345 <- debit_total(param, param0 = param, dat)
 Q12345$tot_vol <- dat$tot_vol # volume total au barrage d'Arzal
 Q12345$Qvanne  <- rowSums(Q12345[, c(
@@ -574,34 +577,29 @@ dev.off()
 ###################################################################
 # IMPORT DES DONNES DE TURBIDITE
 ###################################################################
-# utilise la classe Tabkesiva pour une seule table
-# poolsiva <- pool::dbPool(
-#   drv = RMariaDB::MariaDB(),
-#   dbname = "archive_IAV",
-#   host = hostmysql.,
-#   username = umysql.,
-#   password = pwdmysql.,
-#   port=3306
-# )
-# ta <- new("tablesiva",
-#           table="b_ferel_mesure",
-#           nom="turbidite",
-#           tag=	as.integer(9042),
-#           debut=as.POSIXct(strptime(str_c(CY-1,"-09-01 00:00:00"),format="%Y-%m-%d %H:%M:%S")),
-#           fin=as.POSIXct(strptime(str_c(CY,"-05-01 00:00:00"),format="%Y-%m-%d %H:%M:%S"))
-# )
-# tur <- loaddb(ta, poolsiva)@rawdata
-# tur$date <- as.Date(tur$horodate)
-# plot(tur$date, tur$turbidite)
+
+# voir issue pour screenshot, les données sont dans le nouveau portail
+#  Il faut recompiler les valeurs des annees CY et CY-1 dans une table csv.
+# Aller sur le site https://login.toutsurmesservices.fr 
+# Aller dans rapport annuel d'exploitation
+# Télécharger les fichier xls correspondant à deux années.
+# Parfois ça plante ou ça prend du temps.
+# Aller copier les données correspondant à la turbidité d'eau brute
+# Onlget analyse en continu, colonne AN (moyen) USINE DE DRÉZET FÉREL
+# 	Turbidimètre Eau Brute NTU (Nephelometric Turbidity Unit)	
+
+# Vérifier les valeurs, il y a des -8
+# Sauver dans un fichier csv avec deux colonnes date et turbidite
+
+tur <- read.csv2(paste0("../data/",CY,"/tur.csv"), dec =".")
+ tur$date <- strptime(tur$date, format = "%d/%m/%Y")
+ # VERIFIER CETTE CORRECTION POUR 8 Valeurs l'année prochaine !!!
+ tur$turbidite[tur$turbidite == -8] <- 4.5
+ plot(tur$date, tur$turbidite)
 # 
-# debitjour=left_join(QV,tu)
-# 
-# Aller dans https://eau.toutsurmesservices.fr/
-# Aller dans BILANS ET MESURES
-# Cliquer sur télécharger le rapport annuel
-# En attendant la réponse 
-debitjour <- QV
-debitjour$turbidite <- NA_real_
+ debitjour=left_join(QV,tur)
+
+
 
 #nrow(debitjour) # 239
 #debitjour est une table temporaire.

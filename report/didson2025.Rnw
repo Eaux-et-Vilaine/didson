@@ -1118,7 +1118,7 @@ require("getPass")
 
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
 if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
-host <- Sys.getenv("hostmercure")
+#host <- Sys.getenv("hostmercure")
 host <- Sys.getenv("hostmercureinternal")
 user <- decrypt_string(userdistant,pois)
 password <- decrypt_string(passworddistant,pois)
@@ -1854,7 +1854,7 @@ for (Y in 2013:2014){
     ephall1 <- rbind(ephall1,eph)
   }	
 }
-for (Y in 2015:2025){
+for (Y in 2015:2024){
   eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
           sep = ";"))  #ephéméride
   eph$lever_soleil <- strptime(eph$lever, format = "%d/%m/%Y %H:%M")
@@ -2698,9 +2698,9 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   #abline(h=100,lty=2)
 }
 
-png(file=str_c(imgwdy,"debitturbidite.png"),,width = 8, height = 8, units = 'in', res = 300)
-#d3edj<-d3edj[!is.na(d3edj$enj_turb),]
-plotdebitturbidite(ylim= 700, ytop= 600, d3ej=d3ej, d3edj=d3edj)
+png(file=str_c(imgwdy,"debitturbidite.png"),width = 8, height = 8, units = 'in', res = 300)
+#d3edj<-d3edj[!is.na(d3edj$enj_turb),
+plotdebitturbidite(ylim= 900, ytop= 800, d3ej=d3ej, d3edj=d3edj)
 dev.off()
 @
 
@@ -5487,6 +5487,8 @@ pdev<-function(mod){
 }
 
 # ATTENTION DECOMMENTER ET RELANCER TOUS LES MODELES, MODELES ENLEVES POUR GAGNER DU TEMPS
+# on met la même contrainte sur tous les modèles de nday
+# pour les delta on choisit une réponse linéaire simple
 
 summary(g0 <- mgcv::gam(N~1,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g0)
@@ -5496,26 +5498,27 @@ summary(g2 <- mgcv::gam(N~dsf_season+s(ndays),dat=D7j[D7j$N>0,],family=Gamma(lin
 AIC(g2)
 summary(g3 <- mgcv::gam(N~s(ndays, by=dsf_season),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g3)
-summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season, k=5)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g4)
-summary(g5 <- mgcv::gam(N~s(ndays, by=dsf_season)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g5 <- mgcv::gam(N~dsf_season+ s(ndays, by=dsf_season, k=5)+s(deb_qtotalj) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g5)
-summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g6)
-summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) + s(delta_1d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow + delta_1d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g7) # delta NS
-summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) + s(delta_3d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow+ delta_3d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g8) # delta NS
-summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+ cumflow + delta_7d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g9) # delta NS 
 summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5)+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g10) 
 
 # J'ai du virer tous les +s(enj_turb) car je ne l'ai plus dans mon modèle
+# note les cumflow a un pb de concurvity, donc je le vire du gam
 bestg <- g9
 
 pdf(file=str_c(imgwdy,"gam_predict.pdf"),width=7,height=7)
-plot(bestg,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-20,20))
+plot(bestg,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-5,5))
 dev.off()
 AIC(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10)
 gam.check(bestg)
@@ -5663,7 +5666,7 @@ res.0_pos <- Dok %>% group_by(dsf_season, position) %>%
         "$N$"=Nok) 
 
 
-#TODO verifier que les chiffres de D2 sont ceux de D7 pour N.0
+#TODO verifier que les chiffres de D2 (summary ci dessus) sont ceux de D7 pour N.0
 tapply(D7j$N.0, D7j$dsf_season,sum, na.rm=TRUE)
 tapply(Dok$N, Dok$dsf_season,sum, na.rm=TRUE)
 
@@ -5755,7 +5758,7 @@ toto <- latex(final,
     file=str_c(tabwdy,"tabfinal.tex"),
     # arguments pour longtable :
     longtable = TRUE,
-    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6 , 6),
+    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6 , 6, 6),
     continued = "\\dots suite \\dots",
     collabel.just = c("l",
         "l",
