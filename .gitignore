@@ -38,7 +38,7 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 /.project
-
+.RProfile
 
 # from eclipse
 
@@ -116,3 +116,9 @@ data/
 table/
 
 /didson.Rproj
+.positai
+
+/image/[0-9][0-9][0-9][0-9]/
+/image/any/
+
+

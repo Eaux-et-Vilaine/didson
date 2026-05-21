@@ -11,11 +11,6 @@ require("getPass")
 require('DBI') # mimict sql queries in a data.frame
 require('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 setwd("C:/workspace/didson")
-if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
-pois <- getPass(msg="Main password")
-host <- decrypt_string(hostdistant,pois)
-user <- decrypt_string(userdistant,pois)
-password<- decrypt_string(passworddistant,pois)
 
 
 
@@ -24,7 +19,7 @@ password<- decrypt_string(passworddistant,pois)
 #####################################
 #install.packages("R.utils")
 
-datawd <- "C:/temp/didson/2023-2024/f/"
+datawd <- "C:/temp/2024_2025/f/"
 #datawd<-"F:/projets/devalaison/fichier_txt_pb/"
 listoffiles <- list.files(str_c(datawd)) # list of files
 listoffiles <- listoffiles[grep(".txt",listoffiles)]
@@ -68,7 +63,7 @@ for (i in 1:length(chemins)){
 	if (length(poissons_end)==0) {
 		poissons_end<-which(re=="END")-1
 	}
-	# certains fichiers n'ont pas de poissons, �a ne sert � rien de les charger...;
+	# certains fichiers n'ont pas de poissons, ca ne sert a rien de les charger...;
 	if (poissons_end>=poissons_start) {
 #==================================================
 # I Extraction des donn�es concernant le r�sum� du fichier
@@ -156,7 +151,7 @@ for (i in 1:length(chemins)){
 		result[["total"]][1,2]=sum(di$dir=="Up") # Upstream
 		result[["total"]][1,3]=sum(di$dir!="Up") # Downstream
 #==================================================
-# IV Extraction des donn�es de *** source file key ***
+# IV Extraction des donnees de *** source file key ***
 #==================================================
  # certains fichiers n'ont plus les infos de *** source file key ***   
 if (length(re)>=poissons_end+8){
@@ -174,9 +169,9 @@ if (length(re)>=poissons_end+8){
 		source_file_end<-""
 	}
 		
-		# on va chercher la date du dison... le nom du fichier correspond � cette date plus les caract�res jusqu'� la fin
-		# le probl�me c'est que le nom qui est dans source file key peut �tre le faux quand l'option 
-# merge append open file to existing file est coch�e
+		# on va chercher la date du dison... le nom du fichier correspond a cette date plus les caracteres jusqu'a la fin
+		# le probleme c'est que le nom qui est dans source file key peut etre le faux quand l'option 
+# merge append open file to existing file est cochee
 if (regexpr("FC_CSOT",didson[2,2])==-1) num=regexpr("FC_",didson[2,2])[1]+3 else num=regexpr("FC_CSOT_",didson[2,2])[1]+8
 # certains fichiers n'ont pas d'heure...
 if (grepl("_HF_",didson[2,2])==0){

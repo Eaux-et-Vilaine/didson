@@ -12,26 +12,20 @@ load_package("stacomirtools")
 load_package("stringr")
 load_package("plyr")
 load_package("lubridate")
-load_package("safer")
-load_package("getPass")
 load_package("DBI")
 load_package('RPostgres') # one can use RODBC, here I'm using direct connection via the sqldf package
 setwd("C:/workspace/didson/")
-load_package("SIVA")
-#install.packages("xlsx")
--#install.packages("D:/temp/didson/2022-2023/SIVA_0.1.4.3.tar.gz")
-load_package("xlsx")
-
+#load_package("SIVA")
+load_package("readxl")
 if (!exists("userdistant") |
     !exists("passworddistant"))
     stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
-pois <- getPass(msg = "Main password")
-host <- decrypt_string(hostdistant, pois)
-user <- decrypt_string(userdistant, pois)
-password <- decrypt_string(passworddistant, pois)
+host <- Sys.getenv("hostmercure")  # hostmercureinternal
+password <- Sys.getenv("passmercure") 
+user <-  Sys.getenv("usermercure")
 Sys.timezone()
 #Sys.setenv(TZ='GMT')
-datawd <- "C:/temp/didson/2023-2024/"
+datawd <- "C:/temp/2024_2025/"
 #######################################################################
 ## essai de connection à la base didson
 #req<-new("RequeteODBC")
@@ -47,42 +41,41 @@ datawd <- "C:/temp/didson/2023-2024/"
 # récupération du fichier excel
 
 
-xls.file <- str_c(datawd, "depouillement_2023_TOTAL.xlsx")
+xls.file <- str_c(datawd, "depouillement_2024_TOTAL2.xlsx")
 file.exists(xls.file)
-ta <- xlsx::read.xlsx(
-    xls.file ,
-    sheetName = "depouillement",
-    colIndex = 1:19,
-    as.data.frame = TRUE,
-    header = TRUE,
-    colClasses =
+ta <- readxl::read_xlsx(
+    path = xls.file,
+    sheet = "depouillement",
+    range = readxl::cell_cols("A:S"),
+    col_names = TRUE,
+    col_types =
         c(
-            rep("POSIXct", 2),
-            "character",
+            rep("date", 2),
+            "text",
             rep("numeric", 4),
             "logical",
-            "character",
+            "text",
             #"character", # to fix when format is 1970 see below erreur 2023
-            rep("POSIXct",2),
-            "character",
+            rep("date",2),
+            "text",
             rep("numeric", 2),
-            rep("character", 2),
+            rep("text", 2),
             rep("numeric", 2),
-            "character"
+            "text"
         )
 )
-# read.xlsx convertit tout en GMT car il n'y a pas de tz dans excel
-# Il faut donc remettre les données à la main
-attributes (ta$dsf_timeinit) #GMT OK
-attributes (ta$dsf_timeend) # GMT OK
+# verification que readxl prend bien la locale
+attributes (ta$dsf_timeinit) #UTC wrong
+attributes (ta$dsf_timeend) # UTC wrong
 # erreur en 2023 le format ne passait pas
 #ta$dsr_readinit <- openxlsx::convertToDateTime(ta$dsr_readinit, origin = "1900-01-01")
-ta$dsr_readinit
-ta$dsr_readend 
+attributes (ta$dsr_readinit) #UTC wrong
+attributes (ta$dsr_readend)  #UTC wrong
 head(ta$dsf_timeinit)
 #head(as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris"))
-#ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
-#ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
+ta$dsf_timeinit <- as.POSIXct(format(ta$dsf_timeinit), tz="Europe/Paris")
+# ATTENTION LORS DU CHANGEMENT d'HEURE ON PEUT VIRER LES TIMES ! vérifier la sortie !
+ta$dsf_timeend <- as.POSIXct(format(ta$dsf_timeend), tz="Europe/Paris")
 ta$dsr_readinit <- as.POSIXct(format(ta$dsr_readinit), tz="Europe/Paris")
 ta$dsr_readend <- as.POSIXct(format(ta$dsr_readend), tz="Europe/Paris")
 
@@ -123,7 +116,7 @@ dsf[is.na(dsf$dsf_filename), ]
 
 
 
-table(dsf$dsf_distancestart) # 5 9482
+table(dsf$dsf_distancestart) # 5 9232
 # 2015 correction
 
 #-7 3.75    5   =>  3.75    5
@@ -143,6 +136,7 @@ dupl <- dsf$dsf_filename[duplicated(dsf$dsf_filename)]
 # 2019 0
 # 2022 0
 # 2023 11
+# 2024 1 => viré c'est une erreur
 #stopifnot(is.null(dupl))
 dsf <- dsf[!duplicated(dsf$dsf_filename), ]
 # 2015 8886
@@ -150,6 +144,7 @@ dsf <- dsf[!duplicated(dsf$dsf_filename), ]
 # 2018 7681
 # 2019 9552
 # 2023 9471
+# 2025 9229
 #str(dsf)
 #dsf<-prepare_for_sql(dsf) # quote character et POSIXt>> character
 #str(dsf)
@@ -197,11 +192,13 @@ con <- dbConnect(Postgres(),
     port=5432, 		
     user= user, 		
     password= password)
-# DO THIS, OVERWRITE DOES NOT RAISE ERROR AND THEN NOTHING IS WRITTEN
+# Here I create a table with timezone, it doesn't help, when writing dbWrite table adds two hours
+# in the doc they say that dbWriteTable might do mistakes... Well here it's a big one !
 DBI::dbExecute(con, "DROP TABLE IF exists temp_dsf")
-dsf$dsf_timeinit <- format(dsf$dsf_timeinit)
-dsf$dsf_timeend <- format(dsf$dsf_timeend)
-DBI::dbWriteTable(con, "temp_dsf",dsf)
+DBI::dbExecute(con, "CREATE TABLE temp_dsf (like did.t_didsonfiles_dsf)")
+DBI::dbWriteTable(con, "temp_dsf", dsf, overwrite = TRUE)
+# so now we have gained one to two hours ... figure...
+# this seems to work 	(cast(dsf_timeinit as timestamptz) at time zone 'GMT')::timestamptz 
 DBI::dbExecute(con, statement =
     "insert into did.t_didsonfiles_dsf(
         dsf_timeinit,
@@ -214,8 +211,8 @@ DBI::dbExecute(con, statement =
         dsf_readok,
         dsf_filename)
         select 
-				dsf_timeinit::timestamp,
-        dsf_timeend::timestamp,
+			dsf_timeinit, 
+       dsf_timeend,
         dsf_position,
         dsf_incl,
         dsf_distancestart,
@@ -224,7 +221,9 @@ DBI::dbExecute(con, statement =
         dsf_readok,
         dsf_filename
  from temp_dsf"
-) # 9993 # 8373 # 9471
+) # 9993 # 8373 # 9471 # 9229
+
+
 
 
 
@@ -289,6 +288,7 @@ table(dsr$dsr_reader)
 #3569   452
 #70     3124
 #1182   1827 
+#500     2713
 dsf <- DBI::dbGetQuery(con,"select * from   did.t_didsonfiles_dsf")
 dsf <- dsf[, c("dsf_id", "dsf_filename")]
 
@@ -328,8 +328,8 @@ DBI::dbExecute(con, statement =
         dsr_fryscore,
         dsr_comment)
         select dsr_dsf_id,
-        dsr_readinit::timestamp,
-        dsr_readend::timestamp,
+         (cast(dsr_readinit as timestamptz) at time zone 'GMT' at time zone 'UTC')::timestamptz,
+         (cast(dsr_readend as timestamptz) at time zone 'GMT')::timestamptz ,
         dsr_reader,
         dsr_eelplus,
         dsr_eelminus,
@@ -338,12 +338,12 @@ DBI::dbExecute(con, statement =
         dsr_muletscore,
         dsr_fryscore,
         dsr_comment from temp_dsr"
-) # 4021 #3194 # 3009
+) # 4021 #3194 # 3009 #3213
 
-DBI::dbExecute(con, statement =
-        
+DBI::dbExecute(con, statement =        
         "update did.t_didsonread_dsr set
         dsr_readinit=temp_dsr.dsr_readinit::timestamp FROM temp_dsr
         WHERE (t_didsonread_dsr.dsr_dsf_id, t_didsonread_dsr.dsr_readend::timestamp)=(temp_dsr.dsr_dsf_id,temp_dsr.dsr_readend::timestamp)"
-) # 4021 #3194
+) # 4021 #3194 #3213
 
+# !! CHECK THAT dsr_readinit has not shifted from the content in R

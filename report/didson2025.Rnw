@@ -25,12 +25,14 @@
 \usepackage{dirtytalk} % pour les guillemet \say{ceci sera quoté  et \say{nested quote}}
 %https://tex.stackexchange.com/questions/464585/what-tips-and-tricks-should-i-know-when-using-the-georgia-font-in-latex/464586
 % \usepackage{fontspec} % charte graphique EPTB
+\usepackage{marvosym} % \male and \female
 \usepackage{amsmath}
 \usepackage[math-style=ISO]{unicode-math}
 \usepackage{microtype}
 \defaultfontfeatures{Scale=MatchLowercase}
 \setmainfont{Georgia}[Scale = 1.0]
 \setmathfont{Asana Math.otf}
+\usepackage[nodayofweek]{datetime}
 \addto\captionsfrench{\def\tablename{Tableau}}
 \addto\captionsfrench{\renewcommand*{\contentsname}{Sommaire:}}
 \addto{\captionsfrench}{\renewcommand*{\abstractname}{Résumé}}
@@ -140,7 +142,7 @@ round-precision = 0 % precision des arrondis
             firstinits=true, % pas de prenoms
             %sorting=nyt, % name, year, title
             eprint=false]{biblatex} % option natbib to use cite and citep
-\addbibresource{didson2024.bib}
+\addbibresource{didson2025.bib}
 %\usepackage[round, comma, sort]{natbib}
 
 
@@ -174,7 +176,7 @@ round-precision = 0 % precision des arrondis
      bookmarks=true,  %créé des signets pour Acrobat
      bookmarksopen=true,            %si les signets Acrobat sont créés,
                                     %les afficher complètement.
-     pdftitle={Suivi de la dévalaison de l'anguille argentée en 2023--2024
+     pdftitle={Suivi de la dévalaison de l'anguille argentée en 2024--2025
      (12ème année) sur la Vilaine à l'aide d'un didson},
      %informations apparaissant dans
      pdfauthor={Cédric Briand, Brice Sauvaget, Gérard Eriau},     %dans les
@@ -245,7 +247,7 @@ round-precision = 0 % precision des arrondis
 \fancyhf{} \fancyfoot[C]{\sffamily\normalsize\thepage} % Font setting for
 % the page number in the header
 \fancyhead[LE,RO]{\sffamily \rightmark}
-\fancyhead[LO,RE]{\slshape \normalsize Rapport didson 2023-2024}
+\fancyhead[LO,RE]{\slshape \normalsize Rapport didson 2024-2025}
 \renewcommand{\headrulewidth}{0.5pt} % Width of the rule under the header (slightly more than 0.4 pt)
 \addtolength{\headheight}{2.5pt} % Increase the spacing around the header slightly
 \renewcommand{\footrulewidth}{0pt} % Removes the rule in the footer
@@ -254,7 +256,7 @@ round-precision = 0 % precision des arrondis
 \fancyhf{} \fancyfoot[C]{\sffamily\normalsize\thepage} % Font setting for
 % the page number in the header
 \fancyhead[LE,RO]{\sffamily Annexes}
-\fancyhead[LO,RE]{\slshape \normalsize Rapport didson 2023-2024}
+\fancyhead[LO,RE]{\slshape \normalsize Rapport didson 2024-2025}
 \renewcommand{\headrulewidth}{0.5pt} % Width of the rule under the header (slightly more than 0.4 pt)
 \addtolength{\headheight}{2.5pt} % Increase the spacing around the header slightly
 \renewcommand{\footrulewidth}{0pt} % Removes the rule in the footer
@@ -352,7 +354,7 @@ keepaspectratio]{frontpage.png}%
 \begin{minipage}{0.28\textwidth}
 \par\sffamily\selectfont
 \Large 
-Suivi de la dévalaison d'anguilles argentées en 2023-2024 (douzième
+Suivi de la dévalaison d'anguilles argentées en 2024-2025 (douzième
 année) sur la Vilaine à l'aide d'un didson.\\
 \vspace{1cm}\\
 \includegraphics[width=0.8\textwidth]{logo_EV} 
@@ -425,7 +427,7 @@ Gérard Eriau\par
 { \huge  \bfseries{Suivi de la dévalaison d'anguilles argentées sur la Vilaine
 à l'aide d'un didson}}\\ 
 \bigskip
-{ \LARGE en 2023--2024 (12ème année)}
+{ \LARGE en 2024--2025 (12ème année)}
 
 \noindent
 {\color{turquoise_EV}\rule{0.9\textwidth}{1.8pt}}\\
@@ -463,7 +465,7 @@ load_library <- function(necessary) {
   }
 }
 load_library("stringr") # text handling
-CY <- 2024
+CY <- 2025
 saison <- str_c((CY - 1), "-", CY)
 debut <- str_c(CY - 1, "-09-01 00:00:00")
 fin <- str_c(CY, "-05-01 00:00:00")
@@ -501,8 +503,9 @@ load_library("stargazer")
 load_library("mgcv")
 load_library("MASS")
 load_library("xtable")
-load_library("tidyverse") # conflict with intersect ... fixed
+load_library("tidyverse") # conflict with intersect ... fixed 
 load_library("mixdist")
+load_library("httr") # for script sunshine sunset
 #' ==========================================================
 #' fonction de nettoyage du code latex
 #' ==========================================================
@@ -1109,12 +1112,14 @@ briand_suivi_2021, briand_suivi_2022, briand_suivi_2023, briand_suivi_2024}.
 
 
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER 
-<<database, echo=FALSE, eval=FALSE,results=hide >>=
+<<database, echo=FALSE, eval=FALSE, results=hide >>=
 require("safer")
 require("getPass")
+
 if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
 if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
-host <- decrypt_string(hostdistant,pois)
+#host <- Sys.getenv("hostmercure")
+host <- Sys.getenv("hostmercureinternal")
 user <- decrypt_string(userdistant,pois)
 password <- decrypt_string(passworddistant,pois)
 base <- c("didson",host,5432,user,password)
@@ -1326,7 +1331,7 @@ save(nblpm,lpm,file=str_c(datawdy,"lpm.Rdata"))
 
 @
 % METTRE EVAL TRUE / FALSE POUR CALCULER/ACCELERER
-<<d3ej, echo=FALSE, eval=FALSE,results=hide >>=
+<<d3ej, echo=FALSE, eval=FALSE, results=hide >>=
 #CHUNK PRINCIPAL DE CALCUL
 load(file = str_c(datawdy, "ddde.all.Rdata"))
 load(file = str_c(datawdy, "dddp.all.Rdata"))
@@ -1336,9 +1341,9 @@ tapply(rowSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE), ddde$dsf
 # 2566      1990      1964   3810>3809    2020     1425       1739      1434
 # nouveau calcul 202
 # 2012-2013 2013-2014 2014-2015 2015-2016 2016-2017 2017-2018 2018-2019 2019-2020
-# 2617      1999      1937      3808      2020      1425      1736      1434
-#2020-2021 2021-2022 2022-2023 2023-2024 
-#     1985      1937      1581      1690
+# 2617>586      1999>1984      1937      3808      2020      1425      1736      1434
+#2020-2021 2021-2022 2022-2023        2023-2024  2024-2025
+#     1985      1937      158   1690>1691   1747
 nrow(dddp)  
 ddde$hour <- as.numeric(strftime(ddde$round_time, format = "%H", tz ="UTC"))
 
@@ -1346,7 +1351,14 @@ stopifnot(length(which(duplicated(ddde$dsf_id))) == 0)
 #View(ddde[ddde$dsf_id %in% ddde$dsf_id[duplicated(ddde$dsf_id)],])
 
 stopifnot(nrow(dddp) == sum(colSums(ddde[, c("drr_eelplus", "drr_eelminus")], na.rm = TRUE)))
-
+# fix 2025 (pb with 2012-2013
+#dddp |> group_by(dsf_season) |> summarize(n=n())
+#ddde |> group_by(dsf_season) |> summarize(n= sum(drr_eelplus,drr_eelminus, na.rm = TRUE))
+#dddp |> filter(dsf_season=='2012-2013') |>group_by(dsf_id)|> summarize(n=n()) |> left_join(
+#ddde |> filter(dsf_season=='2012-2013') |>group_by(dsf_id)|> summarize(ndrr= sum(drr_eelplus,drr_eelminus, na.rm = TRUE))) |> 
+#mutate( ndrr = ifelse(is.na(ndrr), 0, ndrr)) |> 
+#filter(n != ndrr)
+#-- see fix_all_pb_2012_2013  a23d193bbe638ecbde2f9b3815466d71918a768f
 d3ej <-
     subset(ddde, (ddde$hour > 17 |
               ddde$hour <= 9) & !is.na(ddde$date))  # ddde de jour
@@ -1538,7 +1550,7 @@ divide <- split(divide, c(row(divide))) # coercing to list
 # Qui peut être réduite si il y a intersection avec le fond.
 #------------------------------------------------------------------------
 #date_seuil_pb_lentille <- dmy(13122018)
-test <- new.env()
+# test <- new.env()
 system.time(
     d <- mapply(
         drawdi,
@@ -1562,7 +1574,7 @@ system.time(
 )
 # ATTENTION IL PEUT Y AVOIR UN PB AVEC INTERSECT SI LA METHODE EST CHARGEE PAR UN AUTRE PACKAGE
 # utilisateur     système      écoulé 
-#     114.09        2.67      118.40 
+#     103.36        3.32      109.55
 save(d, file = str_c(datawdy, "d.Rdata")) # load(file=str_c(datawdy,"d.Rdata"))
 d3ej$area_intersect <- unlist(lapply(d, function(X)
           X$area_intersect))
@@ -1651,6 +1663,7 @@ for (j in 1:nrow(res)) {
       ),
       res=300
   )
+
 }
 # les periodes sont écrites par la fonction dans dddp$periode,
 # sur la nouvelle version dddp contient toutes les années, mais les données mises à jour sont écrites sur l'année en cours
@@ -1698,6 +1711,81 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 
 @
 
+<< sundata, echo=FALSE, eval=FALSE, results=hide >>=
+
+# Ne lancer qu'une fois par an, télécharge les données
+
+# fonction avec paramètres pour Arzal
+
+get_sun_data <- function(date, 
+lat = 47.5167, 
+lon =-2.3762,
+tz_local = "Europe/Paris") {
+  
+  
+  url <- "https://api.sunrise-sunset.org/json"
+
+  response <- GET(
+    url,
+    query = list(
+      lat = lat,
+      lng = lon,
+      date = as.character(date),
+      formatted = 0,
+      tzid=tz_local
+    )
+  )
+
+  stop_for_status(response)
+
+  data <- fromJSON(content(response, as = "text", encoding = "UTF-8"))
+
+  return(tibble(
+    date = date,
+    lever = ymd_hms(data$results$sunrise,  quiet = TRUE, tz = tz_local),
+    coucher  = ymd_hms(data$results$sunset, quiet = TRUE, tz = tz_local),    
+    duree = substring(data$results$day_length,1,5),
+    nautical_twilight_begin =ymd_hms(data$results$nautical_twilight_begin,quiet = TRUE, tz = tz_local),
+    nautical_twilight_end =ymd_hms(data$results$nautical_twilight_end, quiet = TRUE, tz = tz_local)    
+  ))
+}
+
+# --------- API only accepts a few data at a time
+
+jan <- seq(as.Date(paste0(CY,"-01-01")), as.Date(paste0(CY,"-01-31")), by = "day")
+feb <- seq(as.Date(paste0(CY,"-02-01")), as.Date(paste0(CY,"-02-28")), by = "day")
+mar <- seq(as.Date(paste0(CY,"-03-01")), as.Date(paste0(CY,"-03-31")), by = "day")
+apr <- seq(as.Date(paste0(CY,"-04-01")), as.Date(paste0(CY,"-04-30")), by = "day")
+may <- seq(as.Date(paste0(CY,"-05-01")), as.Date(paste0(CY,"-05-31")), by = "day")
+jun <- seq(as.Date(paste0(CY,"-06-01")), as.Date(paste0(CY,"-06-30")), by = "day")
+jul <- seq(as.Date(paste0(CY,"-07-01")), as.Date(paste0(CY,"-07-31")), by = "day")
+aug <- seq(as.Date(paste0(CY,"-08-01")), as.Date(paste0(CY,"-08-31")), by = "day")
+sep <- seq(as.Date(paste0(CY,"-09-01")), as.Date(paste0(CY,"-09-30")), by = "day")
+oct <- seq(as.Date(paste0(CY,"-10-01")), as.Date(paste0(CY,"-10-31")), by = "day")
+nov <- seq(as.Date(paste0(CY,"-11-01")), as.Date(paste0(CY,"-11-30")), by = "day")
+dec <- seq(as.Date(paste0(CY,"-12-01")), as.Date(paste0(CY,"-12-31")), by = "day")
+
+
+
+# ---- Lapply sur les dates  ----
+
+ll <- list()
+for (m in c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec")){
+  name <- deparse(m)
+   m <-get(m)
+  cat(sprintf("Getting data for %s, then 2s pause \n", name))
+  ll[[name]] <- bind_rows(
+  lapply(m, get_sun_data))
+  Sys.sleep(2)
+}
+# ---- Get final dataset ----
+
+res <- do.call("rbind", ll)
+write_excel_csv2(res,
+        file = str_c(datawd,Y, "/lever_coucher.csv"))
+@
+
+
 <<loadrdata, echo=FALSE, eval=TRUE,results=hide >>=
 load(file=str_c(datawdy, "depouillement.Rdata"))
 load(file=str_c(datawdy, "sumdepouillement.Rdata"))
@@ -1743,9 +1831,13 @@ d3ej <- horaires(d3ej)
 # changement 2019 17 h à 16h
 fulldays <- unique(ddde[ddde$Hdeb >= 10 & ddde$Hdeb <= 16, "date"])  # jours complets
 # préparer un fichier csv pour l'année en cours en extrayant les bonnes dates, et en collant deux années.
-# j'ai déjà copié 2022 et 2023 ds data/2022+, renommer les fichiers en lever_soleil.csv en lever_coucher.csv
+# j'ai déjà copié 2022 et 2023 ds data/2022+, renommer les fichiers en lever_coucher.csv
 # ci dessous deux formats historiques différents que je compile en un seul ficher
 #https://www.sunrise-and-sunset.com/fr/sun/france/nantes/2020/decembre
+
+
+
+
 for (Y in 2013:2014){
   eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
           sep = ";"))  #ephéméride	
@@ -1762,7 +1854,7 @@ for (Y in 2013:2014){
     ephall1 <- rbind(ephall1,eph)
   }	
 }
-for (Y in 2015:CY){
+for (Y in 2015:2024){
   eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
           sep = ";"))  #ephéméride
   eph$lever_soleil <- strptime(eph$lever, format = "%d/%m/%Y %H:%M")
@@ -1777,6 +1869,22 @@ for (Y in 2015:CY){
   } else {
     ephall2 <- rbind(ephall2,eph)
   }	
+}
+# Pour les fichiers téléchargés par l'API
+for (Y in 2025:CY){
+  eph <- killfactor(read.table(str_c(datawd,Y, "/lever_coucher.csv"), header = TRUE, 
+          sep = ";"))  #ephéméride
+  colnames(eph)[1] <- "date"
+  eph$lever_soleil <- strptime(eph$lever, format = "%Y/%m/%d %H:%M:%S")
+  eph$coucher_soleil <- strptime(eph$coucher, format = "%Y/%m/%d %H:%M:%S")
+  eph$lever_soleil_h <- as.numeric(strftime(eph$lever_soleil, "%H")) + as.numeric(strftime(eph$lever_soleil, 
+          "%M"))/60
+  eph$coucher_soleil_h <- as.numeric(strftime(eph$coucher_soleil, "%H")) + as.numeric(strftime(eph$coucher_soleil, 
+          "%M"))/60
+  eph$date <- as.Date(eph$lever_soleil, tz = Sys.timezone())
+  eph <- eph |> select("date","lever_soleil","coucher_soleil","lever_soleil_h","coucher_soleil_h")
+  ephall2 <- rbind(ephall2,eph)
+
 }
 ephall2 <- ephall2[,colnames(ephall1)]
 eph <- rbind(ephall1, ephall2)
@@ -2004,7 +2112,7 @@ Ces crues ont été suivies d'une période calme du 6 février au 9 mars, puis d
 enchainement de 5 pics de crues jusqu'à la fin de la saison (en fin avril) 
 avec des débits de l'ordre de 180 à 270 \unit{\cubic\metre\per\second}.
 
-En 2023--2024, le didson et son rotateur montrent des signes de fatigue, avec de
+En 2024--2025, le didson et son rotateur montrent des signes de fatigue, avec de
 nombreux plantages en cours de saison, mais sans aucune défaillance importante.
 La saison se caractérise par des débits soutenus de début novembre jusqu'à
 mi-avril, avec 2 pics à 300 \unit{\cubic\metre\per\second} début novembre et mi-décembre,
@@ -2093,8 +2201,8 @@ maintenant rassemblées au sein du package
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2024/debits_ajustes2024}
-\caption[Débits recalculés 2024]{Débits recalculés en \Sexpr{CY}.
+\includegraphics[width=0.5\textwidth]{2025/debits_ajustes2025}
+\caption[Débits recalculés 2025]{Débits recalculés en \Sexpr{CY}.
 Comparaison des débits mesurés au niveau de la station de Rieux (Pont de Cran - station
 hydrométrique), des débits calculés par l'automate du barrage d'Arzal et des
 débits recalculés par la méthode de \citet{briand_note_2015}.}
@@ -2102,27 +2210,27 @@ débits recalculés par la méthode de \citet{briand_note_2015}.}
 \end{figure}
 
 L'analyse des données de débit des volets montre un fonctionnement régulier en
-2023-2024 (Figure \ref{debitvoletjour}).
+2024-2025 (Figure \ref{debitvoletjour}).
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2024/debitvolet2024}
-\caption[Débits volet 2024]{Débits recalculés sur chaque volet après correction
+\includegraphics[width=0.5\textwidth]{2025/debitvolet2025}
+\caption[Débits volet 2025]{Débits recalculés sur chaque volet après correction
 des dérives du codeur \citep{briand_note_2015}.}
 \label{debitvoletjour}
 \end{figure}
 
 Les débits ont été recalculés pour chacun des pertuis de vanne
-(Figure \ref{debits_inst2024}).
+(Figure \ref{debits_inst2025}).
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.5\textwidth]{2024/debits_inst2024}
-\caption[Débits sur chaque pertuis de vanne pour l'hiver 2023--2024]{Débits de
-chacun des pertuis de vanne pour l'hiver 2023--2024 en
+\includegraphics[width=0.5\textwidth]{2025/debits_inst2025}
+\caption[Débits sur chaque pertuis de vanne pour l'hiver 2024--2025]{Débits de
+chacun des pertuis de vanne pour l'hiver 2024--2025 en
 fonction des différents types d'écoulements calculés
 sur chaque vanne \citep{briand_note_2015}.}
-\label{debits_inst2024}
+\label{debits_inst2025}
 \end{figure}
 
 \subsection{Dépouillement des fichiers}\label{par_depouillement}
@@ -2181,7 +2289,7 @@ La fenêtre de détection est découpée en cinq quadrilatères situés à des
 distances croissantes $\delta$ (formule \ref{eq_delta}).
 Les résultats ont été regroupés en fonction de deux positions du didson ($k$, formule
 \ref{eq_k}). Les suivis sont ramenés à la durée d'un fichier de suivi, c'est à dire $t$=30 minutes.
-Les données sont séparées par saison de suivi de 2012-2013 à 2023-2024.
+Les données sont séparées par saison de suivi de 2012-2013 à 2024-2025.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
   \label{eq_tau}
@@ -2590,9 +2698,9 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   #abline(h=100,lty=2)
 }
 
-png(file=str_c(imgwdy,"debitturbidite.png"),,width = 8, height = 8, units = 'in', res = 300)
-#d3edj<-d3edj[!is.na(d3edj$enj_turb),]
-plotdebitturbidite(ylim= 700, ytop= 600, d3ej=d3ej, d3edj=d3edj)
+png(file=str_c(imgwdy,"debitturbidite.png"),width = 8, height = 8, units = 'in', res = 300)
+#d3edj<-d3edj[!is.na(d3edj$enj_turb),
+plotdebitturbidite(ylim= 900, ytop= 800, d3ej=d3ej, d3edj=d3edj)
 dev.off()
 @
 
@@ -2605,7 +2713,7 @@ le moment plus enregistré dans SIVA depuis janvier 2024.
 
 \begin{figure}[ht!]
   \centering
-  \includegraphics[width=0.4\textwidth]{2024/debitturbidite.png}
+  \includegraphics[width=0.4\textwidth]{2025/debitturbidite.png}
   \caption[Débits, turbidité et problèmes de fonctionnement du
   sonar]{ Débit de la Vilaine 
   (\unit{\cubic\metre\per\second} \textcolor{black}{\rule[0.5mm]{0.5cm}{0.3mm}}) et turbidité
@@ -2623,7 +2731,7 @@ le moment plus enregistré dans SIVA depuis janvier 2024.
 
 \begin{figure}[ht!]
   \centering
-  \includegraphics[width=0.4\textwidth]{2024/fonctionnementvanne.png}
+  \includegraphics[width=0.4\textwidth]{2025/fonctionnementvanne.png}
   \caption[Fonctionnement du barrage]{Fonctionnement du barrage, ouverture de la
   vanne 4 et du volet 4 et débit de la Vilaine pendant la période de migration.
   Chaque point correspond à une valeur pendant 30 minutes. 
@@ -2692,7 +2800,7 @@ options(encoding = "UTF-8")
 xtafls<-xtable::xtable(tabfls,
     label="tabfls",
     caption="Fonctionnement (nombre de suivis de 30 minutes) du didson en fonction de l'ouverture de la vanne
-        et de la position pour la saison 2023-2024. $s$ = appareil en surface, $f5$ = appareil en vanne, $n$ = appareil en panne,
+        et de la position pour la saison 2024-2025. $s$ = appareil en surface, $f5$ = appareil en vanne, $n$ = appareil en panne,
         0 = enregistrement normal, 1 = problème d'acquisition, 2 = problèmes d'écriture sur le disque, 3 = problèmes de qualité.",
     digits=0
 )
@@ -2741,7 +2849,7 @@ jours par semaine, la durée totale de dépouillement n'est que de l'ordre de
 saisons précédentes (Tableau \ref{tabletps}). 
 
 
-\input{../table/2024/depouillement.tex}
+\input{../table/2025/depouillement.tex}
 Cette année, les temps de dépouillement sont de 10-20 minutes alors qu'ils
 pouvaient être de 30 minutes lors des pics de migration, la mesure des anguilles
 restant chronophage (Figure \ref{tpspoint}).
@@ -2749,7 +2857,7 @@ restant chronophage (Figure \ref{tpspoint}).
         \centering
         \begin{subfigure}{0.4\textwidth}
                 \centering
-                \includegraphics{2024/tpspoint}
+                \includegraphics{2025/tpspoint}
                 \caption[Temps de dépouillement par fichier de 30
                 minutes]{Temps de dépouillement en \Sexpr{saison}.}
                 \label{tpspoint}
@@ -2757,7 +2865,7 @@ restant chronophage (Figure \ref{tpspoint}).
        \quad
       \begin{subfigure}{0.4\textwidth}
                 \centering
-                \includegraphics{2024/tpsboxplot}
+                \includegraphics{2025/tpsboxplot}
                 \caption[Temps de dépouillement par fichier de 30
                 minutes]{BoxPlot des temps de dépouillement en \Sexpr{saison}.}
                 \label{tpsboxplot}
@@ -2833,7 +2941,7 @@ disparaissent en hiver avant de réapparaitre en mars (Figures \ref{mulet},
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2024/mulet}
+  \includegraphics[width=0.4\textwidth]{2025/mulet}
   \caption[présence de mulets lors des comptages]{Histogramme montrant la
   présence de mulets (\textcolor{orange_EV}{\rule[0.5mm]{0.5cm}{0.5mm}}) et 
   d'alevins (\textcolor{turquoise_EV}{\rule[0.5mm]{0.5cm}{0.5mm}}) dans les
@@ -2843,7 +2951,7 @@ disparaissent en hiver avant de réapparaitre en mars (Figures \ref{mulet},
 \end{figure}
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2024/mulet2}
+  \includegraphics[width=0.4\textwidth]{2025/mulet2}
   \caption[présence de mulets lors des comptages]{Importance de la présence
   des mulets par mois et en fonction de l'heure.}
   \label{mulet2}
@@ -2874,7 +2982,7 @@ en général concentrée en début et fin de nuit.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/horaires}
+  \includegraphics[width=0.5\textwidth]{2025/horaires}
   \caption[Horaires de suivi]{Heures de début et de fin des fichiers
   dépouillés, et heures de lever et de coucher du soleil (en jaune). Les rectangles bleus
   à violet correspondent à des horaires de fichiers dépouillés, en noir pas de
@@ -2902,8 +3010,8 @@ en général concentrée en début et fin de nuit.
 L'ensemble des problèmes techniques est résumé sur les Figures
 \ref{debitturbidite}, \ref{fig_horairespb} pour le détail par 30 minutes, et \ref{fig_effectif_pb} pour le graphique saisonnier.
 
-\input{../table/2024/tabfls.tex}
-\input{../table/2024/tabflsall.tex}
+\input{../table/2025/tabfls.tex}
+\input{../table/2025/tabflsall.tex}
 \subsubsection{Positionnement du didson}
 <<positionnement, echo=FALSE, eval=FALSE, results=hide>>=
 # pour extrapoler d3ej$ex>1
@@ -3026,49 +3134,49 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 %       ~
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2024/position10}
+                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2025/position10}
                 \caption{Octobre}
                 \label{position10}
        \end{subfigure}        
        \quad
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2024/position11}
+                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2025/position11}
                 \caption{Novembre}
                 \label{position11}
        \end{subfigure}        
        ~
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2024/position12}
+                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2025/position12}
                 \caption{Décembre}
                 \label{position12}
        \end{subfigure}        
        \quad
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2024/position01}
+                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2025/position01}
                 \caption{Janvier}
                 \label{position01}
        \end{subfigure}        
        ~
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2024/position02}
+                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2025/position02}
                 \caption{Février}
                 \label{position02}
        \end{subfigure}        
        \quad
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2024/position03}
+                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2025/position03}
                 \caption{Mars}
                 \label{position03}
        \end{subfigure}        
         ~
         \begin{subfigure}{0.2\textwidth}
                 \centering
-                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2024/position04}
+                \includegraphics[trim=5mm 10mm 15mm 10mm,clip]{2025/position04}
                 \caption{Avril}
                 \label{position04}
        \end{subfigure}        
@@ -3396,17 +3504,17 @@ didson, et on retrouve une meilleure qualité des images en surface.
         \begin{subfigure}{0.5\textwidth}
                 \centering
                 \includegraphics[trim=2mm 2mm 2mm
-                2mm,clip]{2024/qualite_distance2023-2024}%trim l b r t
-                \hspace*{25mm}\caption{\small 2023-2024 \\
+                2mm,clip]{2025/qualite_distance2024-2025}%trim l b r t
+                \hspace*{25mm}\caption{\small 2024 \\
                 N=\Sexpr{vvv$nqualite}\\
                 Volet et vanne. Année en cours}
-                \label{/qualite_distance2023-2024}
+                \label{/qualite_distance2024-2025}
        \end{subfigure}%     
         \\
       \begin{subfigure}{0.45\textwidth}
                 \centering
                 \includegraphics[trim=2mm 2mm 2mm
-                2mm,clip]{2024/qualite_distance_volet_all}%trim l b
+                2mm,clip]{2025/qualite_distance_volet_all}%trim l b
                 % r t
                \hspace*{25mm} \caption{\small surface (ensemble des années) \\
                 $\delta$=5-15m \\
@@ -3418,7 +3526,7 @@ didson, et on retrouve une meilleure qualité des images en surface.
       \begin{subfigure}{0.45\textwidth}
                 \centering
                 \includegraphics[trim=2mm 5mm 5mm
-                2mm,clip]{2024/qualite_distance_vanne_all}%trim l b r
+                2mm,clip]{2025/qualite_distance_vanne_all}%trim l b r
                 % t
                \hspace*{25mm} \caption{\small fond (ensemble des années) \\
                 $\delta$=5-15m N=\Sexpr{vvv$nqualiteallvanne}
@@ -3450,7 +3558,7 @@ cor=\num{\Sexpr{round(vvv$cor_dddp[["estimate"]],2)}}, p<0.001) (Figure
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/taille_distance}
+  \includegraphics[width=0.5\textwidth]{2025/taille_distance}
   \caption[Taille des anguilles]{Taille des anguilles en fonction de la
   distance au sonar. Couleur en fonction du nombre d'observations par carré.
   Les polygones d'isodensité permettent de mettre en évidence la relation
@@ -3464,7 +3572,7 @@ cor=\num{\Sexpr{round(vvv$cor_dddp[["estimate"]],2)}}, p<0.001) (Figure
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2024/taille_dist_mois_all}
+  \includegraphics[width=0.4\textwidth]{2025/taille_dist_mois_all}
   \caption[Taille des anguilles toutes années]{Structure de taille des anguilles
   en fonction de la distance au sonar et du mois pour l'ensemble des saisons de
   suivi depuis 2012-2013.}
@@ -3478,7 +3586,7 @@ mâles qui n'avaient pas été observées jusqu'alors (Figures
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.4\textwidth]{2024/taille_dist_mois}
+  \includegraphics[width=0.4\textwidth]{2025/taille_dist_mois}
   \caption[Taille des anguilles \Sexpr{saison}]{Structure de taille des
   anguilles en \Sexpr{saison} en fonction de la distance au sonar et du mois.}
   \label{taille_dist_mois}
@@ -3494,7 +3602,7 @@ mâles sont observés en début de saison (Figure
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.45\textwidth]{2024/mosaic_taille_mois_all}
+  \includegraphics[width=0.45\textwidth]{2025/mosaic_taille_mois_all}
   \caption[Taille des anguilles]{Diagramme en mosaïque montrant la relation
   entre la taille et le mois. La surface de chaque case correspond aux
   effectifs observés pour la classe de taille et le mois correspond. En rouge
@@ -4067,6 +4175,8 @@ C1$Ncor <- C1$N*C1$coeff-C1$N
 C2 <- C1 %>% pivot_longer(cols=c("N","Ncor"),names_to="type",values_to="N")
 
 
+
+
 C2$type <- factor(C2$type, levels=c("Ncor","N"))
 
 pdf(str_c(imgwdy,"structure_taille.pdf"),width=5, height=5)
@@ -4218,7 +4328,7 @@ didson.
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.45\textwidth]{2024/aovefficacite}
+  \includegraphics[width=0.45\textwidth]{2025/aovefficacite}
   \caption[AOV efficacité]{Prédictions et résidus de la modélisation linéaire
   de l'efficacité du didson, en fonction de la taille, de la distance au
   didson, pour les deux positions du sonar (volet et vanne), et en fonction de
@@ -4542,19 +4652,19 @@ Le suivi des migrations a été effectué entre 17 h et 9 h (Figure
         \begin{subfigure}{0.4\textwidth}
                 \centering
                 \includegraphics[trim=0mm 15mm 0mm
-                15mm,clip]{2024/heure_jourcomplet.png}
+                15mm,clip]{2025/heure_jourcomplet.png}
                 \caption{Horaires de passages toutes saisons.}
            \label{fig_heure_jourcomplet}
         \end{subfigure}
         \begin{subfigure}{0.55\textwidth}
                 \centering
-                \includegraphics{2024/fonctionnement_journuit_barrage.png} 
+                \includegraphics{2025/fonctionnement_journuit_barrage.png} 
                 \caption{Heures de fonctionnement du barrage.}
         \label{fig_fonctionnement_journuit_barrage}
         \end{subfigure}
          \begin{subfigure}{0.4\textwidth}
                 \centering
-                \includegraphics{2024/circular_full_days} 
+                \includegraphics{2025/circular_full_days} 
                 \caption{Modèle circulaire.}
         \label{fig_circular_full_days}
         \end{subfigure}
@@ -4588,7 +4698,7 @@ aux résultats Figure \ref{fig_circular_full_days} avec un pic de passage vers 2
 h (Figure \ref{h_pass}, Tableau \ref{repartition_horaire}).
 
 
-\input{../table/2024/repartition_horaire.tex}
+\input{../table/2025/repartition_horaire.tex}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\vspace{\dimexpr.8pt+\fboxsep\relax}
 %\noindent       
@@ -4682,8 +4792,8 @@ compare aux trois autres comportements dans lesquels les anguilles entrent ou
 sortent du faiseau, ce qui indique qu'il existe une prospection
 verticale de la colonne d'eau par les anguilles (Tableaux \ref{tab_comportement}, \ref{tab_traversee}).
 Comme pour les autres saisons, cette prospection est plus importante lorsque le didson est positionné en surface (Tableau \ref{tab_traversee}).
-\input{../table/2024/comportement.tex}
-\input{../table/2024/traversee.tex}
+\input{../table/2025/comportement.tex}
+\input{../table/2025/traversee.tex}
 
 %\begin{figure}[htbp]
 %  \centering
@@ -4696,7 +4806,7 @@ Comme pour les autres saisons, cette prospection est plus importante lorsque le 
 %  faisceau par-dessus ou dessous, $InOut$ l'anguille rentre et ressort, $Out$ l'anguille sort du faisceau}
 %  \label{comportement}
 %\end{figure}
-\subsubsection{Biomasses et sexe ratios}
+\subsubsection{Biomasses}
 \label{parpoids}
 <<biomasse, echo=FALSE, eval=TRUE, results=hide>>=
 #load("C:/workspace/pdata/devalpomi/ang_laurent/data/big_anguille.RData")
@@ -4791,7 +4901,7 @@ summary(mixtailledfinf7)
 plot(mixtailledfinf7)
 #Anthony Acou 2010 (Loire) donne la limite à 460 mmm		
 # sexe_ratio <- mixtailledf$parameters$pi[1] 16 % surestimé
-# test pour voir
+# pour
 sexe.ratio_inf7 <- sum(tailledfinf7$N[tailledfinf7$rightb<50])/sum(tailledfinf7$N)# 9% de mâles sur la structure en taille corrigée de près
 sexe.ratio <- sum(tailledf$N[tailledf$rightb<50])/sum(tailledf$N)# 8% de mâles sur la structure en taille globale corrigée... OK
 
@@ -4831,7 +4941,7 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 des anguilles est estimé à \num{\Sexpr{round(vvv$mean_weight)}}g.
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.45\textwidth]{2024/structure_taille}
+  \includegraphics[width=0.45\textwidth]{2025/structure_taille}
   \caption[Structure en taille]{Structure en taille des anguilles, en turquoise
    effectifs bruts (N), en bleu foncé effectifs corrigés de l'efficacité (Ncor).}
   \label{structure_taille}
@@ -4850,7 +4960,7 @@ d'anguilles se présentant au droit du didson diminue - les anguilles
 franchissent le barrage par toutes les vannes en grande ouverture et ont peu de
 chance de se retrouver au droit du didson.
 
-\input{../table/2024/tab_prop_male.tex}
+\input{../table/2025/tab_prop_male.tex}
 
 % le pdf fait planter l'impression
 %\begin{figure}[htbp]
@@ -4873,7 +4983,7 @@ chance de se retrouver au droit du didson.
     \indent 
 D'après la structure en taille corrigée de l'efficacité, le poids moyen des
 anguilles argentées est estimé à \num{\Sexpr{round(vvv$mean_weight)}}g pour la
-dévalaison 2023--2024. }}
+dévalaison 2024--2025. }}
 \vspace{\dimexpr.8pt+\fboxsep\relax}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Estimation des effectifs migrants}
@@ -5377,6 +5487,8 @@ pdev<-function(mod){
 }
 
 # ATTENTION DECOMMENTER ET RELANCER TOUS LES MODELES, MODELES ENLEVES POUR GAGNER DU TEMPS
+# on met la même contrainte sur tous les modèles de nday
+# pour les delta on choisit une réponse linéaire simple
 
 summary(g0 <- mgcv::gam(N~1,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g0)
@@ -5386,26 +5498,27 @@ summary(g2 <- mgcv::gam(N~dsf_season+s(ndays),dat=D7j[D7j$N>0,],family=Gamma(lin
 AIC(g2)
 summary(g3 <- mgcv::gam(N~s(ndays, by=dsf_season),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g3)
-summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season, k=5)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g4)
-summary(g5 <- mgcv::gam(N~s(ndays, by=dsf_season)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g5 <- mgcv::gam(N~dsf_season+ s(ndays, by=dsf_season, k=5)+s(deb_qtotalj) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g5)
-summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g6)
-summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) + s(delta_1d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow + delta_1d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g7) # delta NS
-summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+s(cumflow, k=3) + s(delta_3d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow+ delta_3d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g8) # delta NS
-summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+ cumflow + delta_7d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g9) # delta NS 
 summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5)+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g10) 
 
 # J'ai du virer tous les +s(enj_turb) car je ne l'ai plus dans mon modèle
+# note les cumflow a un pb de concurvity, donc je le vire du gam
 bestg <- g9
 
 pdf(file=str_c(imgwdy,"gam_predict.pdf"),width=7,height=7)
-plot(bestg,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-20,20))
+plot(bestg,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-5,5))
 dev.off()
 AIC(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10)
 gam.check(bestg)
@@ -5553,7 +5666,7 @@ res.0_pos <- Dok %>% group_by(dsf_season, position) %>%
         "$N$"=Nok) 
 
 
-#TODO verifier que les chiffres de D2 sont ceux de D7 pour N.0
+#TODO verifier que les chiffres de D2 (summary ci dessus) sont ceux de D7 pour N.0
 tapply(D7j$N.0, D7j$dsf_season,sum, na.rm=TRUE)
 tapply(Dok$N, Dok$dsf_season,sum, na.rm=TRUE)
 
@@ -5645,7 +5758,7 @@ toto <- latex(final,
     file=str_c(tabwdy,"tabfinal.tex"),
     # arguments pour longtable :
     longtable = TRUE,
-    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6 , 6),
+    n.rgroup=c(7, 8, 7, 6, 6, 6, 6, 6, 7, 6, 6 , 6, 6),
     continued = "\\dots suite \\dots",
     collabel.just = c("l",
         "l",
@@ -5939,7 +6052,7 @@ utilisé pour extrapoler les effectifs en migration à partir des valeurs des jo
  %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/gam_predict}
+  \includegraphics[width=0.5\textwidth]{2025/gam_predict}
   \caption[Modèle prédiction effectifs manquants]{Modélisation des effectifs
   manquants à l'aide d'un modèle gam (tendance saisonnière + effet saison +
   débit + cumul débit depuis le début de la saison) + turbidité + variation du
@@ -6070,7 +6183,7 @@ taille des anguilles amorcée en 2020-2021.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/horairespb2024.png}
+  \includegraphics[width=0.5\textwidth]{2025/horairespb2025.png}
   \caption[Fonctionnement du didson]{Fonctionnement du didson. Les rectangles
   correspondent chacun à une période d'enregistrement, 
   0  \textcolor{turquoise}{\rule[0mm]{1mm}{2mm}} enregistrement normal, 
@@ -6116,6 +6229,7 @@ descendante.}
 2021--2022 & 5+(0) \\
 2022--2023 & 721+(191)\\
 2023--2024 & 121+(25) \\
+2024--2025 & *** \\
    \hline
 \end{tabular}
 \end{table}
@@ -6159,12 +6273,12 @@ calcul (Tableau \ref{tabefficacite_moyenne}, Tableau
 est directement liée à la modification des ouvertures en vannes décrite plus
 haut (3.1 Migration).
 
-\input{../table/2024/tabefficacite_moyenne.tex}
+\input{../table/2025/tabefficacite_moyenne.tex}
 
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/fig_effectif}
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif}
   \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage. 
                 En turquoise $N\odot$ 
 				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}} = effectifs mesurés, 
@@ -6235,7 +6349,10 @@ $Q_{j~max}~m^{3}s^{-1}$= débit maximum journalier,
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2022-2023" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 400\\
 2023--2024 & {-} & 
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2023-2024" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 600\\
+2024--2025 & {-} & 
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2024-2025" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & XXXX\\
  \hline
+  
 \end{tabular}
 \normalsize
 \label{tableau_effectifs_annuels}
@@ -6262,7 +6379,7 @@ succession d'ouvrages entravant leur migration.
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2024/N_interannuel}
+  \includegraphics[width=0.5\textwidth]{2025/N_interannuel}
   \caption[Effectif]{Effectifs annuels estimés sur l'ensemble du barrage,
 				en turquoise $(N)\odot$ 
 				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}}=effectifs mesurés, en orange $N\otimes$ 
@@ -6298,7 +6415,7 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode2_phi0_didf_5}
+                25mm,clip, width=0.5\textwidth]{2025/periode2_phi0_didf_5}
         \caption{
                 $\Phi$=\Sexpr{ppp$"periode2_phi0_didf_5"$Phi}, 
                 $\beta$=\Sexpr{ppp$"periode2_phi0_didf_5"$incl}, 
@@ -6315,7 +6432,7 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode1_phis_dids_-7.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode1_phis_dids_-7.png}
         \caption{
                 $\Phi$=\Sexpr{ppp$"periode3_phif_didf_5"$Phi}, 
                 $\beta$=\Sexpr{ppp$"periode3_phif_didf_5"$incl}, 
@@ -6332,7 +6449,7 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode4_phif_didf_-7}
+                25mm,clip, width=0.5\textwidth]{2025/periode4_phif_didf_-7}
         \caption{
                 $\Phi$=\Sexpr{ppp$"periode4_phif_didf_-7"$Phi}, 
                 $\beta$=\Sexpr{ppp$"periode4_phif_didf_-7"$incl}, 
@@ -6350,7 +6467,7 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode6_phis_didf_-7.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode6_phis_didf_-7.png}
         \caption{
                 $\Phi$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Phi}, 
                 $\beta$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$incl}, 
@@ -6367,7 +6484,7 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode6_phis_didf_-7.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode6_phis_didf_-7.png}
         \caption{
                 $\Phi$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Phi}, 
                 $\beta$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$incl}, 
@@ -6385,7 +6502,7 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode7_phif_didf_6}
+                25mm,clip, width=0.5\textwidth]{2025/periode7_phif_didf_6}
         \caption{
                 $\Phi$=\Sexpr{ppp$"periode7_phif_didf_6"$Phi}, 
                 $\beta$=\Sexpr{ppp$"periode7_phif_didf_6"$incl}, 
@@ -6403,7 +6520,7 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2024/periode8_phi0_didf_6}
+                25mm,clip, width=0.5\textwidth]{2025/periode8_phi0_didf_6}
         \caption{
                 $\Phi$=\Sexpr{ppp$"periode8_phi0_didf_6"$Phi}, 
                 $\beta$=\Sexpr{ppp$"periode8_phi0_didf_6"$incl}, 
@@ -6485,17 +6602,17 @@ observées pondérée par les effectifs en migration.
 
 \subsection{Tableaux}
 \onecolumn
-\input{../table/2024/aovefficacite.tex}
+\input{../table/2025/aovefficacite.tex}
 \newpage{}
-\input{../table/2024/tabfinal.tex}
+\input{../table/2025/tabfinal.tex}
 \newpage
-\input{../table/2024/table_effectif_mois.tex}
+\input{../table/2025/table_effectif_mois.tex}
 \newpage
-\input{../table/2024/tableau_modele_miss.tex}
+\input{../table/2025/tableau_modele_miss.tex}
 \normalsize
 \begin{landscape}
 \begin{figure}
-    \includegraphics[width=0.8\linewidth,keepaspectratio]{2024/fig_effectif_pb}
+    \includegraphics[width=0.8\linewidth,keepaspectratio]{2025/fig_effectif_pb}
 \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage.
 				En turquoise $(N)\odot$ 
 				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}} = effectifs mesurés, 
@@ -6519,7 +6636,7 @@ observées pondérée par les effectifs en migration.
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth,keepaspectratio]{2024/nombre_taille_distance}
+  \includegraphics[width=\linewidth,keepaspectratio]{2025/nombre_taille_distance}
   \caption[Effectifs observés et corrigés]{Effectifs observés (traits
   pleins) et corrigés de l'augmentation de la taille du faisceau (traits
   pointillés) en fonction de la distance, pour l'ensemble des saisons et les
@@ -6530,7 +6647,7 @@ observées pondérée par les effectifs en migration.
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth,keepaspectratio]{2024/efficacite}
+  \includegraphics[width=\linewidth,keepaspectratio]{2025/efficacite}
   \caption[Efficacité]{Efficacité en fonction de la taille des anguilles et de
   la distance au didson, commune aux deux positions du sonar, fond et surface.}
   \label{efficacite}
@@ -6538,7 +6655,7 @@ observées pondérée par les effectifs en migration.
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth,keepaspectratio]{2024/Ncor}
+  \includegraphics[width=\linewidth,keepaspectratio]{2025/Ncor}
   \caption[Effectifs recalculés]{Effectifs recalculés après correction. En
   théorie, les effectifs devraient augmenter. Il n'est pas toujours possible
   d'extrapoler les effectifs pour la classe de distance la plus grande, car il
@@ -6550,7 +6667,7 @@ observées pondérée par les effectifs en migration.
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{2024/taille_distance_vannefond}
+  \includegraphics[width=0.8\textwidth]{2025/taille_distance_vannefond}
   \caption[Taille des anguilles vanne]{Taille des anguilles en fonction de la
   distance au sonar en vanne. Couleur en fonction du nombre d'observations par
   carré.
@@ -6564,7 +6681,7 @@ observées pondérée par les effectifs en migration.
 %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.8\textwidth]{2024/taille_distance_volet}
+  \includegraphics[width=0.8\textwidth]{2025/taille_distance_volet}
   \caption[Taille des anguilles vanne]{Taille des anguilles en fonction de la
   distance au sonar en volet. Couleur en fonction du nombre d'observations par
   carré.
@@ -6622,7 +6739,7 @@ Bretagne et la Région Bretagne.
 
 \begin{center}
    Rapport \LaTeX \\
-   Dernière compilation le 26 février 2024\\
+   Dernière compilation le \today \\
 \Sexpr{str_c("version R ",version$major,".",version$minor)} 
 \end{center}
 
