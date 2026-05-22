@@ -261,6 +261,8 @@ delete from did.t_env_env where env_time>=(SELECT min(env_time) from did.t_env_e
 
 **/
 
+
+
 SELECT * from did.t_env_env ORDER BY env_time;
 --insert into did.t_env_env SELECT * from did.t_env_env_temp;--34702
 
@@ -621,7 +623,7 @@ psf_pan, psf_tilt, psf_roll, psf_species, psf_motion, psf_move, psf_q, psf_n, ps
         left join  did.t_didsonread_dsr dsr on dsr_dsf_id=dsf_id
         left join did.t_didsonreadresult_drr drr on   drr_dsr_id=dsr_id
         left join did.t_poissonfile_psf on psf_drr_id=drr_id
-        and dsr_csotismin);
+        and dsr_csotismin or dsr_csotismin is null);
 
 DROP VIEW if exists did.v_dddp CASCADE;
 CREATE VIEW  did.v_dddp as (
@@ -719,7 +721,7 @@ full outer join did.v_fctvanne1235 fct1 on fct1.round_time=v_env.round_time
 left join did.t_envjour_enj on date(fct1.round_time)=enj_date
 order by round_time;
 
---SELECT * from did.v_ddde
+--SELECT * from did.v_ddde where env
 /*
 Sommes journalières, comprends les turbidités
 dj données journalières
@@ -767,7 +769,7 @@ avg(env_qvanne4+env_qvolet4) as debit4j --144 --sum(env_qvanne4*600+env_qvolet4*
 	) as e
 group by date) as ej
 on ej.date=t_envjour_enj.enj_date
-join (SELECT 
+LEFT JOIN (SELECT 
 sum(drr_eelplus) as sum_eel_plus,
 sum(drr_eelminus) as sum_eel_minus,
 date2
@@ -778,6 +780,9 @@ group by date2) v_d3j
 on date=date2
 order by date);
 
+
+
+DROP VIEW IF EXISTS did.v_depouillement;
 CREATE VIEW did.v_depouillement as (
 SELECT dsf_timeinit,dsr_id,extract('month' from dsf_timeinit) as mois,dsr_reader, dsf_position, 
 dsr_readend-dsr_readinit as temps_lecture from did.t_didsonread_dsr join did.t_didsonfiles_dsf on dsf_id=dsr_dsf_id);

@@ -1252,8 +1252,8 @@ cat("ddde didsonfile, didsonread, didsonreadresult env\n")# --------------------
 req@sql <- str_c("select * from did.v_ddde
         where dsf_timeinit>'",toutdebut,
     "' and dsf_timeinit<'",fin,
-    "' and dsr_csotismin",
-    " and NOT dsr_pertefichiertxt")
+    "' and (dsr_csotismin or dsr_csotismin is NULL)",
+    " and (NOT dsr_pertefichiertxt OR dsr_pertefichiertxt IS NULL)")
 ddde <- query(req, base) %>% getquery()
 
 ddde$count=1
@@ -1804,8 +1804,8 @@ load(file=str_c(datawdy, "ppp.Rdata"))
 
 #require(Hmisc)
 #describe(dddp)
-correct<-function(data,var,value,newvalue){
-  data[data[,var]==value&!is.na(data[,var]),var]<-newvalue
+correct<-function(data, var, value, newvalue){
+  data[data[,var]==value & !is.na(data[,var]),var] <- newvalue
   return(data)
 }
 dddp <- correct(dddp,"dsf_distancestart",2,2.08)
@@ -1865,9 +1865,9 @@ for (Y in 2015:2024){
           "%M"))/60
   eph$date <- as.Date(eph$lever_soleil, tz = Sys.timezone())
   if (Y==2015){
-    ephall2 <- eph
+    ephall2 <- eph |> select("date","lever_soleil","coucher_soleil","lever_soleil_h","coucher_soleil_h")
   } else {
-    ephall2 <- rbind(ephall2,eph)
+    ephall2 <- rbind(ephall2,eph |> select("date","lever_soleil","coucher_soleil","lever_soleil_h","coucher_soleil_h")) 
   }	
 }
 # Pour les fichiers téléchargés par l'API
@@ -2700,7 +2700,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
 
 png(file=str_c(imgwdy,"debitturbidite.png"),width = 8, height = 8, units = 'in', res = 300)
 #d3edj<-d3edj[!is.na(d3edj$enj_turb),
-plotdebitturbidite(ylim= 900, ytop= 800, d3ej=d3ej, d3edj=d3edj)
+plotdebitturbidite(ylim= 1600, ytop= 1500, d3ej=d3ej, d3edj=d3edj)
 dev.off()
 @
 
@@ -5245,6 +5245,7 @@ nrow(Dj)
 # Traitement des dates -------------------------------
 attr(D0$dsf_timeinit, "tzone") <- "UTC"
 attr(D0$dsf_timeend, "tzone") <- "UTC"
+# données journalières par 30 minutes issues de d3ej
 D0 <- D0 %>% mutate(
     year = year(date),
     month = month(date), # mois existe mais c'est un ordered factor
@@ -5270,14 +5271,14 @@ Dj <- Dj %>% mutate(
 
 
 D0 <- D0 %>% 
-    select(-leap_year)%>%
+    select(-leap_year) %>%
     # here we want to know if a year is following a leap_year (annee bissextile)
     # so we compile a table with column season and defining if leap_year (true and false)
     # and the use lag to get the value from the previous season.
     # we want a year that follows a leap year to start at 123 (not 122)
     # because otherwise we have two 122
     inner_join(
-        D0%>%  
+        D0 %>%  
             select(leap_year,dsf_season) %>%
             group_by(dsf_season) %>%
             summarize(leap_year=first(leap_year)),
@@ -5348,18 +5349,18 @@ D2 <- D1 %>%
 D2$N[D2$vol4==0] <- NA
 D2$N4[D2$vol4==0] <- NA
 # test
-sum(D2$N[D2$indexOK==1], na.rm=TRUE) #945973.7
-sum(D2$N4[D2$indexOK==1], na.rm=TRUE) # 279189
+sum(D2$N[D2$indexOK==1], na.rm=TRUE) # 911266.7
+sum(D2$N4[D2$indexOK==1], na.rm=TRUE) # 257642.9
 
 
 D2$N[D2$indexOK==0] <- NA
 D2$N4[D2$indexOK==0] <- NA
 
 #open_in_excel(D2) 
-D2[duplicated(D2$dsf_id),]
+
 stopifnot(sum(duplicated(D2$dsf_id))==0)
 
-
+#D2[duplicated(D2$dsf_id),]
 
 
 # CALCUL DES VALEURS MANQUANTES ------------------------------------------------------
@@ -5571,7 +5572,7 @@ save(D2, D7j, file=str_c(datawdy,"D2D7j.Rdata"))
 <<tableaufinal, echo=FALSE, eval=FALSE,results=hide>>=
 # Devalaison observée dans le champ de la vanne pour positions mauvaise ...
 # didson en vanne alors que en volet, ou en volet alors que écoulement en vanne
-
+stopifnot(exists("mu"))
 load(file=str_c(datawdy,"D2D7j.Rdata"))
 
 # numbers for report
@@ -5601,7 +5602,6 @@ D2  %>% select (N, dsf_season, ex, volbarrage30, indexOK, vol4) %>%
         N = case_when(vol4==0~0, TRUE ~N)) %>%            
     group_by(dsf_season) %>% 
     summarize(N=sum(N/muinv,na.rm=TRUE), .groups="drop") 
-
 
 
 
@@ -5861,7 +5861,7 @@ journalier (Formule \ref{eq_mu}).
 
 
 dj <- D7j  %>% 
-    select("dsf_season","enj_date","N.0","N.1","N.2","deb_qtotalj")  %>%
+    select("dsf_season","enj_date","N.0","N.1","N.2","deb_qtotalj")  %>% 
     rename("odot"="N.0","otimes"="N.1", "oplus"="N.2","Q"="deb_qtotalj", "date"="enj_date") %>%		
     melt(id.vars=c("dsf_season","date","Q"),
         variable.name="type",

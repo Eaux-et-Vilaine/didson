@@ -11,7 +11,10 @@ RESTER CLIQUE POUR N'ENVOYER QU'UNE COMMANDE
 */
 STOP ERROR IF ALL LAUNCHED YOU DONT WANT TO DO THAT
 
-SET search_path TO did,public;
+
+
+
+
 --SELECT * FROM t_didsonfiles_dsf;
 --SELECT * FROM did.t_poissonsfiletemp_psf;
 -- vérificatiON qu'il n'y a pas eu deux enregistrements dans la base
@@ -37,6 +40,12 @@ DELETE  FROM t_didsonfiles_dsf
 	where
       dsf_season='2024-2025';
 */
+
+
+SELECT FROM temp_dsr
+  WHERE dsr_dsf_id NOT IN  (SELECT dsf_id FROM t_didsonfiles_dsf where
+      dsf_season='2024-2025');
+
 
 
 -- ATTENTION THE CONTENT OF FILE t_didsonfiletemp_dsft MIGHT BE WRONG IF THE BOX APPEND TO EXISTING FILE HAS BEEN MARKED
@@ -179,7 +188,7 @@ UPDATE did.t_didsonfiles_dsf SET dsf_season='2020-2021' WHERE  dsf_timeinit>='20
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2021-2022' WHERE  dsf_timeinit>='2021-09-01 00:00:00' AND dsf_timeinit<='2022-05-01 00:00:00'; --9993
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2022-2023' WHERE  dsf_timeinit>='2022-09-01 00:00:00' AND dsf_timeinit<='2023-05-02 00:00:00'; --8367
 UPDATE did.t_didsonfiles_dsf SET dsf_season='2023-2024' WHERE  dsf_timeinit>='2023-09-01 00:00:00' AND dsf_timeinit<='2024-05-02 00:00:00'; --9469
-UPDATE did.t_didsonfiles_dsf SET dsf_season='2024-2025' WHERE  dsf_timeinit>='2024-09-01 00:00:00' AND dsf_timeinit<='2025-05-02 00:00:00'; --9229
+UPDATE did.t_didsonfiles_dsf SET dsf_season='2024-2025' WHERE  dsf_timeinit>='2024-09-01 00:00:00' AND dsf_timeinit<='2025-05-02 00:00:00'; --9889
 UPDATE did.t_didsonfiles_dsf SET dsf_mois =EXTRACT(month FROM dsf_timeinit);--109909  Insertion des données des tables temporaires 
 -- verif qu'elles sont déjà dedans (avant DELETE)
 
@@ -270,7 +279,7 @@ integration_bd.R en vérifiant que les identifiants sqldf de connexion pointent 
 */
 
 SELECT count(*) FROM t_didsonfiles_dsf  dsf JOIN  t_didsonread_dsr dsr ON dsr_dsf_id=dsf_id
-JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename;--1322 --2455 -- 3518 --4940 -5660 --6195 --6234--7082 -- 7774 -- 8759 --9570 -- 10372 --11290 --12198
+JOIN t_didsonreadresult_drr drr ON drr_filename=dsf_filename;--1322 --2455 -- 3518 --4940 -5660 --6195 --6234--7082 -- 7774 -- 8759 --9570 -- 10372 --11290 --12199
 
 /*
 ##################################
@@ -1009,6 +1018,8 @@ JOIN t_didsonread_dsr ON dsr_dsf_id=dsf_id
 WHERE dsf_season='2024-2025'
 ); 
 --4200 --3110 (2016) 1780 (2017) 2161 2018 3366 2019 2402 2020 3594 2021 4201 2022 3194 2023 3194 2024 3009 2025 3213
+
+
 
  -- CEUX POUR LESQUELS IL N'Y A QU'UNE SEULE LECTURE SON MIN
  

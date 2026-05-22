@@ -20,7 +20,7 @@ load_package("readxl")
 if (!exists("userdistant") |
     !exists("passworddistant"))
     stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
-host <- Sys.getenv("hostmercure")  # hostmercureinternal
+host <- Sys.getenv("hostmercureinternal") #"hostmercure")  
 password <- Sys.getenv("passmercure") 
 user <-  Sys.getenv("usermercure")
 Sys.timezone()
@@ -90,8 +90,9 @@ ta <- killfactor(ta)
 ta[(ta$dsr_csotdb == "echo" & !is.na(ta$dsr_csotdb)), ]
 ta <- ta[!(ta$dsr_csotdb == "echo" & !is.na(ta$dsr_csotdb)), ]
 
+# check this because it may mean that you are missing some files
 ta <- ta[!is.na(ta$dsf_filename), ]
-ta <- ta[!is.na(ta$dsf_incl), ]
+ta <- ta[!is.na(ta$dsf_fls_id), ]  # CHECK WHAT YOU DO HERE
 ta$dsf_readok <- TRUE
 ta$dsf_readok[is.na(ta$dsr_eelplus)] <- FALSE
 # nrow(ta)
@@ -172,6 +173,7 @@ dsf[is.na(dsf$dsf_timeinit),]
 dsf <- dsf[!is.na(dsf$dsf_timeinit),]
 
 dsf$dsf_position <- tolower(dsf$dsf_position)
+
 
 
 #sqldf("alter table did.t_didsonfiles_dsf drop CONSTRAINT c_ck_dsf_incl")
@@ -268,6 +270,7 @@ dsr$dsr_eelplus[is.na(dsr$dsr_eelplus)] <- 0
 dsr$dsr_complete <- as.logical(as.numeric(dsr$dsr_complete))
 dsr$dsr_complete[is.na(dsr$dsr_complete)] <- FALSE
 #dsr[is.na(dsr$dsr_reader),"dsr_readinit"]
+# ATTENTION PEUT VIRER DES DONNEES VERIFIER !!!!
 dsr <-
     dsr[!is.na(dsr$dsr_reader), ] # J'utilise dsr_reader .... vérifier quand même ci dessus
 sum(dsr$dsr_reader == "")
@@ -293,6 +296,8 @@ dsf <- DBI::dbGetQuery(con,"select * from   did.t_didsonfiles_dsf")
 dsf <- dsf[, c("dsf_id", "dsf_filename")]
 
 
+
+
 dsr <- merge(dsf, dsr, by = "dsf_filename")
 dsr <- chnames(dsr, "dsf_id", "dsr_dsf_id")
 #vérif
@@ -314,7 +319,6 @@ dsr$dsr_readinit <- format(dsr$dsr_readinit)
 dsr$dsr_readend <- format(dsr$dsr_readend)
 DBI::dbWriteTable(con, "temp_dsr",dsr,overwrite = TRUE)
 DBI::dbExecute(con, statement =
-
     "insert into did.t_didsonread_dsr(
         dsr_dsf_id,
         dsr_readinit,

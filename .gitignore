@@ -121,4 +121,22 @@ table/
 /image/[0-9][0-9][0-9][0-9]/
 /image/any/
 
+/Scripts
+
+*.pdf
+*.aux
+*.bcf
+*.blg
+*.log
+*.out
+*.synctex.gz
+*report/*.tex
+*..toc
+*.run.xml
+*.bbl
+*.toc
+*.aux
+*.synctex(busy)
+
+
 
