@@ -21,7 +21,7 @@
 %\usepackage[utf8]{inputenc} %encodage du fichier source not used with xelatex
 \usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
 %\usepackage[english]{babel}
-\usepackage[francais]{babel}
+\usepackage[francais, english]{babel}
 \usepackage{dirtytalk} % pour les guillemet \say{ceci sera quoté  et \say{nested quote}}
 %https://tex.stackexchange.com/questions/464585/what-tips-and-tricks-should-i-know-when-using-the-georgia-font-in-latex/464586
 % \usepackage{fontspec} % charte graphique EPTB
@@ -31,7 +31,7 @@
 \usepackage{microtype}
 \defaultfontfeatures{Scale=MatchLowercase}
 \setmainfont{Georgia}[Scale = 1.0]
-\setmathfont{Asana Math.otf}
+\setmathfont{Asana-Math.otf}
 \usepackage[nodayofweek]{datetime}
 \addto\captionsfrench{\def\tablename{Tableau}}
 \addto\captionsfrench{\renewcommand*{\contentsname}{Sommaire:}}
@@ -140,6 +140,7 @@ round-precision = 0 % precision des arrondis
             url=false, 
             doi=false,
             firstinits=true, % pas de prenoms
+            uniquename=init,
             %sorting=nyt, % name, year, title
             eprint=false]{biblatex} % option natbib to use cite and citep
 \addbibresource{didson2025.bib}
@@ -231,6 +232,7 @@ round-precision = 0 % precision des arrondis
 \usepackage{pdflscape}
 \usepackage{placeins}
 \usepackage{animate}
+\usepackage{csquotes}
 
 %----------------------------------------------------------------------------------------
 %	PAGE HEADERS (this must come after loading and setting geometry)
@@ -621,7 +623,7 @@ drawdi <- function(
     return(detection_frame)
   }
   
-
+  
   
   
   
@@ -661,7 +663,7 @@ drawdi <- function(
     )
   }
   
-    tryCatch(
+  tryCatch(
       {
         detection_frame <- calculate_poly(d1, d2)
         migration_frame <- st_polygon(list(poly2))
@@ -670,7 +672,7 @@ drawdi <- function(
         browser()
       }
   )
-
+  
   # CALCUL D'UN DECOUPAGE DE POLYGONES
   # si divide différent de NA on calcule les detection_frame pour chaque distance
   if (!is.na(divide[1])) {
@@ -804,7 +806,7 @@ drawdicriter <- function(
     print = "pdf",
     couleur = rainbow(5, alpha = 0.3), 
     ... # arguments to png
-    ) {
+) {
   # regarder distancestart et ouverture vanne
   cat(nomperiode, "\n ---------------------------\n")
   logi <- d3ej$dsf_incl == incl &
@@ -1663,7 +1665,7 @@ for (j in 1:nrow(res)) {
       ),
       res=300
   )
-
+  
 }
 # les periodes sont écrites par la fonction dans dddp$periode,
 # sur la nouvelle version dddp contient toutes les années, mais les données mises à jour sont écrites sur l'année en cours
@@ -1718,36 +1720,36 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 # fonction avec paramètres pour Arzal
 
 get_sun_data <- function(date, 
-lat = 47.5167, 
-lon =-2.3762,
-tz_local = "Europe/Paris") {
+    lat = 47.5167, 
+    lon =-2.3762,
+    tz_local = "Europe/Paris") {
   
   
   url <- "https://api.sunrise-sunset.org/json"
-
+  
   response <- GET(
-    url,
-    query = list(
-      lat = lat,
-      lng = lon,
-      date = as.character(date),
-      formatted = 0,
-      tzid=tz_local
-    )
+      url,
+      query = list(
+          lat = lat,
+          lng = lon,
+          date = as.character(date),
+          formatted = 0,
+          tzid=tz_local
+      )
   )
-
+  
   stop_for_status(response)
-
+  
   data <- fromJSON(content(response, as = "text", encoding = "UTF-8"))
-
+  
   return(tibble(
-    date = date,
-    lever = ymd_hms(data$results$sunrise,  quiet = TRUE, tz = tz_local),
-    coucher  = ymd_hms(data$results$sunset, quiet = TRUE, tz = tz_local),    
-    duree = substring(data$results$day_length,1,5),
-    nautical_twilight_begin =ymd_hms(data$results$nautical_twilight_begin,quiet = TRUE, tz = tz_local),
-    nautical_twilight_end =ymd_hms(data$results$nautical_twilight_end, quiet = TRUE, tz = tz_local)    
-  ))
+          date = date,
+          lever = ymd_hms(data$results$sunrise,  quiet = TRUE, tz = tz_local),
+          coucher  = ymd_hms(data$results$sunset, quiet = TRUE, tz = tz_local),    
+          duree = substring(data$results$day_length,1,5),
+          nautical_twilight_begin =ymd_hms(data$results$nautical_twilight_begin,quiet = TRUE, tz = tz_local),
+          nautical_twilight_end =ymd_hms(data$results$nautical_twilight_end, quiet = TRUE, tz = tz_local)    
+      ))
 }
 
 # --------- API only accepts a few data at a time
@@ -1772,17 +1774,17 @@ dec <- seq(as.Date(paste0(CY,"-12-01")), as.Date(paste0(CY,"-12-31")), by = "day
 ll <- list()
 for (m in c("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec")){
   name <- deparse(m)
-   m <-get(m)
+  m <-get(m)
   cat(sprintf("Getting data for %s, then 2s pause \n", name))
   ll[[name]] <- bind_rows(
-  lapply(m, get_sun_data))
+      lapply(m, get_sun_data))
   Sys.sleep(2)
 }
 # ---- Get final dataset ----
 
 res <- do.call("rbind", ll)
 write_excel_csv2(res,
-        file = str_c(datawd,Y, "/lever_coucher.csv"))
+    file = str_c(datawd,Y, "/lever_coucher.csv"))
 @
 
 
@@ -1884,7 +1886,7 @@ for (Y in 2025:CY){
   eph$date <- as.Date(eph$lever_soleil, tz = Sys.timezone())
   eph <- eph |> select("date","lever_soleil","coucher_soleil","lever_soleil_h","coucher_soleil_h")
   ephall2 <- rbind(ephall2,eph)
-
+  
 }
 ephall2 <- ephall2[,colnames(ephall1)]
 eph <- rbind(ephall1, ephall2)
@@ -2634,7 +2636,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   #calcul des problèmes d'acquistion
   # d3ej[,c("dsf_timeinit","dsf_fls_id")]
   pb <- d3ej$dsf_timeinit[
-		  thisseason_d3ej][d3ej$dsf_fls_id[thisseason_d3ej]==3&!is.na(d3ej$dsf_fls_id[thisseason_d3ej])]
+      thisseason_d3ej][d3ej$dsf_fls_id[thisseason_d3ej]==3&!is.na(d3ej$dsf_fls_id[thisseason_d3ej])]
   if (length(pb>0)){
     pb<-data.frame("date"=pb,"delta"=NA)
     pb$delta[2:nrow(pb)]<-pb$date[2:nrow(pb)]-pb$date[1:(nrow(pb)-1)]
@@ -2684,10 +2686,10 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   # si le premier elt du polygone est sup 100 et tout seul ça plante
   
   polygon(c(min(d3edj$enj_date[thisseason_d3edj])-1,
-				  d3edj$enj_date[thisseason_d3edj],
-				  max(d3edj$enj_date[thisseason_d3edj])+1),
-		  c(100,pmax(100,d3edj$deb_qtotalj[thisseason_d3edj]),100),
-		  col=turquoise_EV,border=NA)
+          d3edj$enj_date[thisseason_d3edj],
+          max(d3edj$enj_date[thisseason_d3edj])+1),
+      c(100,pmax(100,d3edj$deb_qtotalj[thisseason_d3edj]),100),
+      col=turquoise_EV,border=NA)
   # petit ajustement 2018-2019 pour que le gris finisse à 100
   #polygon(d3edj$enj_date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
   points(d3edj$enj_date[thisseason_d3edj][thisseason_d3edj],d3edj$debitvilainej[thisseason_d3edj],col=turquoise_EV,type="l")
@@ -3106,13 +3108,13 @@ mosaic(dsf_position~optvanne4,data=subset(d3ej2,d3ej2$mois=="04"),
 dev.off()
 
 fix_no_perc <- function(ex, saison){
-	if (any(d3ej_perc_pos$ex==ex)) {
-	# test if at least there is one line corresponding to ex in
-	# d3ej_perc_pos for this season
-	pull(round(100*d3ej_perc_pos[d3ej_perc_pos$ex==ex & d3ej_perc_pos$dsf_season==saison,"perc"]))
-    } else {
-	0	
-	}	
+  if (any(d3ej_perc_pos$ex==ex)) {
+    # test if at least there is one line corresponding to ex in
+    # d3ej_perc_pos for this season
+    pull(round(100*d3ej_perc_pos[d3ej_perc_pos$ex==ex & d3ej_perc_pos$dsf_season==saison,"perc"]))
+  } else {
+    0	
+  }	
 }
 vvv$perc$"0" <- fix_no_perc(ex="0",saison)
 vvv$perc$"1" <- fix_no_perc(ex="1",saison)
@@ -4203,14 +4205,14 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 
 load(file= str_c(datawdy, "C2.Rdata"))
 tbl_sexe_ratio <- C2 %>% 
-  filter(type == "Ncor") %>%
-  mutate(sexe = case_when(taille<45 ~ "male", .default = "female")) %>%
-  group_by(saison, sexe) %>%
-  summarize(N=sum(N)) %>%
-  pivot_wider(names_from ="sexe", values_from = "N") %>%
-  mutate( total = male + female,
-  prop_male = round(male /total, 2)) %>%
-  rename("\\female"=female, "\\male"=male )
+    filter(type == "Ncor") %>%
+    mutate(sexe = case_when(taille<45 ~ "male", .default = "female")) %>%
+    group_by(saison, sexe) %>%
+    summarize(N=sum(N)) %>%
+    pivot_wider(names_from ="sexe", values_from = "N") %>%
+    mutate( total = male + female,
+        prop_male = round(male /total, 2)) %>%
+    rename("\\female"=female, "\\male"=male )
 
 options(encoding = "UTF-8")
 xta1 <- xtable(tbl_sexe_ratio,
@@ -4218,8 +4220,8 @@ xta1 <- xtable(tbl_sexe_ratio,
     digits=c(0,0,0,0,0,2),
     caption=c(
         str_c("Pourcentage de mâles \\male par saison, calculé à partir des anguilles de taille 
-inférieure à 45 cm et des effectifs corrigés de l'efficacité (on augmente la proportion des
-mâles (prop \\male) qui sont moins visibles.")))
+                inférieure à 45 cm et des effectifs corrigés de l'efficacité (on augmente la proportion des
+                mâles (prop \\male) qui sont moins visibles.")))
 print(xta1,file=str_c(tabwdy,"tab_prop_male.tex"),
     table.placement="htbp",
     caption.placement = "top",
@@ -4631,11 +4633,11 @@ for (i in 1:length(unique(d3ej$dsf_season))){
   png(file=str_c(imgwdy,"horairespb",the_year,".png"),width = 15, height = 15, units = 'cm', res = 300)
   g <- ggplot(d3ej[d3ej$dsf_season==saison1,])+
       geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,fill=factor(flsall)))+#"yellow"
-	  scale_x_datetime(date_breaks="month") +
-	  theme(panel.background = element_rect(fill="black"),
-			  panel.grid.major = element_line(colour = "grey50"),
-			  panel.grid.minor = element_line(colour = "grey20"),
-			  axis.text = element_text(colour ="black")) +
+      scale_x_datetime(date_breaks="month") +
+      theme(panel.background = element_rect(fill="black"),
+          panel.grid.major = element_line(colour = "grey50"),
+          panel.grid.minor = element_line(colour = "grey20"),
+          axis.text = element_text(colour ="black")) +
       scale_fill_manual("qualité",values=c("0"=turquoise_EV,"1"=jaune_EV,"2"="limegreen","3"=orange_EV,"4"=rouille,"5"="grey"))+ # ajouter orange derrière yellow si pb qualité
       ylab("Heure")
   print(g)
@@ -5407,7 +5409,7 @@ D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season) %>%
 
 # D3j groupe par jour et par position bonne ou mauvaise
 D3j <- D2 %>% 
-    dplyr::select(dsf_season,ndays,N,indexOK,indexOK,volbarrage30) %>%
+    dplyr::select(dsf_season,ndays,N,indexOK,volbarrage30) %>%
     dplyr::group_by(dsf_season,ndays,indexOK) %>%
     dplyr::summarize(N=sum(N, na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
 D3j0 <- dplyr::filter(D3j,indexOK)  %>% select(-indexOK) # bien positionné
@@ -5425,13 +5427,13 @@ stopifnot(nrow(D4j)==nrow(D2j))
 # Dans le fichier ci dessous .1 correspond aux arrêts de tout type
 # .0 correspond à une lecture dans de bonnes conditions.
 
-# On ramène dans ce tableau, les données journalières et le c
+# On ramène dans ce tableau, les données journalières de débit.
 D5j <- left_join(D4j,Dj,by=c("ndays", "dsf_season"))
 D5j <- left_join(D5j, D2j %>% select(-N), by=c("ndays", "dsf_season")) # compte les périodes fls et fond sur surface
 stopifnot(sum(duplicated(paste(D5j$ndays,D5j$dsf_season)))==0)
 #D5j[duplicated(paste(D5j$ndays,D5j$dsf_season)),]
 
-# sur ce fichier on passe de 2100 lignes à 2087
+
 
 # extrapolation des effectifs manquants
 
@@ -5490,6 +5492,7 @@ pdev<-function(mod){
 # ATTENTION DECOMMENTER ET RELANCER TOUS LES MODELES, MODELES ENLEVES POUR GAGNER DU TEMPS
 # on met la même contrainte sur tous les modèles de nday
 # pour les delta on choisit une réponse linéaire simple
+# Pour ndays on utilise ts pour essayer de limiter 
 
 summary(g0 <- mgcv::gam(N~1,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g0)
@@ -5499,19 +5502,19 @@ summary(g2 <- mgcv::gam(N~dsf_season+s(ndays),dat=D7j[D7j$N>0,],family=Gamma(lin
 AIC(g2)
 summary(g3 <- mgcv::gam(N~s(ndays, by=dsf_season),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g3)
-summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season, k=5)+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g4)
-summary(g5 <- mgcv::gam(N~dsf_season+ s(ndays, by=dsf_season, k=5)+s(deb_qtotalj) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g5 <- mgcv::gam(N~dsf_season+ s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g5)
-summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+cumflow ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g6)
-summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow + delta_1d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+cumflow + delta_1d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g7) # delta NS
-summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+cumflow+ delta_3d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+cumflow+ delta_3d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g8) # delta NS
-summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5)+s(deb_qtotalj)+ cumflow + delta_7d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+ cumflow + delta_7d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g9) # delta NS 
-summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5)+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
+summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5, bs= "ts")+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
 AIC(g10) 
 
 # J'ai du virer tous les +s(enj_turb) car je ne l'ai plus dans mon modèle
@@ -5542,15 +5545,41 @@ options(encoding = "native.enc")
 #####################################
 #D7j[D7j$pred>1e6 & !is.na(D7j$pred),c("dsf_season","enj_date","N.0","N.1","N.2","ndays")]
 D7j$ndays0 <- D7j$ndays
-# pour éviter les extrapolations quand le modèle part en sucette
-D7j$ndays[D7j$dsf_season=="2019-2020" & D7j$ndays>170] <- 170
-D7j$ndays[D7j$dsf_season=="2018-2019" & D7j$ndays<60 ] <- 60
+
 p1 <-    is.na(D7j$N)
 D7j[,"pred"]<- predict(g9,newdata=D7j,type="response")
+# Limit the predictions to the max observed for this month
+max_per_month_and_year <- D7j |> 
+    filter(!is.na(enj_date)) |> # some are empty beginning and end of the seaon or even in 2018-2019 full days missing
+    # nothing we can do about
+    group_by(dsf_season, month) |>
+    filter(!is.infinite(N)) |>
+    summarize(maxmy = max(N, na.rm = TRUE))
+# Some month have no values, I get it with a very simple glm
+quickg <- glm(maxmy ~dsf_season + month, data = max_per_month_and_year[!is.infinite(max_per_month_and_year$max),])
+max_per_month_and_year[is.infinite(max_per_month_and_year$max),"max"] <- predict(quickg, max_per_month_and_year[is.infinite(max_per_month_and_year$max),])
+
+# now I will cap the predictions from the gam with those values
+
 plot(D7j$N,D7j$pred)
 D7j[p1,"N.2"] <- 0
-D7j[p1,"N.2"] <- predict(g9,newdata=D7j[p1,],type="response")
+D7j[p1,"N.2"] <- D7j[p1,"pred"]
 D7j$ndays <- D7j$ndays0
+D7j <- D7j |> 
+    left_join(max_per_month_and_year, by = join_by(dsf_season, month)) 
+
+# Nombre de valeurs au delà des extremes (ajutées par le max saisonnier pour éviter les extrapolations au delà du range 
+
+D7j |> 
+    filter(is.na(N)) |>
+    group_by(dsf_season) |> 
+    summarize(sum(N.2 >maxmy, na.rm =TRUE))
+
+
+D7j[p1,"N.2"] <- pmin(D7j$maxmy[p1], D7j$N.2[p1])
+D7j <- D7j |> select(-maxmy)
+
+
 
 png(filename=str_c(imgwdy,"N_interannuel.png"),width = 8, height = 8, units = 'in', res = 300)
 D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
@@ -5569,7 +5598,7 @@ save(bestg, file = str_c(datawdy,"bestg.Rdata"))
 save(D2, D7j, file=str_c(datawdy,"D2D7j.Rdata"))
 @
 
-<<tableaufinal, echo=FALSE, eval=FALSE,results=hide>>=
+<<tableaufinal, echo=FALSE, eval=FALSE, results=hide>>=
 # Devalaison observée dans le champ de la vanne pour positions mauvaise ...
 # didson en vanne alors que en volet, ou en volet alors que écoulement en vanne
 stopifnot(exists("mu"))
@@ -5584,7 +5613,7 @@ D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",value
     summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
     pivot_wider(names_from=type, values_from=N)
 
-# Dans D4j on a pas encore multipl
+# Dans D4j on a pas encore divisé par muinv pour corriger l'effet jour / nuit
 D4j  %>% select(starts_with("N."),dsf_season) %>%
     pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
     mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
@@ -5801,6 +5830,101 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
 
+<<export_data, echo=FALSE, eval=FALSE, results=hide>>=
+# chunk to export data to ZENODO and stacomiR format.
+
+daily_values_didson <- D7j |> 
+    rename(date =enj_date ,
+        arzal_turbidity_ntu = enj_turb,
+        migration_season = dsf_season,
+        # debitvilainej = arzal_daily_mean_flow_m3ps, #debit barrage pas utilisé ....
+        cran_daily_mean_fow_m3ps = debitcranj,
+        arzal_daily_flow_m3pd = volbarragej,
+        arzal_gate_flow_m3d = volvannej,
+        arzal_siphon_flow_m3d = volsiphonj,
+        arzal_tidal_flap_flow_m3d = volvoletj,
+        arzal_flow_m3ps = deb_qtotalj,
+        arzal_gate4_flow_m3ps = debit4j,
+        didson_position_surface_percent = pos_s,
+        didson_position_deep_percent = pos_f ,
+        cumulated_flow_season_m3 = cumflow
+    ) |>
+    select(
+        dplyr::all_of(
+            c(                
+                "date",
+                "ndays",
+                "migration_season",
+                "sum_eel_plus",
+                "sum_eel_minus",
+                "N.0",
+                "nb.0",
+                "vol.0",
+                "N.1",
+                "nb.1",
+                "vol.1",
+                "N.2",
+                "N",
+                "cran_daily_mean_fow_m3ps",
+                "arzal_flow_m3ps",
+                "arzal_daily_flow_m3pd",
+                "arzal_gate_flow_m3d",
+                "arzal_tidal_flap_flow_m3d",
+                "arzal_flow_m3ps",
+                "arzal_gate4_flow_m3ps",
+                "arzal_turbidity_ntu",
+                "didson_position_surface_percent",
+                "didson_position_deep_percent",
+                "delta_1d",
+                "delta_3d",
+                "delta_7d",
+                "cumulated_flow_season_m3"         
+            )))
+
+
+
+daily_values_didson_definition <- tribble( 
+   ~name, ~definition,
+    "date", "date",
+    "ndays", "number of days since the beginning of the migration season",
+    "migration_season", "Silver eel migration season, starts in September each year",
+    "sum_eel_plus", "number of eel passing dowstream in the direction of the flow counted in the didson cone",
+    "sum_eel_minus", "number of eel swimming upstream, passing against the direction of the flow counted in the didson cone",
+    "N.0", "Number of eels extrapolated at the dam level while the didson was in good position",
+    "nb.0", "Number of 30 min periods of counting while the didson was in good position",
+    "vol.0", "Volume of water passing through the dam while the didson was in good position",
+    "N.1", "Number of eels extrapolated at the dam level while the didson was in bad position N.1 = N.0 * vol.1 / vol.0",
+    "nb.1", "Number of 30 min periods of counting while the didson was in bad position (flow at the gate while the didson is monitoring the tidal flaps at the surface",
+    "vol.1", "Volume of water passing through the dam while the didson was in bad position",
+    "N.2", "Number of eel estimated during the day when no monitoring took place using seasonal extrapolation model",
+    "N", "Daily silver eel migration at Arzal = N.0 + N.1 + N.2",
+
+    "cran_daily_mean_fow_m3ps", "Daily flow measured at Le Pont de Cran,  Station hydrométrique - J930 0611 01",
+    "arzal_flow_m3ps", "Daily mean flow recalculated at Arzal, this uses various flow formula depending on the organ (gate, flap) and their states, 
+        the daily flow at Arzal may differ from the flow at Le Pont de Cran, especially when the flow is small, this flow is the sum of Gate (deep flow), tidal flap (=volets) surface flow,
+        flow in the fishway, flow from the siphon. See https://github.com/Eaux-et-Vilaine/SIVA for more details on the recalculation of the flow.",
+    "arzal_daily_flow_m3pd", "Daily flow m3.d-1,same as arzal_flow_m3ps but measured daily (*86400) ",
+    "arzal_gate_flow_m3d", "Daily flow m3.d-1 from the five gates at arzal",
+    "arzal_tidal_flap_flow_m3d", "Daily flow m3.d-1 from the five flaps at arzal",
+    "arzal_gate4_flow_m3ps", "Mean flow m3.s-1 from the fourth gate (or flap) at gate 4 where the didson is positionned",
+    "arzal_turbidity_ntu", "Turbidity (nephelometric) measured at the Vilaine Atlantic drinking water plant at Arzal 1 km upstream from the Arzal dam",
+    "didson_position_surface_percent", "Proportion of time with didson positionned at the surface, monitoring the tidal flaps",
+    "didson_position_deep_percent",  "Proportion of time with didson positionned deep, monitoring the gate",
+    "delta_1d", "flow variation at one day $delta_1d = arzal_flow_m3ps_{d}-arzal_flow_m3ps{d-1}$",
+    "delta_3d", "flow variation at 3d $\\sum_{d-3},{d-1} delta_1d$",
+    "delta_7d", "flow variation at 7d $\\sum_{d-7},{d-1} delta_1d$",
+    "cumulated_flow_season_m3", "Cumulated flow in m3, caclulated from the beginning of the season")
+
+stopifnot( daily_values_didson_definition$name == colnames(daily_values_didson))
+
+# TODO export excel
+# TODO ZENODO
+# TODO export stacomiR (when at LRB)
+# TODO export 30 min values
+# TODO write ZENODO
+
+
+@
 Un total de $N_{obs}$ =                                   
  \num{\Sexpr{round(vvv$Nprim04allCY)}} anguilles argentées a été comptés pour la saison \Sexpr{saison}.
 Pour l'ensemble de la période de suivi depuis 2012  cet
@@ -5889,6 +6013,26 @@ dev.off()
 save(dj,file=str_c(datawdy,"dj.Rdata"))
 
 
+
+for (saison in unique(dj$dsf_season)){
+  png(file=str_c(imgwdy,"fig_effectif_",saison,".png"), width = 29.7, height = 21, units = 'cm', res = 300)
+  p <- dj %>% 
+      filter(dsf_season == saison) %>% 
+      ggplot( aes(x=date, y=N, fill=type)) +
+      ylab(expression(N~"&"~10*debit~m^3*s^-1)) +
+      xlab(str_c("date (saison ", saison, ")")) +
+      geom_bar(position="stack", stat="identity") +
+      scale_fill_manual("Effectif",values=c(turquoise_EV,
+              orange_EV,jaune_EV),
+          breaks=c("odot","otimes","oplus"),
+          labels = c("N(.)", "N(x)", "N(+)")) +
+      geom_line(aes(x=date,y=Q*10),lwd=1.2,col=bleu_EV) +	
+      theme_bw()
+  print(p)
+  dev.off()
+}
+
+
 effmois <- dj %>% mutate(mois = lubridate::month(dj$date, label = TRUE, abbr = TRUE, locale= Sys.getlocale("LC_TIME"))) %>%
     group_by (dsf_season, mois ,type ) %>% 
     summarize(effectif=sum(N, na.rm=TRUE)) %>%
@@ -5955,7 +6099,7 @@ dj2 <- D7j  %>%
 
 png(file=str_c(imgwdy,"fig_effectif_pb.png"), width = 29.7, height = 21, units = 'cm', res = 300)
 opar <- par(mar=c(5, 4, 4, 4) + 0.1)
-plot(dj2$enj_date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,6000))
+plot(dj2$enj_date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,16000))
 # calcul des périodes consécutives pour dsf_fls_id
 date <- d3ej$dsf_timeinit[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
 fls_id <- d3ej$dsf_fls_id[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
@@ -5999,15 +6143,15 @@ fn1 <- function(X) switch(as.character(X),
       "3"=orange_EV)
 pb$border <- mapply(fn1,pb$fls_id)
 
-rect(xleft=pb$dateinit, ybottom=0, xright=pb$datefinit, ytop=5000, col=pb$col, border=pb$border)
+rect(xleft=pb$dateinit, ybottom=0, xright=pb$datefinit, ytop=10000, col=pb$col, border=pb$border)
 points(dj2$enj_date, dj2$N, col=bleu_EV, type="h", lwd=2)
 points(dj2$enj_date, dj2$N.0, col=turquoise_EV, type="h", lwd=2)
 points(dj2$enj_date, dj2$N.2, col=orange_EV, type="h", lwd=2)
 #axis(side=4, at=pretty(0:max(dj2$N, na.rm=TRUE)), label=as.character(pretty(0:max(dj2$N, na.rm=TRUE))/10))
-text(dj2$enj_date[1], 2800, "Did. FOND", col=rouille, adj = c(0, 0))
-points(dj2$enj_date[dj2$pos_f>0 & !is.na(dj2$pos_f)], rep(3000, sum(dj2$pos_f>0, na.rm=TRUE)), col=rouille, type="p", lwd=2, pch=15)
-text(dj2$enj_date[1], 3700, "Did. SURF", col="gray", adj = c(0, 0))
-points(dj2$enj_date[dj2$pos_s>0& !is.na(dj2$pos_f)], rep(3500, sum(dj2$pos_s>0, na.rm=TRUE)), col="gray", type="p", lwd=2, pch=15)
+text(dj2$enj_date[1], 14000, "Did. FOND", col=rouille, adj = c(0, 0))
+points(dj2$enj_date[dj2$pos_f>0 & !is.na(dj2$pos_f)], rep(13500, sum(dj2$pos_f>0, na.rm=TRUE)), col=rouille, type="p", lwd=2, pch=15)
+text(dj2$enj_date[1], 12000, "Did. SURF", col="gray", adj = c(0, 0))
+points(dj2$enj_date[dj2$pos_s>0& !is.na(dj2$pos_f)], rep(11500, sum(dj2$pos_s>0, na.rm=TRUE)), col="gray", type="p", lwd=2, pch=15)
 
 axis(1,  pos=0, labels=FALSE, lwd.ticks=0)
 points(d3edj$enj_date, d3edj$deb_qtotalj*10, type="l",  col="blue")
@@ -6021,24 +6165,32 @@ dev.off()
 La deuxième étape du calcul des effectifs correspond à la prédiction des
 migrations lorsque le didson est dans une mauvaise position ($\otimes$), c'est à
 dire en surface alors que les écoulements sont au fond, et au fond alors que les
-écoulements sont en surface, ou quand le didson est en arrêt technique. Pour la
-saison \Sexpr{saison}, le nombre de données correspondant à ce type de configuration
-est de \num{\Sexpr{vvv$number.otimes}} enregistrements  ($\otimes$), contre
-\num{\Sexpr{vvv$number.odot}} enregistrements en fonctionnement normal
-($\odot$). L'effectif extrapolé à partir des migrations observées le même
-jour est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} anguilles argentées.
+écoulements sont en surface, ou quand le didson est en arrêt technique.
+\footnote{Nous avons détécté une erreur dans la manière de sélectionner les
+plages disponibles, liée à une sélection de fichiers, qui conduisait à écarter de
+nombreuses lignes correspondant aux périodes de 30 minutes ou il était
+nécessaire d'extrapoler ($\otimes$) et ($\oplus$). Cette erreur est corrigée et
+explique la différence avec les effectifs du rapport de l'année précédente. 
+Pour la saison \Sexpr{saison}, le nombre de données correspondant à ce type de configuration
+est de \num{\Sexpr{vvv$number.otimes}} enregistrements 
+($\otimes$), contre \num{\Sexpr{vvv$number.odot}} enregistrements en fonctionnement normal ($\odot$). 
+L'effectif extrapolé à partir des migrations observées le même jour est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} 
+anguilles argentées.
 
 Sur l'ensemble des années, il y a eu en moyenne
-\num{\Sexpr{round(mean(vvv$number.missingday.all$N))}} journées avec aucun enregistrement du fait de problèmes d'acquisition ou
-d'écriture disque (Figure \ref{fig_horairespb}). Pour la saison \Sexpr{saison},
-ce nombre très limité avec seulement \num{\Sexpr{vvv$number.missingday}}
-journée manquante.
+\num{\Sexpr{round(mean(vvv$number.missingday.all$N))}} journées sans aucun
+enregistrement, du fait de problèmes d'acquisition ou d'écriture disque (Figure
+\ref{fig_horairespb}). Pour la saison \Sexpr{saison}, ce nombre s'établit à \num{\Sexpr{vvv$number.missingday}}
+journées manquantes.
 Pour toutes les journées manquantes sur la période de suivi, un modèle GAM a été
 utilisé pour extrapoler les effectifs en migration à partir des valeurs des jours proches ($\oplus$).
- Ce modèle utilise une tendance saisonnière non linéaire, le débit à 7 jours,
- le débit total, le cumul du débit ayant transité par le barrage depuis le début
- de la saison. La turbidité qui était utilisée jusqu'à la dernière saison est retirée
- du modèle car elle n'est plus collectée par l'usine d'eau. pour prédire les migrations.
+Le modèle GAM pose des problèmes d'extrapolation pour les périodes sans données,
+souvent en début et fin de saison. Pour palier ce problème, les prédictions ont
+été encadrées par le maximum observé sur le mois et la saison, avec une
+extrapolation à partir des données des autres saisons lorsqu'aucune information
+n'était disponible sur un mois donné. Ce modèle utilise une tendance saisonnière
+non linéaire, le débit à 7 jours, le débit total, le cumul du débit ayant transité par le barrage 
+depuis le début de la saison. La turbidité qui était utilisée jusqu'à la dernière saison est retirée du modèle car elle n'est plus collectée par l'usine d'eau. pour prédire les migrations.
  Les tendances saisonnières permettent un ajutement d'une tendance saisonnière
  globablement à l'augmentation, sauf pour 2016-2017 et 2017-2018. L'effet saison
  montre une tendance à la baisse des effectifs depuis 2012-2013, et le cumul de
@@ -6415,16 +6567,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode2_phi0_didf_5}
+                25mm,clip, width=0.5\textwidth]{2025/periode2_phif_didf_5.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode2_phi0_didf_5"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode2_phi0_didf_5"$incl}, 
-                $h$=\Sexpr{ppp$"periode2_phi0_didf_5"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode2_phi0_didf_5"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode2_phi0_didf_5"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode2_phi0_didf_5"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode2_phi0_didf_5"$minus},
-                date= \Sexpr{iconv(ppp$"periode2_phi0_didf_5"$date,"UTF-8")}
+                $\Phi$=\Sexpr{ppp$"periode2_phif_didf_5"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode2_phif_didf_5"$incl}, 
+                $h$=\Sexpr{ppp$"periode2_phif_didf_5"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode2_phif_didf_5"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode2_phif_didf_5"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode2_phif_didf_5"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode2_phif_didf_5"$minus},
+                date= \Sexpr{iconv(ppp$"periode2_phif_didf_5"$date,"UTF-8")}
                 }
                 \label{periode2}
 \end{figure}
@@ -6432,16 +6584,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode1_phis_dids_-7.png}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode3_phif_didf_5"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode3_phif_didf_5"$incl}, 
-                $h$=\Sexpr{ppp$"periode3_phif_didf_5"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode3_phif_didf_5"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode3_phif_didf_5"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode3_phif_didf_5"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode3_phif_didf_5"$minus},
-                date= \Sexpr{iconv(ppp$"periode3_phif_didf_5"$date,"UTF-8")}
+                25mm,clip,
+                width=0.5\textwidth]{2025/periode3_phif_didf_-7.png} \caption{
+                $\Phi$=\Sexpr{ppp$"periode3_phif_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode3_phif_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode3_phif_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode3_phif_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode3_phif_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode3_phif_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode3_phif_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode3_phif_didf_-7"$date,"UTF-8")}
                 }
                 \label{periode3}
 \end{figure}
@@ -6449,16 +6601,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode4_phif_didf_-7}
+                25mm,clip, width=0.5\textwidth]{2025/periode4_phi0_didf_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode4_phif_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode4_phif_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode4_phif_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode4_phif_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode4_phif_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode4_phif_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode4_phif_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode4_phif_didf_-7"$date,"UTF-8")}}
+                $\Phi$=\Sexpr{ppp$"periode4_phi0_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode4_phi0_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode4_phi0_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode4_phi0_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode4_phi0_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode4_phi0_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode4_phi0_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode4_phi0_didf_-7"$date,"UTF-8")}}
         \label{periode6}
 \end{figure}
 
@@ -6467,16 +6619,16 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode6_phis_didf_-7.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode5_phis_didf_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$incl}, 
-                $h$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$minus},
-                date= \Sexpr{iconv(ppp$"periode6_phis_didf_-7.png"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode5_phis_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode5_phis_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode5_phis_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode5_phis_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode5_phis_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode5_phis_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode5_phis_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode5_phis_didf_-7"$date,"UTF-8")}               
                }
                 \label{periode5}
 \end{figure}
@@ -6484,56 +6636,19 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode6_phis_didf_-7.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode1_phis_dids_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$incl}, 
-                $h$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode6_phis_didf_-7.png"$minus},
-                date= \Sexpr{iconv(ppp$"periode6_phis_didf_-7.png"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode1_phis_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode1_phis_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode1_phis_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode1_phis_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode1_phis_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode1_phis_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode1_phis_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode1_phis_dids_-7"$date,"UTF-8")}               
                }
                 \label{periode6}
 \end{figure}
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode7_phif_didf_6}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode7_phif_didf_6"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode7_phif_didf_6"$incl}, 
-                $h$=\Sexpr{ppp$"periode7_phif_didf_6"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode7_phif_didf_6"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode7_phif_didf_6"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode7_phif_didf_6"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode7_phif_didf_6"$minus},
-                date= \Sexpr{iconv(ppp$"periode7_phif_didf_6"$date,"UTF-8")}               
-               }
-                \label{periode7}
-\end{figure}
-
-
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode8_phi0_didf_6}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode8_phi0_didf_6"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode8_phi0_didf_6"$incl}, 
-                $h$=\Sexpr{ppp$"periode8_phi0_didf_6"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode8_phi0_didf_6"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode8_phi0_didf_6"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode8_phi0_didf_6"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode8_phi0_didf_6"$minus},
-                date= \Sexpr{iconv(ppp$"periode8_phi0_didf_6"$date,"UTF-8")}               
-               }
-                \label{periode8}
-\end{figure}
-
 
 \clearpage
 \FloatBarrier
@@ -6633,6 +6748,117 @@ observées pondérée par les effectifs en migration.
                 d'écriture disque (en vert).}
   \label{fig_effectif_pb}
   \end{figure}
+  
+  
+%=====================================================================  
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2023_2024}
+  \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage
+  pour la saison 2023-2024.
+                En turquoise $N\odot$ 
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}} = effectifs mesurés, 
+                en orange $N\otimes$
+                \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs extrapolés 
+                à partir de données de densité recueillies dans la journée,
+                en jaune, $N\oplus$
+                \textcolor{jaune_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs
+                extrapolés à partir d'un modèle saisonnier. 
+                En bleu foncé \textcolor{bleu_EV}{\rule{3mm}{0.5mm}} débits journaliers estimés 
+                au barrage d'Arzal en \si{\cubic\metre\per\second} (multipliés
+                par 10 pour des raisons graphiques).}
+  \label{fig_effectif_2024}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2022_2023}
+  \caption[Effectif]{Saison 2022-2023.}
+  \label{fig_effectif_2023}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2021_2022}
+  \caption[Effectif]{Saison 2021-2022.}
+  \label{fig_effectif_2022}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2020_2021}
+  \caption[Effectif]{Saison 2020-2021.}
+  \label{fig_effectif_2021}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2019_2020}
+  \caption[Effectif]{Saison 2019-2020.}
+  \label{fig_effectif_2020}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2018_2019}
+  \caption[Effectif]{Saison 2018-2019.}
+  \label{fig_effectif_2019}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2017_2018}
+  \caption[Effectif]{Saison 2017-2018.}
+  \label{fig_effectif_2018}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2016_2017}
+  \caption[Effectif]{Saison 2016-2017.}
+  \label{fig_effectif_2017}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2015_2016}
+  \caption[Effectif]{Saison 2015-2016.}
+  \label{fig_effectif_2016}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2014_2015}
+  \caption[Effectif]{Saison 2014-2015.}
+  \label{fig_effectif_2014}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2013_2014}
+  \caption[Effectif]{Saison 2013-2014.}
+  \label{fig_effectif_2014}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2012_2013}
+  \caption[Effectif]{Saison 2012-2013.}
+  \label{fig_effectif_2013}
+  % heure de fonctionnement
+\end{figure}
 %=====================================================================
 \begin{figure}[htbp]
   \centering
