@@ -356,10 +356,10 @@ keepaspectratio]{frontpage.png}%
 \begin{minipage}{0.28\textwidth}
 \par\sffamily\selectfont
 \Large 
-Suivi de la dévalaison d'anguilles argentées en 2024-2025 (douzième
+Suivi de la dévalaison d'anguilles argentées en 2024-2025 (treizième
 année) sur la Vilaine à l'aide d'un didson.\\
 \vspace{1cm}\\
-\includegraphics[width=0.8\textwidth]{logo_EV} 
+\includegraphics[width=0.7\textwidth]{logo_EV} 
 \end{minipage}
 
 \vspace{1cm}
@@ -371,7 +371,7 @@ année) sur la Vilaine à l'aide d'un didson.\\
 Date d'édition :\\}
 \color{orange_EV}
 \Large
-Avril 2025
+Juin 2026
 \end{center}
 \vspace{1cm}\\
 \end{minipage}
@@ -379,13 +379,13 @@ Avril 2025
        
 \vfill %
 \hfill{ %
-\begin{minipage}{0.28\textwidth}
+\begin{minipage}{0.30\textwidth}
 \textbf{Réalisé avec le concours de} : 
 % le logo de l'agence doit au moins faire 25 mm de haut      
 \vspace{1cm}\\
-\centering{\includegraphics[width=\textwidth]{logo_agence.png}} 
+\centering{\includegraphics[width=0.9\textwidth]{logo_agence.png}} 
 \vspace{1cm}\\
-\centering{\includegraphics[width=0.6\textwidth]{logo_region_bretagne.png}} 
+\centering{\includegraphics[width=1.1\textwidth]{logo_FEDER_Blocs_EU_R_21_27_CMJN.pdf}}
 \vspace{1cm}
 \end{minipage}
 }%  
@@ -413,7 +413,9 @@ Gérard Eriau\par
 \pagecolor{white}
 \thispagestyle{empty}
 \begin{minipage}{\textwidth}
-\includegraphics[width=6cm,keepaspectratio=true]{logo_EV.jpg}
+\includegraphics[width=5cm,keepaspectratio=true]{logo_EV.jpg}
+\hfill
+\includegraphics[width=7cm,keepaspectratio=true]{logo_FEDER_Blocs_EU_R_21_27_CMJN.pdf}
 \end{minipage}
 
 \vspace*{2cm}
@@ -439,7 +441,7 @@ Eriau}}}
 \end{center}
 \end{minipage}
 \vfill
-\hfill \Large Avril 2025
+\hfill \Large Juin 2026
 
 \normalsize
 
@@ -508,6 +510,8 @@ load_library("xtable")
 load_library("tidyverse") # conflict with intersect ... fixed 
 load_library("mixdist")
 load_library("httr") # for script sunshine sunset
+load_library("pdp")
+load_library("randomForest")
 #' ==========================================================
 #' fonction de nettoyage du code latex
 #' ==========================================================
@@ -979,10 +983,9 @@ load(file = str_c(datawdy,"bestg.Rdata")) # the best
 \pagestyle{stylestandard}
 \begin{abstract}
     
-Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième année
-  consécutive, à l'aide d'un sonar multifaisceaux (didson). Le didson est placé
-  sur un rail porteur au niveau du quatrième pertuis de vannes du barrage d'Arzal à la limite de l'estuaire de la Vilaine.
- Sur les douze années,  \num{\Sexpr{round(vvv$Nprim04all)}} anguilles
+Les dévalaisons d'anguilles argentées ont été suivies pendant 13 ans, à l'aide d'un sonar multifaisceaux (didson). 
+Le didson est placé sur un rail porteur au niveau du quatrième pertuis de vannes du barrage d'Arzal à la limite de l'estuaire de la Vilaine.
+ Sur les 13 années,  \num{\Sexpr{round(vvv$Nprim04all)}} anguilles
  argentées ont été comptées lors des dépouillements. En \Sexpr{saison},
  \num{\Sexpr{round(vvv$Nprim04allCY)}} anguilles ont été comptées. L'efficacité de
  la détection a été calculée en fonction de la taille des anguilles, de la
@@ -990,7 +993,7 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
  calculés en extrapolant à l'ensemble de la vanne le pourcentage de surface de
  suivi par le sonar, puis en utilisant le ratio des débits de la vanne 4 aux
  autres vannes.
- Les effectifs suivis pour les configurations correctes, 
+ En 2024-2025, les effectifs suivis pour les configurations correctes, 
  c'est à dire quand le didson est bien positionné par rapport aux écoulements,
   en surface et au fond sur la vanne (N=\num{\Sexpr{vvv$Nprim04.odot}}),  
   ont été extrapolés à l'ensemble des vannes
@@ -1000,11 +1003,11 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
   suivi estime les effectifs lorsque le didson n'était pas en
   mesure d'apporter une estimation journalière 
   (N=\num{\Sexpr{vvv$N.otimes}}).
-  L'estimation
+  En 2024-2025, l'estimation
   quantitative de la dévalaison sur la Vilaine, sur la période de suivi,
   s'établit à (N=\num{\Sexpr{vvv$N}}) soit \Sexpr{vvv$total_weight} tonnes. 
   Les tendances interannuelles de cette migration sont détaillées dans le
-  rapport (globalement tendance à la baisse).\\
+  rapport et montrent globalement une tendance à la baisse.\\
   
   Mots clés : anguille argentée \sep migration \sep dévalaison \sep didson \sep
 	Vilaine.
@@ -1012,31 +1015,30 @@ Les dévalaisons d'anguilles argentées ont été suivies, pour la douzième ann
   \textit{  
   \centering{\textbf{Abstract}}\\
   \smallskip
- Silver eel migrations were monitored, for the twelfth year
-  in a row, using a multibeam sonar (didson). The didson is placed
+ Silver eel migrations were monitored for thirteen year, using a multibeam sonar (didson). The didson is placed
   on a guiding rail at the level of the fourth sluice gate of the Arzal dam at
   the limit of the Vilaine estuary.
- Over twelve years, \num{\Sexpr{round(vvv$Nprim04all)}} silver eels
+ Over 13 years, \num{\Sexpr{round(vvv$Nprim04all)}} silver eels
  silver were counted during the readings. In \Sexpr{saison},
  \num{\Sexpr{round(vvv$Nprim04allCY)}} eels have been counted. The effectiveness of
  the detection was calculated according to the size of the eels, the
  position of the didson and distance to the didson. To extrapolate the
  numbers of silver eel to the entire dam, the percentage of gate area monitored
  by sonar, and the ratio of the flow rates from gate 4 to other gates were used.
- Numbers monitored for the correct setting,
- i.e. when the didson is well positioned in relation to the flows,
+ In  2024-2025, numbers monitored for the correct setting,
+ i.e. when the didson was well positioned in relation to the flows,
   at the surface and at the bottom on the gate (N = \num{\Sexpr{vvv$Nprim04.odot}}),
   have been extrapolated to all gates
   (N = \num{\Sexpr{vvv$N.odot}}).
-  When the didson is in the wrong position, numbers are estimated from
+  When the didson  was the wrong position, numbers are estimated from
   densities of the same day (N = \num {\Sexpr{vvv$N.oplus}}). A model based on all days of
   monitoring was calibrated to estimate the numbers when the didson was not
   capable of providing a daily estimate of the migration
   (N = \num{\Sexpr{vvv$N.otimes}}).
-  A quantitative estimation of downstream migration on the Vilaine, over the
-  monitoring period is established at (N = \num {\Sexpr{vvv$N}}) or \Sexpr{vvv$total_weight} tonnes.
+  In  2024-2025, a quantitative estimation of downstream migration on the
+  Vilaine, over the monitoring period is established at (N = \num {\Sexpr{vvv$N}}) or \Sexpr{vvv$total_weight} tonnes.
   The interannual trends of this migration are detailed in the
-  report ( global decrease).
+  report and show and overall decreasing trend.
 }
 
  Keywords: \textit{silver eel} \sep \textit{downtream migration}
@@ -1107,8 +1109,9 @@ l'ensemble du fleuve. Le rapport qui suit propose le recalcul de l'ensemble des
 migrations depuis le début du suivi, et fait en particulier la synthèse des
 résultats \Sexpr{saison}. Les résultats sont comparés aux résultats des saisons
 2012--2013 à 2021--2022
-\citep{briand_suivi_2014,briand_suivi_2015,briand_suivi_2016,briand_suivi_2017, briand_suivi_2018,briand_suivi_2019,
-briand_suivi_2021, briand_suivi_2022, briand_suivi_2023, briand_suivi_2024}.
+\citep{briand_suivi_2014,briand_suivi_2015,briand_suivi_2016,briand_suivi_2017,
+briand_suivi_2018,briand_suivi_2019, briand_suivi_2021, briand_suivi_2022,
+briand_suivi_2023, briand_suivi_2024, briand_suivi_2026}.
 \section{Matériel et méthodes}
 
 
@@ -1165,10 +1168,10 @@ save(sumdepouillement_all,file=str_c(datawdy,"sumdepouillement_all.Rdata"))
 
 
 cat("d3edj\n") #------------------------------------------ # ddde_dj dj=données journalières
-req@sql <- str_c("select * from did.v_dddedj where enj_date>'",toutdebutdate,
-    "' and enj_date<'",datefin,"'")
+req@sql <- str_c("select * from did.v_dddedj where date>'",toutdebutdate,
+    "' and date<'",datefin,"'")
 d3edj <- query(req, base) %>% getquery()
-#req@sql <- str_c("select * from did.v_dddedj where enj_date='","2022-03-28","'")
+#req@sql <- str_c("select * from did.v_dddedj where date='","2022-03-28","'")
 #query(req, base) %>% getquery()
 save(d3edj,file=str_c(datawdy,"d3edj.all.Rdata"))
 #cat("vdlload\n")
@@ -1239,7 +1242,7 @@ req@sql <- str_c("select * from did.t_envjour_enj
 enj <- query(req, base) %>% getquery()
 if(nrow(enj)==0) stop("Il faut faire tourner le script calcul_debit_chargement_cond_env.R pour charger les données environnementales")
 save(enj,file=str_c(datawdy,"enj.Rdata"))
-#plot(enj$enj_date,enj$enj_turb,type="l")
+#plot(enj$date,enj$enj_turb,type="l")
 cat("environmental data \n") #----------------------------------------------------------------------
 req@sql <- str_c("select * from did.t_env_env 
         where env_time>'",debut,
@@ -1454,6 +1457,16 @@ if (any(is.na(d3ej$position)))
 # surface surface + périodes de transition
 # didson penché loin du didson : vanne et didson sl en surface regarde en bas, volet et didson au fond sl regarde en haut
 #  3 => Lecture en mauvaise position, écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture
+
+
+# fls
+#|fls_label  |fls_id|fls_comment                                                                                                                                                    |
+#|-----------|------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+#|OK         |0     |Enregistrement normal                                                                                                                                          |
+#|Acquisition|1     |Problème d'acquisition                                                                                                                                         |
+#|Ecriture   |2     |Problème d'écriture                                                                                                                                            |
+#|Qualité    |3     |Le fichier existe mais est de mauvaise qualité, ex :perte du fichier père, il ne reste que l'extraction, lecture impossible du fait du colmatage de la lentille|
+
 
 
 d3ej$ex <- NA #extrapolation
@@ -1893,7 +1906,7 @@ eph <- rbind(ephall1, ephall2)
 # eph$date<-as.POSIXct(eph$date)
 #eph <- eph[eph$date >= min(ddde$date), ]
 #eph <- eph[eph$date <= max(ddde$date), ]
-# Cette année je fais un traitement particulier des efficacités donc le fsl_id = 3 
+# Cette année je fais un traitement particulier des efficacités donc le fls_id = 3 
 # est inclus dans les périodes de fonctionnement
 indexOK <- (d3ej$dsf_fls_id == 0 | d3ej$dsf_fls_id == 3) & d3ej$ex == 1    # effectifs utilisés pour extrapolation plus loin
 indexOK[is.na(indexOK)] <- FALSE
@@ -2114,12 +2127,19 @@ Ces crues ont été suivies d'une période calme du 6 février au 9 mars, puis d
 enchainement de 5 pics de crues jusqu'à la fin de la saison (en fin avril) 
 avec des débits de l'ordre de 180 à 270 \unit{\cubic\metre\per\second}.
 
-En 2024--2025, le didson et son rotateur montrent des signes de fatigue, avec de
+En 2023--2024, le didson et son rotateur montrent des signes de fatigue, avec de
 nombreux plantages en cours de saison, mais sans aucune défaillance importante.
 La saison se caractérise par des débits soutenus de début novembre jusqu'à
 mi-avril, avec 2 pics à 300 \unit{\cubic\metre\per\second} début novembre et mi-décembre,
 un gros pic à 650 \unit{\cubic\metre\per\second} début janvier suivi d'un autre à 450 \unit{\cubic\metre\per\second} mi-janvier,
 puis de 3 crues de 350 à 400 \unit{\cubic\metre\per\second} de février à la mi-avril.
+
+En 2024--2025, la saison se caractérise par une hydraulicité exceptionnelle.
+Quatre pics de débits, le premier à 260 \unit{\cubic\metre\per\second}
+intervient dès octobre, à 700 \unit{\cubic\metre\per\second} en janvier et 1200
+\unit{\cubic\metre\per\second} en février et 400 \unit{\cubic\metre\per\second}
+début mars. Les lectures sont effectuées en continu. 
+
 
 %------------------------------------------
 \begin{figure}[htbp]
@@ -2627,8 +2647,8 @@ cor(d3edj$debitvilainej,d3edj$enj_turb, use="complete.obs") # 0.76
 #' @param ylim2   limite du graph
 #' @param  ytop  loc max des labels sur l'axe
 plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
-  thisseason_d3ej <- d3ej$enj_date>=datedebut
-  thisseason_d3edj <- d3edj$enj_date>=datedebut
+  thisseason_d3ej <- d3ej$date>=datedebut
+  thisseason_d3edj <- d3edj$date>=datedebut
   yat <- pretty(c(0, ytop)) # loc des labels
   yat2<-yat/4
   # ajoute de la place à gauche
@@ -2672,7 +2692,7 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   } else {dateinit3=NULL;datefin3=NULL}
 # plot, mais pas les axes 
   
-  plot(d3edj$enj_date[thisseason_d3edj],d3edj$deb_qtotalj[thisseason_d3edj],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,ylim))
+  plot(d3edj$date[thisseason_d3edj],d3edj$deb_qtotalj[thisseason_d3edj],type="l",yaxt='n',col="black",ylab="",xlab="date",ylim=c(0,ylim))
   # this one is based on d3ej
   if (!is.null(dateinit3)){
     rect(xleft=dateinit3,ybottom=102,xright=datefin3+2,ytop=ytop,col=jaune_EV,border=jaune_EV,density=6)
@@ -2685,15 +2705,15 @@ plotdebitturbidite <- function(ylim = 1000, ytop=800, d3ej, d3edj){
   #rect(xleft=date_seuil_pb_lentille,ybottom=102,xright=as.Date(max(d3ej$dsf_timeinit)),ytop=1000,col=makeTransparent("yellow",70),border="orange")
   # si le premier elt du polygone est sup 100 et tout seul ça plante
   
-  polygon(c(min(d3edj$enj_date[thisseason_d3edj])-1,
-          d3edj$enj_date[thisseason_d3edj],
-          max(d3edj$enj_date[thisseason_d3edj])+1),
+  polygon(c(min(d3edj$date[thisseason_d3edj])-1,
+          d3edj$date[thisseason_d3edj],
+          max(d3edj$date[thisseason_d3edj])+1),
       c(100,pmax(100,d3edj$deb_qtotalj[thisseason_d3edj]),100),
       col=turquoise_EV,border=NA)
   # petit ajustement 2018-2019 pour que le gris finisse à 100
-  #polygon(d3edj$enj_date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
-  points(d3edj$enj_date[thisseason_d3edj][thisseason_d3edj],d3edj$debitvilainej[thisseason_d3edj],col=turquoise_EV,type="l")
-  points(d3edj$enj_date[thisseason_d3edj],d3edj$enj_turb[thisseason_d3edj]*4,col="black",type="l",lty=2)
+  #polygon(d3edj$date,pmax(100,d3edj$debitvilainej),col="grey",border=NA)
+  points(d3edj$date[thisseason_d3edj][thisseason_d3edj],d3edj$debitvilainej[thisseason_d3edj],col=turquoise_EV,type="l")
+  points(d3edj$date[thisseason_d3edj],d3edj$enj_turb[thisseason_d3edj]*4,col="black",type="l",lty=2)
   axis(2, col=turquoise_EV, at=yat, labels=yat,col.axis=turquoise_EV)
   axis(side=2, at=yat, labels=yat2, col=rouille, line=2,col.axis=rouille)
   mtext(side=2, line=4, "Débit journalier m3/s et turbidité (NTU)")
@@ -4995,8 +5015,8 @@ dévalaison 2024--2025. }}
 # # stop("on travaille ici")
 # load(file=str_c(datawdy,"d3ej.all.Rdata"))
 # if ("efficiency" %in% colnames(d3ej)) d3ej<-d3ej[,-grep("efficiency",colnames(d3ej))]
-#plot(d3edj$enj_date,d3edj$sum_eel_plus,ylim=c(-20,200))
-#points(d3edj$enj_date,-d3edj$sum_eel_minus,col="red")
+#plot(d3edj$date,d3edj$sum_eel_plus,ylim=c(-20,200))
+#points(d3edj$date,-d3edj$sum_eel_minus,col="red")
 ##sum(d3edj$sum_eel_plus,na.rm=TRUE)+sum(d3edj$sum_eel_minus,na.rm=TRUE)
 # #d3ej vient de ddde mais limité de jour
 # #je remet les positionnements de vanne
@@ -5194,7 +5214,7 @@ dévalaison 2024--2025. }}
 #	load(file=str_c(datawdyy,"dj.Rdata"))
 #	if(Y ==2013){
 #		dj.all <- dj	
-#		colnames(dj.all) <- c("enj_date","deb_qtotalj","type","N")
+#		colnames(dj.all) <- c("date","deb_qtotalj","type","N")
 #	}  else{
 #		dj.all <- rbind(dj.all,dj)
 #	} 
@@ -5219,7 +5239,7 @@ load(file=str_c(datawdy,"d3ej.all.Rdata"))
 load(file=str_c(datawdy,"d3edj.all.Rdata"))
 load(file= str_c(datawdy,"efficacite_moyenne.Rdata"))
 
-
+mu <- vvv$mu 
 muinv <- (100-mu)/100
 D0 <- d3ej
 Dj <- d3edj
@@ -5257,7 +5277,7 @@ D0 <- D0 %>% mutate(
     W = as.factor(W),
     duree = dsf_timeend - dsf_timeinit,
     hourm = as.numeric(as.character(H)),
-    day = as.numeric(strftime(dsf_timeinit,format="%j", tz ="UTC")),
+    day = as.numeric(strftime(dsf_timeinit,format="%j")),
     leap_year = leap_year(dsf_timeinit),
     position = as.factor(position),
     indexOK = (dsf_fls_id == 0 | dsf_fls_id == 3) & ex == 1, # pas de problème de filestatus bloquant et didson bien positionné (regarde au bon endroit)  
@@ -5265,13 +5285,42 @@ D0 <- D0 %>% mutate(
 )
 
 
-Dj <- Dj %>% mutate(
-    year = year(enj_date),
-    month = month(enj_date),
-    day = as.numeric(strftime(enj_date,format="%j")),
-    leap_year = leap_year(enj_date))
+# Generate a full sequence of dates
+years <- 2012:2024 
+
+#Dj0 <- data.frame(date =  do.call(c, lapply(years, function(y) {
+#  seq(
+#    as.Date(paste0(y, "-09-01")),
+#    as.Date(paste0(y + 1, "-04-30")),
+#    by = "day"
+#  )
+#})))
+
+Dj <- #Dj0 |> left_join(Dj) %>% 
+    Dj |>
+    mutate(
+        year = year(date),
+        month = month(date),
+        day = as.numeric(strftime(date,format="%j")),
+        leap_year = leap_year(date),
+        ndays = case_when(day<200 & !leap_year ~ day + 365,
+            day<200 & leap_year ~ day + 366,
+            TRUE ~day),
+        ndays =   case_when(leap_year ~ ndays - 244, # 1 sept is 1 (1 sept = 245 for leap year)
+            !leap_year ~ ndays - 243), # 1 sept is 1 (1 sept = 244 for non leap years
+        dsf_season = case_when(month< 6 ~ str_c(year-1,"-",year),
+            month>=6  ~ str_c(year,"-",year+1)))
+#Dj$day[Dj$month==9&strftime(Dj$date,format="%d")=="01"]
+# 245 244 244 244 245 244 244 244 245 244 244 244 245
 
 
+stopifnot(sum(duplicated(paste(Dj$ndays,Dj$dsf_season)))==0)
+#Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),]
+#duplicated_ndays <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"ndays"]
+#duplicated_seasons <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"dsf_season"]
+#Dj[Dj$ndays%in%duplicated_ndays & Dj$dsf_season %in%duplicated_seasons,] 
+
+# 1 september 
 D0 <- D0 %>% 
     select(-leap_year) %>%
     # here we want to know if a year is following a leap_year (annee bissextile)
@@ -5289,11 +5338,12 @@ D0 <- D0 %>%
     rename(hourm0=hourm)  %>%
     mutate(hourm = case_when(hourm0<=9~ hourm0+7, hourm0>9~hourm0-17)) %>% # à 18h00 il est 1 h et à 1 h il est 8h (1+7)
     # on a d3ej <-    subset(ddde, (hour > 17 | hour <= 9) & !is.na(ddde$date))
-    mutate(ndays = 
-            case_when(day<250 & !leap_year ~ day + 365,
-                day<250 & leap_year ~ day + 366,
-                TRUE ~day),
-        ndays =  ndays - min(ndays)+1) 
+    mutate(
+    ndays = case_when(day<200 & !leap_year ~ day + 365,
+            day<200 & leap_year ~ day + 366,
+            TRUE ~day),
+        ndays =   case_when(leap_year ~ ndays - 244, 
+            !leap_year ~ ndays - 243))
 
 
 
@@ -5305,27 +5355,18 @@ D0 <- D0 %>%
 
 stopifnot(D0[as.character(D0$dsf_timeinit)=="2012-09-21 19:00:00","hourm0"]==19)
 stopifnot(D0[as.character(D0$dsf_timeinit)=="2012-09-21 19:00:00","hourm"]==2)
-stopifnot(D0[as.character(D0$dsf_timeinit)=="2013-01-01 01:00:00","ndays"]==103)
-stopifnot(D0[as.character(D0$dsf_timeinit)=="2014-01-01 01:00:00","ndays"]==102)
-stopifnot(D0[as.character(D0$dsf_timeinit)=="2017-01-01 01:00:00","ndays"]==103)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2013-01-01 01:00:00","ndays"]==123)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2014-01-01 01:00:00","ndays"]==123)
+stopifnot(D0[as.character(D0$dsf_timeinit)=="2017-01-01 01:00:00","ndays"]==123)
 ## if there is a problem use this :
 # View(D0[, c("dsf_timeinit","duree","leap_year","hourm","hourm0","day","ndays")])
 D0$indexOK[is.na(D0$indexOK)] <- FALSE
 D0$indexOKex3[is.na(D0$indexOKex3)] <- FALSE
 
-Dj$dsf_season <- NA
-Dj$dsf_season[Dj$month< 6] <-  str_c(Dj$year-1,"-",Dj$year)[Dj$month< 6]
-Dj$dsf_season[Dj$month>=6] <- str_c(Dj$year,"-",Dj$year+1)[Dj$month>= 6]
 
-Dj$day[Dj$day<250 & !Dj$leap_year] <- Dj$day[Dj$day<250 & !Dj$leap_year]+365
-Dj$day[Dj$day<250 & Dj$leap_year] <- Dj$day[Dj$day<250  & Dj$leap_year]+366
-Dj$ndays[!Dj$leap_year] <- Dj$day[!Dj$leap_year] - min(Dj$day)+1
-Dj$ndays[Dj$leap_year] <- Dj$day[Dj$leap_year] - min(Dj$day)
-stopifnot(sum(duplicated(paste(Dj$ndays,Dj$dsf_season)))==0)
-#Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),]
-#duplicated_ndays <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"ndays"]
-#duplicated_seasons <- Dj[duplicated(paste(Dj$ndays,Dj$dsf_season)),"dsf_season"]
-#Dj[Dj$ndays%in%duplicated_ndays & Dj$dsf_season %in%duplicated_seasons,]
+
+
+
 
 # Jointure avec les efficacites -------------------------
 
@@ -5391,15 +5432,15 @@ stopifnot(sum(duplicated(D2$dsf_id))==0)
 D2$ex3 <- as.numeric((D2$ex==3 |D2$ex==0) & D2$volbarrage30>0)
 
 
-# D2j group par numéro de jour et fait le sumarize
+# D2j groupe par numéro de jour (et par date car il faut la ramener plus tard) et fait le sumarize
 # en comptant le nomre de positions fond surface
 # periodes jour (note cette étape est nécessaire pour avoir les "stats" par jour
 # le group by suivant les donnera pour nok le nombre de sequences ou le didson est en position correcte
 # on fait un join à la fin pour tout regrouper
 
 
-D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season) %>%
-    dplyr::group_by(ndays,dsf_season) %>%
+D2j <- dplyr::select(D2, date, ndays,N, indexOK, dsf_position, dsf_season) %>%
+    dplyr::group_by(date,ndays,dsf_season) %>%
     dplyr::summarize(nOK=sum(indexOK),
         pos_s=sum(dsf_position=="s")/dplyr::n(),
         pos_f=sum(dsf_position=="f")/dplyr::n(),
@@ -5409,9 +5450,11 @@ D2j <- dplyr::select(D2,ndays,N,ex3,dsf_position, dsf_season) %>%
 
 # D3j groupe par jour et par position bonne ou mauvaise
 D3j <- D2 %>% 
-    dplyr::select(dsf_season,ndays,N,indexOK,volbarrage30) %>%
-    dplyr::group_by(dsf_season,ndays,indexOK) %>%
-    dplyr::summarize(N=sum(N, na.rm=TRUE),nb=dplyr::n(),vol=sum(volbarrage30), .groups="drop")
+    dplyr::select(dsf_season, ndays, N, indexOK, volbarrage30) %>%
+    dplyr::group_by(dsf_season,  ndays,indexOK) %>%
+    dplyr::summarize(N = sum(N, na.rm=TRUE),
+        nb = dplyr::n(),
+        vol = sum(volbarrage30), .groups="drop")
 D3j0 <- dplyr::filter(D3j,indexOK)  %>% select(-indexOK) # bien positionné
 D3j1 <- dplyr::filter(D3j,!indexOK) %>% select(-indexOK)# mal positionné
 
@@ -5419,7 +5462,7 @@ D3j1 <- dplyr::filter(D3j,!indexOK) %>% select(-indexOK)# mal positionné
 
 # on cree un tableau avec le nombre de fichiers bien positionné et le nb mal 
 # positionnés en parallèle
-# par jour
+# par jour je garde la date (meme si ça semble redondant) car il y a plus loin des valeurs manquantes dans Dj
 D4j <- full_join(D3j1,D3j0,by=c("ndays","dsf_season"),suffix = c(".1", ".0")) %>%
     arrange(dsf_season,ndays)
 #colnames(D4j)
@@ -5428,8 +5471,8 @@ stopifnot(nrow(D4j)==nrow(D2j))
 # .0 correspond à une lecture dans de bonnes conditions.
 
 # On ramène dans ce tableau, les données journalières de débit.
-D5j <- left_join(D4j,Dj,by=c("ndays", "dsf_season"))
-D5j <- left_join(D5j, D2j %>% select(-N), by=c("ndays", "dsf_season")) # compte les périodes fls et fond sur surface
+D5j <- left_join(Dj, D4j,  by= c("ndays", "dsf_season"))
+D5j <- left_join(D5j, D2j %>% select(-N, -date), by=c("ndays", "dsf_season")) # compte les périodes fls et fond sur surface
 stopifnot(sum(duplicated(paste(D5j$ndays,D5j$dsf_season)))==0)
 #D5j[duplicated(paste(D5j$ndays,D5j$dsf_season)),]
 
@@ -5447,11 +5490,14 @@ D5j$N.1 <- D5j$N.0*(D5j$vol.1)/D5j$vol.0
 # il y a des NA propagés par N1, en vrai N1 c'est zero si il n'y a aucune période (tout est en .0) ou si les vannes sont fermées...
 D5j$N.1[is.na(D5j$nb.1)] <- 0
 D5j$N.1[is.na(D5j$N.1) & D5j$vol.1==0] <- 0
-#open_in_excel(D5j)
-
+D5j$N.1[is.na(D5j$N.1) & D5j$N.0==0] <- 0
+D5j$N.1[is.na(D5j$N.1) & is.na(D5j$vol.1)] <- 0
+# This should have solved all the NA problems for N.1 :
+stopifnot(sum(is.na(D5j$N) & !is.na(D5j$N.0))==0)
 D5j$N <- D5j$N.0 + D5j$N.1
 
-#View(D5j[,c("enj_date","nb.0","vol.0","N.0","nb.1","vol.1","N.1","N")])
+
+#View(D5j[,c("date","nb.0","vol.0","N.0","nb.1","vol.1","N.1","N")])
 
 #
 #ggplot(D5j)+ geom_point(aes(x=N.0, y=N.1)) +
@@ -5462,8 +5508,42 @@ D5j$N <- D5j$N.0 + D5j$N.1
 # modèle
 
 
+#
+#
+#
+#
+#interpolate_flow <- function(season, data= D5j){
+#  cat(sprintf("Saison = %s \n", season))
+#  data_complete <- data |>
+#  filter(dsf_season == season) |>
+#  mutate(deb_qtotalj_interp = zoo::na.approx(deb_qtotalj, na.rm = FALSE), # linear interpolation (could use 
+#  # na.approx with na.rm = FALSE won't extrapolate beyond the first/last observed value
+#  # Smooth hydrograph peaks	could be handled by na.spline (cubic spline)
+#       interpolated = is.na(deb_qtotalj_interp) & !is.na(deb_qtotalj)) 
+#cat("Total missing values (original):", sum(is.na(data_complete$deb_qtotalj_interp)), "\n")
+#cat("Remaining NAs after interpolation:", sum(is.na(data_complete$flow_interp)), "\n")
+#cat("Days interpolated:", sum(data_complete$interpolated), "\n")
+#print(ggplot(data_complete, aes(x = date)) +
+#  geom_line(aes(y = deb_qtotalj_interp), color = "steelblue", linewidth = 0.6) +
+#  geom_point(data = filter(data_complete, interpolated),
+#             aes(y = deb_qtotalj_interp), color = "firebrick", size = 1.2,
+#             alpha = 0.7) +
+#  labs(title = "Flow Time Series with Interpolated Values",
+#       subtitle = "Red points = interpolated",
+#       x = NULL, y = "Flow") +
+#  theme_minimal())
+#  return(data_complete)
+#
+#}
+#sapply(unique(D5j$dsf_season), interpolate_flow)
+
+# ── 8. Plot to visually verify ────────────────────────────────────────────────
+
 D5j$deb_qtotalj[is.na(D5j$deb_qtotalj)]<-0
+
 D6j <- D5j %>%
+
+    
     mutate(delta_1d=deb_qtotalj-lag(deb_qtotalj)
     )
 
@@ -5489,52 +5569,156 @@ pdev<-function(mod){
   (mod$null.deviance-mod$deviance)/mod$null.deviance
 }
 
+# check for problems
+
+
 # ATTENTION DECOMMENTER ET RELANCER TOUS LES MODELES, MODELES ENLEVES POUR GAGNER DU TEMPS
 # on met la même contrainte sur tous les modèles de nday
 # pour les delta on choisit une réponse linéaire simple
 # Pour ndays on utilise ts pour essayer de limiter 
+# On essaye pas d'interpreter l'effet du débit parce qu'on a ndays qui perturbe.
 
-summary(g0 <- mgcv::gam(N~1,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g0)
-summary(g1 <- mgcv::gam(N~dsf_season,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g1)
-summary(g2 <- mgcv::gam(N~dsf_season+s(ndays),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g2)
-summary(g3 <- mgcv::gam(N~s(ndays, by=dsf_season),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g3)
-summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g4)
-summary(g5 <- mgcv::gam(N~dsf_season+ s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj) ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g5)
-summary(g6 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+cumflow ,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g6)
-summary(g7 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+cumflow + delta_1d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g7) # delta NS
-summary(g8 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+cumflow+ delta_3d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g8) # delta NS
-summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+s(deb_qtotalj)+ cumflow + delta_7d,dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g9) # delta NS 
-summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, k=5, bs= "ts")+s(deb_qtotalj)+cumflow + s(delta_7d),dat=D7j[D7j$N>0,],family=Gamma(link="log")))
-AIC(g10) 
+# On limite les valeurs extrêmes
+#  quantile( D7j[D7j$N>0,"delta_1d"], probs = c(0.01,0.99),na.rm = TRUE)
+#       1%       99% 
+# -118.2712  159.3768 
+D7j$delta_1d[D7j$delta_1d > 150] <- 150
+D7j$delta_1d[D7j$delta_1d < -150] <- -150
+#quantile( D7j[D7j$N>0,"delta_3d"], probs = c(0.01,0.99),na.rm = TRUE)
+#       1%       99% 
+#-201.9263  288.7283 
+D7j$delta_3d[D7j$delta_3d > 300] <- 300
+D7j$delta_3d[D7j$delta_3d < -300] <- -300
+#quantile( D7j[D7j$N>0,"delta_7d"], probs = c(0.01,0.99),na.rm = TRUE)
+#       1%       99% 
+#-435.8496  538.4682 
+D7j$delta_7d[D7j$delta_7d > 500] <- 500
+D7j$delta_7d[D7j$delta_7d < -500] <- -500
 
-# J'ai du virer tous les +s(enj_turb) car je ne l'ai plus dans mon modèle
-# note les cumflow a un pb de concurvity, donc je le vire du gam
-bestg <- g9
+D7j$lcumflow <- log(D7j$cumflow+1)
+D7j$ldeb_qtotalj <- log(D7j$deb_qtotalj+1)
 
-pdf(file=str_c(imgwdy,"gam_predict.pdf"),width=7,height=7)
-plot(bestg,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-5,5))
+#summary(g0 <- mgcv::gam(N~1,
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g0)
+#summary(g1 <- mgcv::gam(N~dsf_season,
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g1)
+#summary(g2 <- mgcv::gam(N~dsf_season + s(ndays, by=dsf_season, k=5, bs= "ts"),
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g2)
+#summary(g3 <- mgcv::gam(N~s(ndays, by=dsf_season, k=5, bs= "ts"),
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g3)
+#summary(g4 <- mgcv::gam(N~s(ndays, by=dsf_season, k=5, bs= "ts")+ s(ldeb_qtotalj, k=5),
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g4)
+#summary(g5 <- mgcv::gam(N~dsf_season+ s(ndays, by=dsf_season, k=5, bs= "ts")+ s(lcumflow, k =5),
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g5)
+#summary(g6 <- mgcv::gam(
+#        N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts") + s(ldeb_qtotalj, k=5) + s(lcumflow, k =5),
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g6)
+#summary(g7 <- mgcv::gam(
+#        N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts") + s(ldeb_qtotalj, k=5)+  s(lcumflow, k =5) + delta_1d,
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g7) # delta NS
+#summary(g8 <- mgcv::gam(N~dsf_season + s(ldeb_qtotalj, k=5) + s(lcumflow, k =5) + delta_3d,
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g8) # delta NS
+#summary(g9 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+ s(ldeb_qtotalj, k=5)+ s(lcumflow, k =5) + delta_7d,
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g9) # delta NS 
+#summary(g10 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+ s(ldeb_qtotalj, k=5)+ s(lcumflow, k =5) + delta_7d + enj_turb, 
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g10)
+#summary(g10 <- mgcv::gam(N~dsf_season++s(ndays, by=dsf_season, k=5, bs= "ts")+ s(lcumflow, k =5) + delta_7d + enj_turb, 
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g10)
+#summary(g11 <- mgcv::gam(N~dsf_season++s(ndays, by=dsf_season, k=5, bs= "ts")+ s(ldeb_qtotalj, k=5) + delta_7d + enj_turb, 
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+#AIC(g11)
+#summary(g12 <- mgcv::gam(N~dsf_season+s(ndays, by=dsf_season, k=5, bs= "ts")+ s(ldeb_qtotalj, k=5) + delta_7d , 
+#        dat=D7j[D7j$N>0,],
+#        family=Gamma(link="log")))
+
+fit_data <- D7j |> 
+    dplyr::select(N, dsf_season,ndays, ldeb_qtotalj,delta_1d,delta_3d,delta_7d,lcumflow,enj_turb)|>
+     na.omit()
+  
+fit <- randomForest(log(N+1) ~ dsf_season+ndays+ldeb_qtotalj+delta_1d+delta_3d+delta_7d+lcumflow +enj_turb, data=fit_data)
+print(fit) #42.28 % variance explained
+varImpPlot(fit) 
+fit$importance[order(fit$importance[, 1], decreasing = TRUE), ]
+plot(fit)
+predictors <- names(fit_data)[names(fit_data) != "N"]
+plots <- lapply(predictors, function(var) {
+  
+  pd <- partial(
+    fit,
+    pred.var = var)
+  
+  autoplot(pd) +
+    ggtitle(var) +
+    theme_minimal()
+})
+
+pdf(file=str_c(imgwdy,"rf_predict.pdf"),width=7,height=7)
+cowplot::plot_grid(plotlist = plots, ncol = 2)
 dev.off()
-AIC(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10)
-gam.check(bestg)
-concurvity(bestg)
-options(encoding = "UTF-8")
-besttg<- itsadug::gamtabs(bestg, 
-    caption="Modèle de prédiction des effectifs.",
-    label="tableau_modele_miss")
-cat(besttg,
-    file=str_c(tabwdy,"tableau_modele_miss.tex"),
-    sep="\n")
-options(encoding = "native.enc")
+
+# visualise interaction
+  
+  newdata <- expand.grid(
+    ndays = 1:max(D7j$ndays),
+    dsf_season = levels(D7j$dsf_season),
+    ldeb_qtotalj = mean(D7j$ldeb_qtotalj),
+    delta_1d = 0,
+    delta_3d =0,
+    delta_7d =0,
+    lcumflow= 10,
+    enj_turb =50    
+  )
+  
+  newdata$pred <- predict(fit, newdata)
+  
+ ggplot(newdata) + geom_line(aes(x=ndays, y= pred, col = dsf_season)) + theme_minimal()
+
+
+
+
+#
+#pdf(file=str_c(imgwdy,"gam_predict.pdf"),width=7,height=7)
+#plot(bestg,pages=1, all.terms=TRUE, shade=TRUE, ylim=c(-5,5))
+#dev.off()
+#(testAIC <- AIC(g1,g2,g3,g4,g5,g6,g7,g8,g9,g10,g11,g12))
+
+#cat(sprintf("Le meilleur modèle est le modèle %s", rownames(testAIC[which.min(testAIC$AIC),])))
+#
+#gam.check(bestg)
+#concurvity(bestg)
+#options(encoding = "UTF-8")
+#besttg<- itsadug::gamtabs(bestg, 
+#    caption="Modèle de prédiction des effectifs.",
+#    label="tableau_modele_miss")
+#cat(besttg,
+#    file=str_c(tabwdy,"tableau_modele_miss.tex"),
+#    sep="\n")
+#options(encoding = "native.enc")
 
 
 
@@ -5543,41 +5727,41 @@ options(encoding = "native.enc")
 # utilisation d'un modèle gam moins performant mais plus sûr g10
 # avec un creux en janvier
 #####################################
-#D7j[D7j$pred>1e6 & !is.na(D7j$pred),c("dsf_season","enj_date","N.0","N.1","N.2","ndays")]
-D7j$ndays0 <- D7j$ndays
+#D7j[D7j$pred>1e6 & !is.na(D7j$pred),c("dsf_season","date","N.0","N.1","N.2","ndays")]
+
 
 p1 <-    is.na(D7j$N)
-D7j[,"pred"]<- predict(g9,newdata=D7j,type="response")
+D7j[,"pred"] <- exp(predict(fit,newdata=D7j))-1 
 # Limit the predictions to the max observed for this month
-max_per_month_and_year <- D7j |> 
-    filter(!is.na(enj_date)) |> # some are empty beginning and end of the seaon or even in 2018-2019 full days missing
-    # nothing we can do about
-    group_by(dsf_season, month) |>
-    filter(!is.infinite(N)) |>
-    summarize(maxmy = max(N, na.rm = TRUE))
-# Some month have no values, I get it with a very simple glm
-quickg <- glm(maxmy ~dsf_season + month, data = max_per_month_and_year[!is.infinite(max_per_month_and_year$max),])
-max_per_month_and_year[is.infinite(max_per_month_and_year$max),"max"] <- predict(quickg, max_per_month_and_year[is.infinite(max_per_month_and_year$max),])
+#max_per_month_and_year <- D7j |> 
+#    filter(!is.na(date)) |> # some are empty beginning and end of the seaon or even in 2018-2019 full days missing
+#    # nothing we can do about
+#    group_by(dsf_season, month) |>
+#    filter(!is.infinite(N)) |>
+#    summarize(maxmy = max(N, na.rm = TRUE))
+## Some month have no values, I get it with a very simple glm
+#quickg <- glm(maxmy ~dsf_season + month, data = max_per_month_and_year[!is.infinite(max_per_month_and_year$maxmy),])
+#max_per_month_and_year[is.infinite(max_per_month_and_year$maxmy),"maxmy"] <- predict(quickg, max_per_month_and_year[is.infinite(max_per_month_and_year$maxmy),])
 
 # now I will cap the predictions from the gam with those values
 
-plot(D7j$N,D7j$pred)
+plot(log(D7j$N+1),log(D7j$pred+1))
 D7j[p1,"N.2"] <- 0
 D7j[p1,"N.2"] <- D7j[p1,"pred"]
-D7j$ndays <- D7j$ndays0
-D7j <- D7j |> 
-    left_join(max_per_month_and_year, by = join_by(dsf_season, month)) 
+
+#D7j <- D7j |> 
+#    left_join(max_per_month_and_year, by = join_by(dsf_season, month)) 
 
 # Nombre de valeurs au delà des extremes (ajutées par le max saisonnier pour éviter les extrapolations au delà du range 
 
-D7j |> 
-    filter(is.na(N)) |>
-    group_by(dsf_season) |> 
-    summarize(sum(N.2 >maxmy, na.rm =TRUE))
+#D7j |> 
+#    filter(is.na(N)) |>
+#    group_by(dsf_season) |> 
+#    summarize(sum(N.2 >maxmy, na.rm =TRUE))
 
 
-D7j[p1,"N.2"] <- pmin(D7j$maxmy[p1], D7j$N.2[p1])
-D7j <- D7j |> select(-maxmy)
+#D7j[p1,"N.2"] <- pmin(D7j$maxmy[p1], D7j$N.2[p1])
+#D7j <- D7j |> select(-maxmy)
 
 
 
@@ -5594,14 +5778,16 @@ D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",value
 dev.off()
 
 
-save(bestg, file = str_c(datawdy,"bestg.Rdata"))
+#save(bestg, file = str_c(datawdy,"bestg.Rdata"))
 save(D2, D7j, file=str_c(datawdy,"D2D7j.Rdata"))
 @
 
 <<tableaufinal, echo=FALSE, eval=FALSE, results=hide>>=
 # Devalaison observée dans le champ de la vanne pour positions mauvaise ...
 # didson en vanne alors que en volet, ou en volet alors que écoulement en vanne
-stopifnot(exists("mu"))
+load(file=str_c(datawdy,"vvv.Rdata"))
+mu <- vvv$mu 
+muinv <- (100-mu)/100
 load(file=str_c(datawdy,"D2D7j.Rdata"))
 
 # numbers for report
@@ -5696,8 +5882,8 @@ res.0_pos <- Dok %>% group_by(dsf_season, position) %>%
 
 
 #TODO verifier que les chiffres de D2 (summary ci dessus) sont ceux de D7 pour N.0
-tapply(D7j$N.0, D7j$dsf_season,sum, na.rm=TRUE)
-tapply(Dok$N, Dok$dsf_season,sum, na.rm=TRUE)
+stopifnot(all(round(tapply(Dok$N, Dok$dsf_season,sum, na.rm=TRUE) / tapply(D7j$N.0, D7j$dsf_season,sum, na.rm=TRUE),1)==muinv))
+
 
 
 res.1 <-  D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
@@ -5832,9 +6018,17 @@ save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 
 <<export_data, echo=FALSE, eval=FALSE, results=hide>>=
 # chunk to export data to ZENODO and stacomiR format.
+load(file=str_c(datawdy,"vvv.Rdata"))
+mu <- vvv$mu 
+muinv <- (100-mu)/100
+load(file=str_c(datawdy,"D2D7j.Rdata"))
 
 daily_values_didson <- D7j |> 
-    rename(date =enj_date ,
+    mutate(date2 = case_when(is.na(date) & day>200 ~ strptime(paste0(substring(dsf_season,1,4), day), "%Y%j"),
+            is.na(date) & day<200 ~ strptime(paste0(substring(dsf_season,6,9), day), "%Y%j"),
+            .default = date)) |>
+   filter(is.na(date))
+    rename(
         arzal_turbidity_ntu = enj_turb,
         migration_season = dsf_season,
         # debitvilainej = arzal_daily_mean_flow_m3ps, #debit barrage pas utilisé ....
@@ -5917,6 +6111,188 @@ daily_values_didson_definition <- tribble(
 
 stopifnot( daily_values_didson_definition$name == colnames(daily_values_didson))
 
+readr::write_excel_csv(daily_values_didson_definition, file= str_c(datawdy, "daily_values_didson_definition.csv"))
+readr::write_excel_csv(daily_values_didson, file= str_c(datawdy, "daily_values_didson.csv"))
+
+# Export daily data to stacomiR -------------------
+
+# dic = 23 (df = 22)
+library('DBI')
+if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
+if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
+#host <- Sys.getenv("hostmercure")
+host <- Sys.getenv("hostmercureinternal")
+user <- decrypt_string(userdistant,pois)
+password <- decrypt_string(passworddistant,pois)
+base <- c("bd_contmig_nat_iav",host,5432,user,password)
+
+req <- new("RequeteDB")
+req@sql <- "SELECT * FROM iav.t_operation_ope limit 0"
+str_ope <- query(req, base)
+str_ope <- getquery(str_ope)
+
+ope <- tibble(
+ope_dic_identifiant = 23,
+ope_date_debut = daily_values_didson$date,
+ope_date_fin = daily_values_didson$date + as.difftime(tim=1,"%d","days"),
+ope_organisme = 'IAV',
+ope_operateur = 'Brice Sauvaget, Gérard Eriau',
+ope_commentaires = NA,
+ope_org_code = 'IAV'
+)
+
+con <- dbConnect(drv=RPostgres::Postgres(), 
+ user = user,
+ password = password,
+ host = host,
+ port = "5432",
+ dbname = "bd_contmig_nat_iav")
+
+dbWriteTable(con, "temp_ope_didson", ope, overwrite = TRUE)
+
+ope_identifiant <- dbGetQuery(con, "INSERT INTO iav.t_operation_ope
+(ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code)
+SELECT ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code FROM
+temp_ope_didson returning ope_identifiant;")
+
+# period de fonctionnement du dispositif
+
+# ex = extrapolation calculés dans l'ordre, le premier surpasse le dernier
+# par exemple si la vanne est fermée, le statut sera toujours 0 même si pb technique
+#  0 Vanne ou volet fermés, quelles que soient les autres conditions d3ej$optvanne4=="0" la vanne est fermée
+#  4 => Vanne ouverte, problème de lecture ou d'écriture la position est "n" = pas de didson ou  fls (1,2) pb d'aquisition ou d'écriture
+#  2 => Pas de lecture (tous les is.na(dsr_id)), écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture
+#  1 => Lecture , vanne ou volet ouvert, didson bien positionné, pas de problème d'acquisition ou d'écriture
+# fond fond +  périodes de trantions (d3ej$optvanne4="fs")
+# surface surface + périodes de transition
+# didson penché loin du didson : vanne et didson sl en surface regarde en bas, volet et didson au fond sl regarde en haut
+#  3 => Lecture en mauvaise position, écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture)	
+
+#|tar_code|tar_libelle |tar_commentaires                                                                      |
+#|--------|------------|--------------------------------------------------------------------------------------|
+#|1       |Fonc normal |Fonctionnement normal                                                                 |
+#|2       |Arr ponctuel|Arret ponctuel lie au fonctionnement                                                  |
+#|3       |Arr maint   |Arret pour maintenance                                                                |
+#|4       |Dysfonc     |Dysfonctionnement (notamment dysfonctionnement hydraulique et dysfonctionnement video)|
+#|5       |Non connu   |Pas de suivi de donnees permettant de déterminer le fonctionnement du dispositif      |
+
+
+
+req <- new("RequeteDB")
+req@sql <- "SELECT * FROM iav.t_periodefonctdispositif_per limit 0"
+str_per <- query(req, base)
+str_per <- getquery(str_per)
+clipr::write_clip(str_per)
+
+R.utils::seqToIntervals(dat)
+sequences <- rle(D2$ex)
+start <- c(1,cumsum(rle$lengths)+1)
+end <- cumsum(rle$lengths)
+
+dc <- 
+tibble(
+per_dis_identifiant = 23,
+per_date_debut = D2$dsf_timeinit[start],
+per_date_fin= D2$dsf_timeend[end],
+per_commentaires = NA,
+per_etat_fonctionnement= case_when(rle$values == 0 ~ 0, # vanne fermée, arret
+                                   rle$values == 1 ~ 1, # fonct normal
+                                   rle$values == 3 ~ 0, # mal placé, pas de lecture
+                                   rle$values == 2 ~ 0, # pas de lecture    
+                                   rle$values == 4 ~0), #  didson "n" ou problème de disque ou d'aquisition                                   
+per_tar_code = case_when(rle$values == 0 ~ 2, # vanne fermée, arret ponctuel
+                                   rle$values == 1 ~ 1, # fonct normal
+                                   rle$values == 3 ~ 4, # dysfonct
+                                   rle$values == 2 ~ 2, # pas de lecture = on peut considérer que c'est un arrêt normal  
+                                   rle$values == 4 ~ 3), #  didson "n" ou problème de disque ou d'aquisition              
+per_org_code = 'IAV')
+
+df <- 
+tibble(
+per_dis_identifiant = 22,
+per_date_debut = D2$dsf_timeinit[start],
+per_date_fin= D2$dsf_timeend[end],
+per_commentaires = NA,
+per_etat_fonctionnement= case_when(rle$values == 0 ~ 0, # vanne fermée, arret
+                                   rle$values == 1 ~ 1, # fonct normal
+                                   rle$values == 3 ~ 1, # mal placé, pas de lecture
+                                   rle$values == 2 ~ 1, # pas de lecture    
+                                   rle$values == 4 ~ 1), #  didson "n" ou problème de disque ou d'aquisition                                   
+per_tar_code = case_when(rle$values == 0 ~ 2, # vanne fermée, arret ponctuel
+                                   rle$values == 1 ~ 1, # fonct normal
+                                   rle$values == 3 ~ 1, # la vanne fonctionne elle est ouverte
+                                   rle$values == 2 ~ 1, # pas de lecture mais vanne ouverte (la fermeture de vanne prends toujours le dessus)
+                                   rle$values == 4 ~ 1), #  didson "n" ou problème de disque ou d'aquisition mais la vanne est ouverte              
+per_org_code = 'IAV')
+
+
+
+dddp |>
+    select(dsf_id,
+dsf_timeinit,
+dsf_timeend,
+position,
+dsf_incl,
+dsf_distancestart,
+dsf_depth,
+dsf_fls_id,
+dsf_readok,
+dsf_filename,
+dsf_season,
+dsr_id,
+dsr_readinit,
+dsr_readend,
+dsr_reader,
+dsr_eelplus,
+dsr_eelminus,
+dsr_csotdb,
+dsr_complete,
+dsr_muletscore,
+dsr_fryscore,
+dsr_comment,
+dsr_csotismin,
+drr_filename,
+drr_date,
+drr_start,
+drr_end,
+drr_editorid,
+drr_intensity_db,
+drr_threshold_db,
+drr_csotmincluster_cm2,
+drr_csotminthreshold_db,
+drr_windowstart_m,
+drr_windowend_m,
+drr_totalfish,
+drr_id,
+drr_dsf_id,
+drr_dsr_id,
+drr_eelplus,
+drr_eelminus,
+psf_dir,
+psf_radius_m,
+psf_theta,
+psf_l_cm,
+psf_time,
+psf_date,
+psf_pan,
+psf_tilt,
+psf_roll,
+psf_species,
+psf_motion,
+psf_move,
+psf_q,
+psf_n,
+psf_comment,
+count,
+pblens,
+taille_cm,
+distance_m,
+saison,
+distancestart
+)
+
+
+
 # TODO export excel
 # TODO ZENODO
 # TODO export stacomiR (when at LRB)
@@ -5985,8 +6361,8 @@ journalier (Formule \ref{eq_mu}).
 
 
 dj <- D7j  %>% 
-    select("dsf_season","enj_date","N.0","N.1","N.2","deb_qtotalj")  %>% 
-    rename("odot"="N.0","otimes"="N.1", "oplus"="N.2","Q"="deb_qtotalj", "date"="enj_date") %>%		
+    select("dsf_season","date","N.0","N.1","N.2","deb_qtotalj")  %>% 
+    rename("odot"="N.0","otimes"="N.1", "oplus"="N.2","Q"="deb_qtotalj", "date"="date") %>%		
     melt(id.vars=c("dsf_season","date","Q"),
         variable.name="type",
         value.name="N")
@@ -6093,13 +6469,13 @@ print(xtaeffmois,file=str_c(tabwdy,"table_effectif_mois.tex"),
 )
 options(encoding = "native.enc")
 dj2 <- D7j  %>% 
-    select("dsf_season","enj_date","N.0","N.1","N.2","N","deb_qtotalj","pos_f","pos_s")  %>%
+    select("dsf_season","date","N.0","N.1","N.2","N","deb_qtotalj","pos_f","pos_s")  %>%
     filter(dsf_season==saison)
 
 
 png(file=str_c(imgwdy,"fig_effectif_pb.png"), width = 29.7, height = 21, units = 'cm', res = 300)
 opar <- par(mar=c(5, 4, 4, 4) + 0.1)
-plot(dj2$enj_date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,16000))
+plot(dj2$date,dj2$N,type="n",ylab="N & 10debit m3.s-1",xlab="date", ylim=c(0,16000))
 # calcul des périodes consécutives pour dsf_fls_id
 date <- d3ej$dsf_timeinit[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
 fls_id <- d3ej$dsf_fls_id[d3ej$dsf_fls_id>0 & !is.na(d3ej$dsf_fls_id) & d3ej$dsf_season==saison]
@@ -6144,18 +6520,18 @@ fn1 <- function(X) switch(as.character(X),
 pb$border <- mapply(fn1,pb$fls_id)
 
 rect(xleft=pb$dateinit, ybottom=0, xright=pb$datefinit, ytop=10000, col=pb$col, border=pb$border)
-points(dj2$enj_date, dj2$N, col=bleu_EV, type="h", lwd=2)
-points(dj2$enj_date, dj2$N.0, col=turquoise_EV, type="h", lwd=2)
-points(dj2$enj_date, dj2$N.2, col=orange_EV, type="h", lwd=2)
+points(dj2$date, dj2$N, col=bleu_EV, type="h", lwd=2)
+points(dj2$date, dj2$N.0, col=turquoise_EV, type="h", lwd=2)
+points(dj2$date, dj2$N.2, col=orange_EV, type="h", lwd=2)
 #axis(side=4, at=pretty(0:max(dj2$N, na.rm=TRUE)), label=as.character(pretty(0:max(dj2$N, na.rm=TRUE))/10))
-text(dj2$enj_date[1], 14000, "Did. FOND", col=rouille, adj = c(0, 0))
-points(dj2$enj_date[dj2$pos_f>0 & !is.na(dj2$pos_f)], rep(13500, sum(dj2$pos_f>0, na.rm=TRUE)), col=rouille, type="p", lwd=2, pch=15)
-text(dj2$enj_date[1], 12000, "Did. SURF", col="gray", adj = c(0, 0))
-points(dj2$enj_date[dj2$pos_s>0& !is.na(dj2$pos_f)], rep(11500, sum(dj2$pos_s>0, na.rm=TRUE)), col="gray", type="p", lwd=2, pch=15)
+text(dj2$date[1], 14000, "Did. FOND", col=rouille, adj = c(0, 0))
+points(dj2$date[dj2$pos_f>0 & !is.na(dj2$pos_f)], rep(13500, sum(dj2$pos_f>0, na.rm=TRUE)), col=rouille, type="p", lwd=2, pch=15)
+text(dj2$date[1], 12000, "Did. SURF", col="gray", adj = c(0, 0))
+points(dj2$date[dj2$pos_s>0& !is.na(dj2$pos_f)], rep(11500, sum(dj2$pos_s>0, na.rm=TRUE)), col="gray", type="p", lwd=2, pch=15)
 
 axis(1,  pos=0, labels=FALSE, lwd.ticks=0)
-points(d3edj$enj_date, d3edj$deb_qtotalj*10, type="l",  col="blue")
-points(d3edj$enj_date, d3edj$debit4j*10, type="l", col="red")
+points(d3edj$date, d3edj$deb_qtotalj*10, type="l",  col="blue")
+points(d3edj$date, d3edj$debit4j*10, type="l", col="red")
 dev.off()
 @
 
@@ -6170,7 +6546,7 @@ dire en surface alors que les écoulements sont au fond, et au fond alors que le
 plages disponibles, liée à une sélection de fichiers, qui conduisait à écarter de
 nombreuses lignes correspondant aux périodes de 30 minutes ou il était
 nécessaire d'extrapoler ($\otimes$) et ($\oplus$). Cette erreur est corrigée et
-explique la différence avec les effectifs du rapport de l'année précédente. 
+explique la différence avec les effectifs du rapport de l'année précédente. }
 Pour la saison \Sexpr{saison}, le nombre de données correspondant à ce type de configuration
 est de \num{\Sexpr{vvv$number.otimes}} enregistrements 
 ($\otimes$), contre \num{\Sexpr{vvv$number.odot}} enregistrements en fonctionnement normal ($\odot$). 
@@ -6189,15 +6565,15 @@ souvent en début et fin de saison. Pour palier ce problème, les prédictions o
 été encadrées par le maximum observé sur le mois et la saison, avec une
 extrapolation à partir des données des autres saisons lorsqu'aucune information
 n'était disponible sur un mois donné. Ce modèle utilise une tendance saisonnière
-non linéaire, le débit à 7 jours, le débit total, le cumul du débit ayant transité par le barrage 
-depuis le début de la saison. La turbidité qui était utilisée jusqu'à la dernière saison est retirée du modèle car elle n'est plus collectée par l'usine d'eau. pour prédire les migrations.
- Les tendances saisonnières permettent un ajutement d'une tendance saisonnière
- globablement à l'augmentation, sauf pour 2016-2017 et 2017-2018. L'effet saison
- montre une tendance à la baisse des effectifs depuis 2012-2013, et le cumul de
- débit présente une tendance linéaire à la baisse que l'on peut interpréter de
- manière simple : plus y a eu d'eau écoulée, moins il reste d'anguilles.
- Le modèle explique \num{\Sexpr{round(100*summary(bestg)$dev.expl,2)}} \% de la
- déviance.
+non linéaire, le débit à 7 jours, le débit total, la turbidité  
+Le modèle incluant une tendance saisonnière à une bien meilleure puissance
+prédictive, mais perturbe l'interprétation de l'effet des autres variables
+(débit ...). Une modélisation particulière pourrait être utilisée pour analyser
+l'effet des variables environnementales sur la migration ce qui n'est pas
+l'objet ici - notre objectif est une interpolation des valeurs manquantes.
+L'inclusion de la saison 2024-2025 avec des débits exceptionnels enlève l'effet
+de la variable de cumul de débit.  Le modèle explique
+\num{\Sexpr{round(100*summary(bestg)$dev.expl,2)}} \% de la déviance.
   La migration correspondant à ces journées
  manquantes est estimée à N = \num{\Sexpr{vvv$N.oplus}} anguilles argentées (Figure \ref{gam_predict}).
  
@@ -6286,7 +6662,7 @@ vvv$lpm <- sum(tt)
 ##################
 # eel count didson
 ###########################
-#dlpm<-d3edj[,c("enj_date","deb_qtotalj","debit4j","N")]
+#dlpm<-d3edj[,c("date","deb_qtotalj","debit4j","N")]
 #ddlpm$date<-as.Date(ddlpm$date)
 #colnames(dlpm)<-c("date","deb_qtotalj","debit4j","N")
 #
@@ -6725,6 +7101,119 @@ observées pondérée par les effectifs en migration.
 \newpage
 \input{../table/2025/tableau_modele_miss.tex}
 \normalsize
+
+
+  
+%=====================================================================  
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2023-2024}
+  \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage
+  pour la saison 2023-2024.
+                En turquoise $N\odot$ 
+				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}} = effectifs mesurés, 
+                en orange $N\otimes$
+                \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs extrapolés 
+                à partir de données de densité recueillies dans la journée,
+                en jaune, $N\oplus$
+                \textcolor{jaune_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs
+                extrapolés à partir d'un modèle saisonnier. 
+                En bleu foncé \textcolor{bleu_EV}{\rule{3mm}{0.5mm}} débits journaliers estimés 
+                au barrage d'Arzal en \si{\cubic\metre\per\second} (multipliés
+                par 10 pour des raisons graphiques).}
+  \label{fig_effectif_2024}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2022-2023}
+  \caption[Effectif]{Saison 2022-2023.}
+  \label{fig_effectif_2023}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2021-2022}
+  \caption[Effectif]{Saison 2021-2022.}
+  \label{fig_effectif_2022}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2020-2021}
+  \caption[Effectif]{Saison 2020-2021.}
+  \label{fig_effectif_2021}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2019-2020}
+  \caption[Effectif]{Saison 2019-2020.}
+  \label{fig_effectif_2020}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2018-2019}
+  \caption[Effectif]{Saison 2018-2019.}
+  \label{fig_effectif_2019}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2017-2018}
+  \caption[Effectif]{Saison 2017-2018.}
+  \label{fig_effectif_2018}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2016-2017}
+  \caption[Effectif]{Saison 2016-2017.}
+  \label{fig_effectif_2017}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2015-2016}
+  \caption[Effectif]{Saison 2015-2016.}
+  \label{fig_effectif_2016}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2014-2015}
+  \caption[Effectif]{Saison 2014-2015.}
+  \label{fig_effectif_2014}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2013-2014}
+  \caption[Effectif]{Saison 2013-2014.}
+  \label{fig_effectif_2014}
+  % heure de fonctionnement
+\end{figure}
+%=====================================================================  
+  \begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2012-2013}
+  \caption[Effectif]{Saison 2012-2013.}
+  \label{fig_effectif_2013}
+  % heure de fonctionnement
+\end{figure}
+
 \begin{landscape}
 \begin{figure}
     \includegraphics[width=0.8\linewidth,keepaspectratio]{2025/fig_effectif_pb}
@@ -6749,116 +7238,6 @@ observées pondérée par les effectifs en migration.
   \label{fig_effectif_pb}
   \end{figure}
   
-  
-%=====================================================================  
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2023_2024}
-  \caption[Effectif]{Effectifs journaliers estimés sur l'ensemble du barrage
-  pour la saison 2023-2024.
-                En turquoise $N\odot$ 
-				\textcolor{turquoise_EV}{\rule[-0.5mm]{1mm}{3mm}} = effectifs mesurés, 
-                en orange $N\otimes$
-                \textcolor{orange_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs extrapolés 
-                à partir de données de densité recueillies dans la journée,
-                en jaune, $N\oplus$
-                \textcolor{jaune_EV}{\rule[-0.5mm]{0.7mm}{3mm}} = effectifs
-                extrapolés à partir d'un modèle saisonnier. 
-                En bleu foncé \textcolor{bleu_EV}{\rule{3mm}{0.5mm}} débits journaliers estimés 
-                au barrage d'Arzal en \si{\cubic\metre\per\second} (multipliés
-                par 10 pour des raisons graphiques).}
-  \label{fig_effectif_2024}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2022_2023}
-  \caption[Effectif]{Saison 2022-2023.}
-  \label{fig_effectif_2023}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2021_2022}
-  \caption[Effectif]{Saison 2021-2022.}
-  \label{fig_effectif_2022}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2020_2021}
-  \caption[Effectif]{Saison 2020-2021.}
-  \label{fig_effectif_2021}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2019_2020}
-  \caption[Effectif]{Saison 2019-2020.}
-  \label{fig_effectif_2020}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2018_2019}
-  \caption[Effectif]{Saison 2018-2019.}
-  \label{fig_effectif_2019}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2017_2018}
-  \caption[Effectif]{Saison 2017-2018.}
-  \label{fig_effectif_2018}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2016_2017}
-  \caption[Effectif]{Saison 2016-2017.}
-  \label{fig_effectif_2017}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2015_2016}
-  \caption[Effectif]{Saison 2015-2016.}
-  \label{fig_effectif_2016}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2014_2015}
-  \caption[Effectif]{Saison 2014-2015.}
-  \label{fig_effectif_2014}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2013_2014}
-  \caption[Effectif]{Saison 2013-2014.}
-  \label{fig_effectif_2014}
-  % heure de fonctionnement
-\end{figure}
-%=====================================================================  
-  \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.5\textwidth]{2025/fig_effectif_2012_2013}
-  \caption[Effectif]{Saison 2012-2013.}
-  \label{fig_effectif_2013}
-  % heure de fonctionnement
-\end{figure}
 %=====================================================================
 \begin{figure}[htbp]
   \centering

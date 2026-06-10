@@ -728,7 +728,9 @@ dj données journalières
 */
 DROP VIEW if exists did.v_dddedj;
 CREATE VIEW did.v_dddedj as (
-SELECT enj_date,
+SELECT 
+  CASE WHEN enj_date IS NULL THEN date2
+  ELSE date END AS date,
 	enj_turb,
 	debitvilainej,
 	debitcranj,
@@ -769,7 +771,7 @@ avg(env_qvanne4+env_qvolet4) as debit4j --144 --sum(env_qvanne4*600+env_qvolet4*
 	) as e
 group by date) as ej
 on ej.date=t_envjour_enj.enj_date
-LEFT JOIN (SELECT 
+FULL JOIN (SELECT 
 sum(drr_eelplus) as sum_eel_plus,
 sum(drr_eelminus) as sum_eel_minus,
 date2
@@ -779,6 +781,9 @@ from ( SELECT date(dsf_timeinit) as date2,
 group by date2) v_d3j	
 on date=date2
 order by date);
+
+
+
 
 
 
