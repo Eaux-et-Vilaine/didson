@@ -6,74 +6,89 @@
 %%============================================================
 %%
 \documentclass[11pt,twocolumn,titlepage,twoside]{article}
+
+%------------------------------------------------
+% MISE EN PAGE
+%------------------------------------------------
+
+\usepackage[a4paper, right=1.5cm, left=1.5cm, top=2cm, bottom=3cm]{geometry}
 \setlength{\columnsep}{0.8cm} % séparateur central
 \usepackage{float}
 \usepackage[section]{placeins}  %The placeins package provides the command \FloatBarrier
+%% Parskip is the extra vertical space inserted before a paragraph. It has a natural length of zero but should be a rubber length so that it may be stretched in a flushbottom environment. To increase \parskip to skip a line between paragraphs one could use \addtolength{\parskip} {\baselineskip}.
+\usepackage{parskip}
+%% Sets space between lines.
+\usepackage{rotating}
+\usepackage{pdflscape}
+\usepackage{placeins}
 
-%%============================================================
-%%============================================================
-%% PACKAGE SETUP
+
+%------------------------------------------------
+% TYPOGRAPHIE
+%------------------------------------------------
+
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{setspace} 
+\usepackage{fontspec}
+\setmainfont{Georgia}
+\usepackage{microtype}
+\defaultfontfeatures{Scale=MatchLowercase}
+\setmainfont{Georgia}[Scale = 1.0]
+\usepackage[nodayofweek]{datetime}
+\usepackage{amsmath}
+\usepackage[math-style=ISO]{unicode-math}
+\setmathfont{Asana Math}
+\usepackage{marvosym} % \male and \female
+\usepackage{csquotes}
+
+%------------------------------------------------
+% R & Sweave
+%------------------------------------------------
+
 \usepackage{Sweave}
 %\SweaveOpts{pdf=TRUE, echo=FALSE, fig=FALSE, eps=FALSE, tidy=T, width=4,
 %height=4, keep.source=TRUE}
 
+%------------------------------------------------
+% LANGUE ET POLICES (XeLaTeX)
+%------------------------------------------------
+
+\usepackage{polyglossia}
+\setdefaultlanguage{french}
+
+% Traductions
+\renewcommand{\tablename}{Tableau}
+\renewcommand{\figurename}{Figure}
+\renewcommand{\contentsname}{Sommaire}
+\renewcommand{\listfigurename}{Figures}
+\renewcommand{\listtablename}{Tableaux}
+\renewcommand{\abstractname}{Résumé}
+
 %% Input and language packages.
 %\usepackage[utf8]{inputenc} %encodage du fichier source not used with xelatex
-\usepackage[T1]{fontenc}  %gestion des accents (pour les pdf) 
-%\usepackage[english]{babel}
-\usepackage[francais, english]{babel}
+
+
+
 \usepackage{dirtytalk} % pour les guillemet \say{ceci sera quoté  et \say{nested quote}}
 %https://tex.stackexchange.com/questions/464585/what-tips-and-tricks-should-i-know-when-using-the-georgia-font-in-latex/464586
 % \usepackage{fontspec} % charte graphique EPTB
-\usepackage{marvosym} % \male and \female
-\usepackage{amsmath}
-\usepackage[math-style=ISO]{unicode-math}
-\usepackage{microtype}
-\defaultfontfeatures{Scale=MatchLowercase}
-\setmainfont{Georgia}[Scale = 1.0]
-\setmathfont{Asana-Math.otf}
-\usepackage[nodayofweek]{datetime}
-\addto\captionsfrench{\def\tablename{Tableau}}
-\addto\captionsfrench{\renewcommand*{\contentsname}{Sommaire:}}
-\addto{\captionsfrench}{\renewcommand*{\abstractname}{Résumé}}
-\addto{\captionsfrench}{\renewcommand*{\listfigurename}{Figures}}
-\addto{\captionsfrench}{\renewcommand*{\listtablename}{Tableaux}}
-
-%% Parskip is the extra vertical space inserted before a paragraph. It has a natural length of zero but should be a rubber length so that it may be stretched in a flushbottom environment. To increase \parskip to skip a line between paragraphs one could use \addtolength{\parskip} {\baselineskip}.
-\usepackage{parskip}
-
-%% Sets space between lines.
-\usepackage{setspace} 
 
 
-%% If you use PostScript figures in your article
-%% use the graphics package for simple commands
-%\usepackage{graphics}
-%% or use the graphicx package for more complicated commands (places the float at precisely the location in the LaTeX code [H]).
-\usepackage{graphicx} 
-\usepackage{float}
-%% or use the epsfig package if you prefer to use the old commands.
-%\usepackage{epsfig}
 
-%% Using captions in floating environment. Note: might not work with other packages.
-%\usepackage{caption}
+%------------------------------------------------
+% Listes
+%------------------------------------------------
 
-%% Making numbered and bulleted lists.
 \usepackage{enumerate}
 \usepackage{enumitem} % listes avec A B C
-%\definecolor{marron}{rgb}{0.64,0.16,0.16}
-%% Math packages
-%\usepackage{amsmath, amssymb}
 
-%% The amsthm package provides extended theorem environments.
-%\usepackage{amsthm}
+%------------------------------------------------
+% Couleurs
+%------------------------------------------------
 
-%% The verbatim environment, \begin{verbatim} ... \end{verbatim}, permits us to insert large sections of reformatted text in a LaTeX file (including block of comments). It is very handy for inserting large chunks of code in a document, for example, literal TeX code or the Maple code you sweated over and now want to comment on.
-%\usepackage{verbatim}
-
-%% Add hyperlinks, so that you can click on references, theorem numbers etc. to jump to the place where they are in the paper (at least for the DVI and PDF versions), it seems that \documentclass{article} does not work with hyperref; use instead \documentclass{amsart}. Note: first test it with Elsevier template!
-
-\usepackage[usenames,dvipsnames,svgnames,table]{xcolor} % Invoke the package with the usenames and dvipsnames option to get 68 colors
+\usepackage[dvipsnames,svgnames,table]{xcolor} % Invoke the package with the usenames and dvipsnames option to get 68 colors
 \usepackage{color}
 \definecolor{bleu_EV}{RGB}{0,33,143}
 \definecolor{turquoise_EV}{RGB}{0,201,196}
@@ -93,88 +108,20 @@
 \definecolor{purplemedian}{RGB}{67,0,100}
 \definecolor{purpleclair}{RGB}{115,0,171}
 \definecolor{violetred}{RGB}{208,32,144}
-% A EDITER LIGNE 726 dans elsarticle.cls
 
-%% The numcompress package shorten the last page in references.
-%% `nodots' option removes dots from firstnames in references.
-%\usepackage[nodots]{numcompress}
-
-%% The lineno packages adds line numbers. Start line numbering with
-%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
-%% for the whole article with \linenumbers after \end{frontmatter}.
-%% \usepackage{lineno}
-
-%% If you are printing how many pages you submitted...
-%\usepackage{lastpage}
-
-%% The \url{...} command does all the work: It sets the enclosed expression in the appropriate typewriter style font, it takes care of any necessary linebreaking, and it chooses break points intelligently (e.g., between components of an address), and it ensures that special symbols such as the tilde symbol or the "at" symbol get typeset correctly.
+%------------------------------------------------
+%  HYPERLIENS
+%------------------------------------------------
+%% The \url{...} command does all the work: It sets the enclosed expression in the appropriate typewriter style font, it takes care of any necessary linebreaking, 
+%%and it chooses break points intelligently (e.g., between components of an
+% address), and it ensures that special symbols such as the tilde symbol or the "at" symbol get typeset correctly.
 \usepackage{url}
-
-%% A new implementation of LATEX's tabular and array environment.
-\usepackage{array}
-\usepackage{enumerate}
-\usepackage{longtable}
-\usepackage{multirow}
-\usepackage{siunitx,booktabs}
-\sisetup{group-separator={~}, 
-group-minimum-digits={3}, % 3 caractères pour séparer les
-output-decimal-marker={.}, % separateur
-round-mode = places, % nombre de décimales après la virgule
-round-precision = 0 % precision des arrondis
-}
-\usepackage{caption} % pour les subfigures http://en.wikibooks.org/wiki/LaTeX/Floats,_Figures_and_Captions
-\usepackage{subcaption} % pour les subfigures
-
-\addto{\captionsfrench}{\renewcommand{\tablename}{Tableau}}
-\usepackage{calc}
-\newlength\defaultparindent
-\setlength{\defaultparindent}{\parindent}   %save default indentation   
-%http://tex.stackexchange.com/questions/59175/boxes-overflow-column
-%%============================================================
-%% BIBLIOGRAPHY SETUP
-%%============================================================
-\usepackage[style=authoryear, %numeric
-            natbib=true, % citep and citet
-            backend=biber, % default for biblatex
-            bibencoding=utf8,
-            url=false, 
-            doi=false,
-            firstinits=true, % pas de prenoms
-            uniquename=init,
-            %sorting=nyt, % name, year, title
-            eprint=false]{biblatex} % option natbib to use cite and citep
-\addbibresource{didson2025.bib}
-%\usepackage[round, comma, sort]{natbib}
-
-
-%% natbib.sty is loaded by default. However, natbib options can be
-%% provided with \biboptions{...} command. Following options are
-%% valid:
-
-%%   round  -  round parentheses are used (default)
-%%   square -  square brackets are used   [option]
-%%   curly  -  curly braces are used      {option}
-%%   angle  -  angle brackets are used    <option>
-%%   semicolon  -  multiple citations separated by semi-colon (default)
-%%   colon  - same as semicolon, an earlier confusion
-%%   comma  -  separated by comma
-%%   authoryear - selects author-year citations (default)
-%%   numbers-  selects numerical citations
-%%   super  -  numerical citations as superscripts
-%%   sort   -  sorts multiple citations according to order in ref. list
-%%   sort&compress   -  like sort, but also compresses numerical citations
-%%   compress - compresses without sorting
-%%   longnamesfirst  -  makes first citation full author list
-%%
-%%  e.g. \biboptions{longnamesfirst,comma}
-
 \usepackage{hyperref}
 \hypersetup{
      colorlinks=true,
      linkcolor=orange_EVf,
      urlcolor=bleu_EV,
-     citecolor=grisbleufonce,
-     bookmarks=true,  %créé des signets pour Acrobat
+     citecolor=grisbleufonce,     
      bookmarksopen=true,            %si les signets Acrobat sont créés,
                                     %les afficher complètement.
      pdftitle={Suivi de la dévalaison de l'anguille argentée en 2024--2025
@@ -186,57 +133,61 @@ round-precision = 0 % precision des arrondis
      pdfkeywords={anguille argentée}{migration}{dévalaison}{didson}{Vilaine}
 }
 
-%%============================================================
-%%============================================================
-%% PAGE SETUP
-%% Use this section to override Elsevier article page settings!!!
+%------------------------------------------------
+% FIGURES ET TABLEAUX
+%------------------------------------------------
 
-	%% Easier way...
-\usepackage[a4paper, right=1.5cm, left=1.5cm, top=2cm, bottom=3cm]{geometry}
-	%% The hard way involves setting all the desired values manually. Here are some values that can be set: 
-	%% Dimensions of the PDF file.
-	%\pdfpageheight \pdfpagewidth
-	%% Length of margin at top of page above all printing. 1 inch is added to this value.
-	%\topmargin   
-	%% Left margin on even numbered pages. 1 inch is added to this value.
-	%\evensidemargin  
-	%% Left margin on odd numbered pages. 1 inch is added to this value.
-	%\oddsidemargin
-	%% Height of the page header.
-	%\headheight
-	%% Distance from bottom of header to the body of text on a page.
-	%\headsep
-	%% Distance from top of main text box to the baseline of the first line of text in the main text box.
-	%\topskip 
-	%% Height and width of main text box.
-	%\textheight \textwidth
-	%% Distance from bottom of body to the bottom of the footer.
-	%\footskip
-	%% Distance between paragraphs.
-	%\parskip
-	%% Amount of indentation at the first line of a paragraph.
-	%\parindent
-	%% Uncomment if don't want page numbers.
-	%\pagestyle{empty}
-	%% Uncomment for 1.5 spacing between lines...
-	%\renewcommand{\baselinestretch}{1.5}
-	%% or use some of these
-		%\singlespacing
-		%\onehalfspacing
-		%\doublespacing
-		%\setstretch{1.1}
-	%% Sets up hyphenation threshold.
-	%\hyphenpenalty=675 \tolerance=950
+%% A new implementation of LATEX's tabular and array environment.
 
-\usepackage{rotating}
-\usepackage{pdflscape}
-\usepackage{placeins}
-\usepackage{animate}
-\usepackage{csquotes}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{multirow}
 
-%----------------------------------------------------------------------------------------
-%	PAGE HEADERS (this must come after loading and setting geometry)
-%----------------------------------------------------------------------------------------
+%------------------------------------------------
+%  UNITÉS
+%------------------------------------------------
+
+\usepackage{siunitx,booktabs}
+\sisetup{locale = FR,
+group-separator={~}, 
+group-minimum-digits={3}, % 3 caractères pour séparer les
+output-decimal-marker={.}, % separateur
+round-mode = places, % nombre de décimales après la virgule
+round-precision = 0 % precision des arrondis
+}
+
+
+%------------------------------------------------
+%  BOITES
+%------------------------------------------------
+
+\usepackage{calc}
+\newlength\defaultparindent
+\setlength{\defaultparindent}{\parindent}   %save default indentation   
+%http://tex.stackexchange.com/questions/59175/boxes-overflow-column
+
+%------------------------------------------------
+%% BIBLIOGRAPHY 
+%------------------------------------------------
+\usepackage[style=authoryear, %numeric
+            natbib=true, % citep and citet
+            backend=biber, % default for biblatex
+            bibencoding=utf8,
+            url=false, 
+            doi=false,
+            giveninits=true, % pas de prenoms
+            uniquename=init,
+            %sorting=nyt, % name, year, title
+            eprint=false]{biblatex} % option natbib to use cite and citep
+\addbibresource{didson2025.bib}
+%\usepackage[round, comma, sort]{natbib}
+
+%------------------------------------------------
+% EN-TÊTES / PIEDS DE PAGE
+%------------------------------------------------
 
 \usepackage{fancyhdr} % Required for header and footer configuration
 \pagestyle{fancy}
@@ -266,14 +217,16 @@ round-precision = 0 % precision des arrondis
 
 \fancypagestyle{plain}{\fancyhead{}\renewcommand{\headrulewidth}{0pt}} % Style for when a plain pagestyle is specified
 
-%%============================================================
-%%============================================================
-%% DEFINING NEW COMMANDS AND ABBREVIATIONS
-%% Use this section to define new commands that you will use in
-%% your report.
+%------------------------------------------------
+% CHEMIN VERS LES IMAGES
+%------------------------------------------------
 
-%% Makes a path to your graphics' folder.
+
 \graphicspath{{../image/}}
+
+%------------------------------------------------
+% AUTRES TRUCS ?
+%------------------------------------------------
 
 \newcommand{\tab}{\hspace*{2em}}
 \newcommand{\DD}{D\&D}
@@ -284,18 +237,10 @@ round-precision = 0 % precision des arrondis
 \newcommand\dashedrule{\mbox{%
   \solidrule[1mm]\hspace{1mm}\solidrule[1mm]\hspace{1mm}\solidrule[1mm]}}
 
+%------------------------------------------------
+% TKIZ
+%------------------------------------------------
 
-%% Add extra space to multi-line equation environments
-%\setlength{\jot}{9pt}
-
-% use \mbox{...} for no separation of the defined word
-
-
-%----------------------------------------------------------------------------------------
-%	TO POSITION WITH TKIZ (definition commande page)
-% https://tex.stackexchange.com/questions/89588/positioning-relative-to-page-in-tikz 
-%
-% ----------------------------------------------------------------------------------------
 \usepackage{tikz} % Required for drawing custom shapes
 \makeatletter
 \def\parsecomma#1,#2\endparsecomma{\def\page@x{#1}\def\page@y{#2}}
@@ -317,10 +262,10 @@ round-precision = 0 % precision des arrondis
 }
 \makeatother
 \usepackage{eso-pic,graphicx}
-%%===============================================%%
-%%==========    END OF THE PREAMBLE    ==========%%
 
-
+%------------------------------------------------
+% END OF THE PREAMBLE
+%------------------------------------------------
 
 %%============================================================
 %%============================================================
@@ -334,6 +279,7 @@ round-precision = 0 % precision des arrondis
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 \thispagestyle{empty}
+\setmathfont{Asana-Math.otf}
 %----------------------------------------------------------------------------------------
 %	TITLE PAGE
 %----------------------------------------------------------------------------------------
@@ -1062,6 +1008,18 @@ Le didson est placé sur un rail porteur au niveau du quatrième pertuis de vann
 \pagestyle{stylestandard}
 \section*{Introduction}
 \label{Introduction}
+L'anguille européenne (\textit{Anguilla anguilla}) est un poisson migrateur
+catadrome, qui effectue une migration de reproduction vers la 
+mer des Sargasses et dont les larves traversent l'Atlantique pour venir se
+métamorphoser à l'approche des côtes en civelles avant de remonter les
+estuaires et de coloniser les aux eaux continentales.
+Depuis plusieurs décennies, son stock a connu une déclin important, lié à la
+combinaison de facteurs tels que la surpêche, la dégradation des habitats, les obstacles à la migration
+et les changements environnementaux. Cette situation préoccupante a conduit l'Union internationale pour la conservation 
+de la nature (UICN) à classer l'espèce comme « en danger critique
+d'extinction ». Il est ainsi très important d'analyser l'effet des mesures de
+gestion et de restauration prises au niveau national pour déterminer si nous
+sommes en train de restaurer ses populations.
 L'objectif à long
 terme fixé par le  plan de restauration de l'anguille est la restauration de la
 biomasse d'anguilles argentées à 40 \% du niveau sans impact anthropique. Pour évaluer l'atteinte des objectifs de
@@ -1079,12 +1037,14 @@ doivent montrer que les mesures de gestion mises en place pour
 restaurer le stock d'anguilles sont suffisantes. 
 L'estimation de la biomasse d'anguilles argentées produite par les
 bassins versants français est basée, pour la mise en place du règlement
-anguille (2009) sur le modèle EDA \citep{jouanin_eel_2012,briand_eel_2015}. 
+anguille (2009) sur le modèle EDA \citep{jouanin_eel_2012,briand_eel_2015,
+raitif2024eda231}.
 Ce dernier extrapole une estimation de l'abondance moyenne
 d'anguilles à partir des données de pêches
 électriques d'anguilles jaunes sur l'ensemble du territoire français.
-Pour le rapportage les données de ce modèle sont complétées par un suivi sur des
-bassins ateliers, les rivières index \citep{briand_index_2016}.
+Pour le rapportage, les données de ce modèle sont complétées par un suivi sur
+ les rivières index, un réseau de bassins versants
+ ateliers, auquel est intégré la Vilaine \citep{briand_index_2016}.
 
 La Vilaine est l'un des fleuves intégré à ce réseau.
 Un sonar multifaisceaux didson a été placé  en 2012 sur une poutre HEB au droit
@@ -1093,7 +1053,8 @@ Ce dernier renvoit des images, interprétables comme des vidéos, sur un faiscea
 d'une taille réduite (25m$^2$). La lecture des échos radar
 a montré qu'il était possible de distinguer les
 anguilles des autres poissons, dans des conditions de
-débit qui interdisent en pratique d'utiliser des méthodes plus conventionnelles.
+débit qui interdisent en pratique d'utiliser des méthodes plus conventionnelles
+comme des pièges.
 La gestion particulière du barrage d'Arzal qui évacue les crues au niveau de la
 mer fait que les conditions de vitesses lors des crues ne sont pas extrêmes et
 que la lecture des fichiers reste possible. 
@@ -2218,7 +2179,7 @@ pont de Cran 30 km en amont du barrage. Les nouveaux débits sont donnés pour l
 et pour les vannes avec la prise en compte de plusieurs formules en fonction des
 conditions d'écoulement (orifice dénoyé, orifice noyé, écoulement libre)
 \citep{briand_note_2015}. L'ensemble des fonctions de calcul de débit sont
-maintenant rassemblées au sein du package
+maintenant maintenues au sein du package
 \href{https://github.com/Eaux-et-Vilaine/SIVA}{SIVA} (Figure \ref{debits_ajustes}).
 
 \begin{figure}[htbp]
@@ -2726,12 +2687,20 @@ plotdebitturbidite(ylim= 1600, ytop= 1500, d3ej=d3ej, d3edj=d3edj)
 dev.off()
 @
 
-Le barrage ne commence à ouvrir qu'en novembre à la date de la mise en place du
-didson (Figures \ref{debitturbidite} et \ref{fonctionnementvanne}). Au total,
-\SI{300}{\cubic\metre\per\second}) entre début novembre et mi-avril.
-Les turbidités montent au-delà de 50 NTU au cours de seconde crue
-mi-décembre (Figure \ref{debitturbidite}). Le paramètre turbidité n'est pour
-le moment plus enregistré dans SIVA depuis janvier 2024.
+Après quelques ouvertures en surface (volets) en Septembre, un premier pic de
+crue précoce à \SI{260}{\cubic\metre\per\second} est observé dès Octobre. Puis
+des pics de débit à \SI{700}{\cubic\metre\per\second},
+\SI{1200}{\cubic\metre\per\second} et \SI{400}{\cubic\metre\per\second} 
+se succèdent au cours de la saison, traduisant une succession d'événements hydrologiques 
+intenses et rapprochés. Ces débits, et notamment la crue intervenue entre 24 et
+le 31 janvier avec des niveaux à Redon proches des événements historiques de
+2001 et localement comparables aux plus fortes crues observées depuis plusieurs décennies, 
+conduisent à caractériser la saison 2024-2025
+comme une année à l'hydraulicité exceptionnelle (Figures \ref{debitturbidite} et \ref{fonctionnementvanne}).
+Les turbidités vont dépasser \SI{50}{NTU} à partir de janvier pour
+et montent à des valeurs au delà de 100 lors des trois pics de crue (Figure
+\ref{debitturbidite}).
+
 
 \begin{figure}[ht!]
   \centering
@@ -2875,6 +2844,7 @@ saisons précédentes (Tableau \ref{tabletps}).
 Cette année, les temps de dépouillement sont de 10-20 minutes alors qu'ils
 pouvaient être de 30 minutes lors des pics de migration, la mesure des anguilles
 restant chronophage (Figure \ref{tpspoint}).
+
 \begin{figure}[htbp]
         \centering
         \begin{subfigure}{0.4\textwidth}
@@ -2896,7 +2866,8 @@ restant chronophage (Figure \ref{tpspoint}).
         dépouillement, distribution et boxplot.}
               \label{tps}
 \end{figure}
-Cette année comme les autres, les fichiers ont été vérifiés grâce à la double
+
+Les fichiers ont été vérifiés grâce à la double
 inscription des dépouillements, à la fois dans un fichier excel, et après
 traitement des fichiers textes comprenant les données poisson.
 
@@ -3514,9 +3485,9 @@ vanne. Dans ces conditions, les détections de petites anguilles $\tau$
 <45cm~\text{mâles} et 45-60cm~\text{petites femelles} sont très réduites, et ces
 effectifs faibles se traduisent sur l'ensemble des saisons de suivi dans le
 diagramme \ref{qualite_distance_vanne_all} où dominent les anguilles de 60 à 80cm. 
-Cette année les distributions des qualités d'anguilles sont conformes à une
-diminution progressive des qualités d'images à mesure que l'on s'éloigne du
-didson, et on retrouve une meilleure qualité des images en surface.
+Cette année encore, la diminution des qualités d'anguilles perçues par les
+lecteurs sont conformes à une diminution progressive des qualités d'images à
+mesure que l'on s'éloigne du didson, et on retrouve une meilleure qualité des images en surface.
 
 
 
@@ -5662,7 +5633,11 @@ fit_data <- D7j |>
   
 fit <- randomForest(log(N+1) ~ dsf_season+ndays+ldeb_qtotalj+delta_1d+delta_3d+delta_7d+lcumflow +enj_turb, data=fit_data)
 print(fit) #42.28 % variance explained
+# Variance explained (pseudo-R², OOB) 
+vvv$variance_explained_rf <- round(tail(fit$rsq, 1) * 100,1)
+png(filename=str_c(imgwdy,"rf_varimplot.png"),width = 8, height = 8, units = 'in', res = 300)
 varImpPlot(fit) 
+dev.off()
 fit$importance[order(fit$importance[, 1], decreasing = TRUE), ]
 plot(fit)
 predictors <- names(fit_data)[names(fit_data) != "N"]
@@ -5766,7 +5741,9 @@ D7j[p1,"N.2"] <- D7j[p1,"pred"]
 
 
 png(filename=str_c(imgwdy,"N_interannuel.png"),width = 8, height = 8, units = 'in', res = 300)
-D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
+D7j %>% 
+    select(-N) %>% 
+    pivot_longer(cols=starts_with("N."),names_to="type",values_to="N") %>%
     mutate(type=factor(type,levels=c("N.2","N.1","N.0"))) %>%
     group_by(dsf_season,type) %>% 
     summarize(N=sum(N,na.rm=TRUE), .groups="drop")%>%
@@ -5774,12 +5751,18 @@ D7j %>% select(-N) %>% pivot_longer(cols=starts_with("N."),names_to="type",value
     geom_col(aes(x=dsf_season,y=N,fill=type),position = "stack") +
     xlab("saison") +
     scale_fill_manual(values=c(jaune_EV,orange_EV,turquoise_EV),
-        labels = c("N(+)", "N(x)", "N(.)"))
+        labels = c("N(+)", "N(x)", "N(.)"))+
+    theme_minimal() +
+    theme(
+        axis.text.x = element_text(angle = 45, hjust = 1)
+    ) 
+
 dev.off()
 
 
 #save(bestg, file = str_c(datawdy,"bestg.Rdata"))
 save(D2, D7j, file=str_c(datawdy,"D2D7j.Rdata"))
+save(vvv,file=str_c(datawdy,"vvv.Rdata"))
 @
 
 <<tableaufinal, echo=FALSE, eval=FALSE, results=hide>>=
@@ -6535,9 +6518,6 @@ points(d3edj$date, d3edj$debit4j*10, type="l", col="red")
 dev.off()
 @
 
-
-
-
 La deuxième étape du calcul des effectifs correspond à la prédiction des
 migrations lorsque le didson est dans une mauvaise position ($\otimes$), c'est à
 dire en surface alors que les écoulements sont au fond, et au fond alors que les
@@ -6553,39 +6533,110 @@ est de \num{\Sexpr{vvv$number.otimes}} enregistrements
 L'effectif extrapolé à partir des migrations observées le même jour est de  N $\otimes$=\num{\Sexpr{vvv$N.otimes}} 
 anguilles argentées.
 
-Sur l'ensemble des années, il y a eu en moyenne
-\num{\Sexpr{round(mean(vvv$number.missingday.all$N))}} journées sans aucun
-enregistrement, du fait de problèmes d'acquisition ou d'écriture disque (Figure
-\ref{fig_horairespb}). Pour la saison \Sexpr{saison}, ce nombre s'établit à \num{\Sexpr{vvv$number.missingday}}
-journées manquantes.
-Pour toutes les journées manquantes sur la période de suivi, un modèle GAM a été
-utilisé pour extrapoler les effectifs en migration à partir des valeurs des jours proches ($\oplus$).
-Le modèle GAM pose des problèmes d'extrapolation pour les périodes sans données,
-souvent en début et fin de saison. Pour palier ce problème, les prédictions ont
-été encadrées par le maximum observé sur le mois et la saison, avec une
-extrapolation à partir des données des autres saisons lorsqu'aucune information
-n'était disponible sur un mois donné. Ce modèle utilise une tendance saisonnière
-non linéaire, le débit à 7 jours, le débit total, la turbidité  
-Le modèle incluant une tendance saisonnière à une bien meilleure puissance
-prédictive, mais perturbe l'interprétation de l'effet des autres variables
-(débit ...). Une modélisation particulière pourrait être utilisée pour analyser
-l'effet des variables environnementales sur la migration ce qui n'est pas
-l'objet ici - notre objectif est une interpolation des valeurs manquantes.
-L'inclusion de la saison 2024-2025 avec des débits exceptionnels enlève l'effet
-de la variable de cumul de débit.  Le modèle explique
-\num{\Sexpr{round(100*summary(bestg)$dev.expl,2)}} \% de la déviance.
-  La migration correspondant à ces journées
- manquantes est estimée à N = \num{\Sexpr{vvv$N.oplus}} anguilles argentées (Figure \ref{gam_predict}).
+Pour les journées manquantes au cours de la période de suivi, un modèle de type
+Random Forest (RF) a été mis en œuvre afin d'extrapoler les effectifs en migration
+à partir des observations disponibles sur les jours voisins ($\oplus$).
+Ce modèle remplace l'approche par modèles additifs généralisés (GAM) utilisée les années précédentes.
+
+Le recours aux Random Forest se justifie par plusieurs avantages méthodologiques.
+D'une part, cette approche non paramétrique est particulièrement adaptée à la
+modélisation de relations complexes et non linéaires entre les variables explicatives
+et la variable réponse, sans hypothèse forte sur leur forme fonctionnelle.
+D'autre part, contrairement aux GAM, les Random Forest limitent les problèmes
+d'extrapolation aux bornes du domaine des variables, ce qui est crucial en début
+et en fin de saison où les observations sont rares.\footnote{Des difficultés d'extrapolation
+avaient été identifiées avec les GAM, notamment aux extrémités de la période de suivi.}
+
+Par ailleurs, les Random Forest sont robustes à la colinéarité entre variables
+explicatives, ce qui constitue un avantage important dans notre contexte où
+plusieurs descripteurs hydrologiques peuvent être corrélés.
+Enfin, l'agrégation d'un grand nombre d'arbres de décision permet de réduire la variance
+et d'améliorer la capacité de généralisation du modèle.
+
+Le modèle intègre les variables suivantes : (i) une tendance saisonnière commune
+à l'ensemble des années, définie comme le nombre de jours écoulés depuis le début
+de la saison, (ii) les variations de débit aux pas de temps de 1, 3 et 7 jours,
+(iii) le logarithme du débit instantané, (iv) le logarithme du débit cumulé depuis
+le début de la saison, ainsi que (v) la turbidité.
+
+La performance du modèle est évaluée à l'aide d'un pseudo-$R^2$, correspondant à
+une variance expliquée de \num{\Sexpr{vvv$variance_explained_rf}}~\%.
+
+
+Afin d'interpréter le modèle Random Forest et d'identifier les variables les
+plus influentes dans la prédiction des effectifs en migration, une analyse de
+l'importance des variables  (Figure \ref{rf_varimplot}).
+
+Les graphiques obtenus mettent en évidence une hiérarchie claire entre les
+variables explicatives. Les descripteurs liés à l'hydrologie cumulée, tels que
+le débit cumulé depuis le début de la saison (\textit{lcumflow}) et le débit
+total (\textit{ldeb\_qtotalj}), apparaissent comme les plus influents. Ils sont
+suivis par la tendance saisonnière (\textit{dsf\_season} et \textit{ndays}),
+ce qui confirme l'importance du contrôle temporel dans la dynamique de migration.
+
+Les variables décrivant les conditions environnementales à plus court terme,
+notamment la turbidité (\textit{enj\_turb}) et les variations de débit à
+différentes échelles temporelles (\textit{delta\_1d}, \textit{delta\_3d},
+\textit{delta\_7d}), contribuent également au modèle mais avec une importance
+relative plus faible.
+
+L'examen des  réponses des variables montre : 
+
+\begin{itemize}
+  \item Une augmentation des effectifs de migration avec le debit (Figure~\ref{rf_predict}).
+
+  \item Une augmentation puis une diminution des effectifs lorsque le débit cumulé
+  depuis le début de la saison excède \SI{3000}{\meter\cubed}, soit environ
+  30 jours de petite crue.
+
+  \item Une augmentation des effectifs avec la turbidite entre 0 et
+  \SI{40}{NTU}, suivie d une stabilisation au delà.
+
+  \item Un effet positif des augmentations de débit a court terme.
+
+  \item Un effet saisonnier marqué, avec une diminution de la migration à partir
+  de décembre et une reprise en mars.
+
+\end{itemize}
+
+L'ensemble de ces effets agit de manière conjointe pour produire des
+  prédictions coherentes avec les tendances saisonnieres observees, notamment
+  pour l estimation des effectifs lors des jours manquants. Ainsi, pour la
+  saison \Sexpr{saison}, la migration modélisée correspondant aux journées
+ manquantes est estimée à N = \num{\Sexpr{vvv$N.oplus}} anguilles argentées
+.
  
  %=====================================================================
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.5\textwidth]{2025/gam_predict}
+  \includegraphics[width=0.5\textwidth]{2025/rf_varimplot}
+  \caption[Importance des variables dans le modèle]{
+  Importance des variables dans le modèle Random Forest.\footnote{L'analyse a été réalisée à l'aide
+  de la fonction \texttt{varImpPlot}. Cette fonction fournit une mesure d'importance basée sur l'augmentation 
+  de la pureté des nœuds (\textit{IncNodePurity}), qui quantifie la contribution de chaque variable à la réduction
+  de l'erreur au sein des arbres de décision. Plus la valeur est élevée, plus la variable joue un rôle déterminant 
+  dans la construction des prédictions.}
+  
+  Les variables les plus influentes sont (1) $ldeb\_qtotalj$, le logarithme du débit instantané, et
+  (2) $lcumflow$, le logarithme du débit cumulé depuis le début de la saison, suivies par 
+  (3) $dsf\_season$, la saison de migration, et (4) $ndays$, une tendance saisonnière commune à l'ensemble des années 
+  correspondant au nombre de jours écoulés depuis le début de la saison. La turbidité (5) $enj\_turb$ présente une contribution 
+  intermédiaire, tandis que les variations de débit à court terme (6–8), $delta\_1d$, $delta\_3d$ et $delta\_7d$,
+  apparaissent comme des variables d'importance secondaire.
+  }
+  \label{rf_varimplot}
+\end{figure}
+  %=====================================================================
+ %=====================================================================
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{2025/rf_predict}
   \caption[Modèle prédiction effectifs manquants]{Modélisation des effectifs
-  manquants à l'aide d'un modèle gam (tendance saisonnière + effet saison +
-  débit + cumul débit depuis le début de la saison) + turbidité + variation du
-  débit à 7 jours (delta 7d).}
-  \label{gam_predict}
+  manquants à l'aide d'un modèle random forest (tendance saisonnière + variation
+  intersaisonnière (season) + nombre de jours depuis le début de la saison (ndays) +
+  débit (ldeb_totalj) + cumul débit depuis le début de la saison (lcum) +
+  turbidité (enj_turb) + variation du débit à 1, 3 et 7 jours (delta 1d, 3d, 7d).}
+  \label{rf_predict}
 \end{figure}
 %=====================================================================
 
@@ -6692,15 +6743,16 @@ vvv$lpm <- sum(tt)
 \section{Discussion}
 \subsection{Migration}
 
-La saison \Sexpr{saison} se caractérise par une succession de pic de crue forts
-entre 300 \si{\cubic\metre\per\second} et 650 \si{\cubic\metre\per\second}). Ces
-pics de crue ont commencé dès novembre. Il n'y a pratiquement pas eu de suivi en
-volet. Le suivi du fonctionnement vanne / volet par l'automate a permis au
+La saison \Sexpr{saison} se caractérise par des niveaux de crue exceptionnels
+jusq'à 1500 \si{\cubic\metre\per\second} avec plusieurs autres pics de crue
+aud delà de 200 \si{\cubic\metre\per\second}).
+Ces pics de crue ont commencé dès octobre. Il n'y a pratiquement pas eu de suivi
+en volet. Le suivi du fonctionnement vanne / volet par l'automate a permis au
 didson d'être pratiquement toujours bien positionné. La migration s'est effectuée 
-lors des trois premiers pics de débit avec des effectifs journaliers maximums à
-plus de 4000 anguilles (Figure \ref{fig_effectif}).
+lors des trois premiers pics de débit avec des effectifs journaliers à
+ 3000 anguilles (Figure \ref{fig_effectif}).
 Ces conditions de suivi en vanne n'ont pas trop affecté la qualité des
-détections qui sont en moyenne bien supérieures (Figure \ref{qualite_distance})
+détections qui sont en moyenne similaires (Figure \ref{qualite_distance})
 à celles observées en moyenne sur l'ensemble des années (Figure \ref{qualite_distance_vanne_all}).
 Cette bonne qualité est liée à l'ouverture simultanée à la même hauteur des
 trois vannes attenant au didson (Vannes 3,4,5). Ces ouvertures permettent
@@ -6797,9 +6849,13 @@ pourcentage était plutôt de l'ordre de 5 à 9 \% de 2014--2015 à 2019--2020
 Les efficacités moyennes sont plus fortes que celles calculées historiquement
 depuis le nouveau calcul en 2020 intégrant la qualité des anguilles dans le
 calcul (Tableau \ref{tabefficacite_moyenne}, Tableau
-\ref{tab_efficacite_historique} en annexe). La forte efficacité cette année
-est directement liée à la modification des ouvertures en vannes décrite plus
-haut (3.1 Migration).
+\ref{tabefficacite_historique} en annexe). L'efficacité en vannes est faible
+mais reste de l'ordre de grandeur de celle estimée en vannes lors des autres
+années. Cette absence de dégradation malgrès une crue exceptionnelle
+s'explique car le didson a été retiré de l'eau lors de la crue, mais également
+par le fait que les ouvertures de vannes sont équilibrées entre la vanne 4 et
+les deux vannes voisines ce qui évite la formation de tourbillons au droit du
+didson.
 
 \input{../table/2025/tabefficacite_moyenne.tex}
 
@@ -6940,19 +6996,37 @@ observées en montaison (nage dirigée vers l'amont). La hauteur de la
 vanne et la charge sur le volet correspondent à la moyenne des hauteurs
 observées pondérée par les effectifs en migration.
 
+
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode2_phif_didf_5.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode1_phi0_dids_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode2_phif_didf_5"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode2_phif_didf_5"$incl}, 
-                $h$=\Sexpr{ppp$"periode2_phif_didf_5"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode2_phif_didf_5"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode2_phif_didf_5"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode2_phif_didf_5"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode2_phif_didf_5"$minus},
-                date= \Sexpr{iconv(ppp$"periode2_phif_didf_5"$date,"UTF-8")}
+                $\Phi$=\Sexpr{ppp$"periode1_phi0_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode1_phi0_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode1_phi0_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode1_phi0_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode1_phi0_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode1_phi0_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode1_phi0_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode1_phi0_dids_-7"$date,"UTF-8")}
+                }
+                \label{periode1}
+\end{figure}
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2025/periode2_phis_dids_-7.png}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode2_phis_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode2_phis_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode2_phis_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode2_phis_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode2_phis_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode2_phis_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode2_phis_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode2_phis_dids_-7"$date,"UTF-8")}
                 }
                 \label{periode2}
 \end{figure}
@@ -6961,50 +7035,34 @@ observées pondérée par les effectifs en migration.
         \centering
         \includegraphics[trim=35mm 40mm 25mm
                 25mm,clip,
-                width=0.5\textwidth]{2025/periode3_phif_didf_-7.png} \caption{
-                $\Phi$=\Sexpr{ppp$"periode3_phif_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode3_phif_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode3_phif_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode3_phif_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode3_phif_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode3_phif_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode3_phif_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode3_phif_didf_-7"$date,"UTF-8")}
+                width=0.5\textwidth]{2025/periode3_phif_dids_-7.png} \caption{
+                $\Phi$=\Sexpr{ppp$"periode3_phif_dids_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode3_phif_dids_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode3_phif_dids_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode3_phif_dids_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode3_phif_dids_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode3_phif_dids_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode3_phif_dids_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode3_phif_dids_-7"$date,"UTF-8")}
                 }
                 \label{periode3}
 \end{figure}
 
-\begin{figure}[htbp]
-        \centering
-        \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode4_phi0_didf_-7.png}
-        \caption{
-                $\Phi$=\Sexpr{ppp$"periode4_phi0_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode4_phi0_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode4_phi0_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode4_phi0_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode4_phi0_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode4_phi0_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode4_phi0_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode4_phi0_didf_-7"$date,"UTF-8")}}
-        \label{periode6}
-\end{figure}
-
 
 
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode5_phis_didf_-7.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode5_phif_didf_5.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode5_phis_didf_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode5_phis_didf_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode5_phis_didf_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode5_phis_didf_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode5_phis_didf_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode5_phis_didf_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode5_phis_didf_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode5_phis_didf_-7"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode5_phif_didf_5"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode5_phif_didf_5"$incl}, 
+                $h$=\Sexpr{ppp$"periode5_phif_didf_5"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode5_phif_didf_5"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode5_phif_didf_5"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode5_phif_didf_5"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode5_phif_didf_5"$minus},
+                date= \Sexpr{iconv(ppp$"periode5_phif_didf_5"$date,"UTF-8")}               
                }
                 \label{periode5}
 \end{figure}
@@ -7012,18 +7070,54 @@ observées pondérée par les effectifs en migration.
 \begin{figure}[htbp]
         \centering
         \includegraphics[trim=35mm 40mm 25mm
-                25mm,clip, width=0.5\textwidth]{2025/periode1_phis_dids_-7.png}
+                25mm,clip, width=0.5\textwidth]{2025/periode7_phif_didf_-7.png}
         \caption{
-                $\Phi$=\Sexpr{ppp$"periode1_phis_dids_-7"$Phi}, 
-                $\beta$=\Sexpr{ppp$"periode1_phis_dids_-7"$incl}, 
-                $h$=\Sexpr{ppp$"periode1_phis_dids_-7"$prof}, 
-                $O_t$=\Sexpr{ppp$"periode1_phis_dids_-7"$N}, 
-                $O_t\circ$=\Sexpr{ppp$"periode1_phis_dids_-7"$Nsuivis},
-                $N'_{4o}+$=\Sexpr{ppp$"periode1_phis_dids_-7"$plus}, 
-                $N'_{4o}-$=\Sexpr{ppp$"periode1_phis_dids_-7"$minus},
-                date= \Sexpr{iconv(ppp$"periode1_phis_dids_-7"$date,"UTF-8")}               
+                $\Phi$=\Sexpr{ppp$"periode7_phif_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode7_phif_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode7_phif_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode7_phif_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode7_phif_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode7_phif_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode7_phif_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode7_phif_didf_-7"$date,"UTF-8")}               
                }
-                \label{periode6}
+                \label{periode7}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2025/periode8_phis_didf_-7.png}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode8_phis_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode8_phis_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode8_phis_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode8_phis_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode8_phis_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode8_phis_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode8_phis_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode8_phis_didf_-7"$date,"UTF-8")}               
+               }
+                \label{periode8}
+\end{figure}
+
+
+\begin{figure}[htbp]
+        \centering
+        \includegraphics[trim=35mm 40mm 25mm
+                25mm,clip, width=0.5\textwidth]{2025/periode9_phi0_didf_-7.png}
+        \caption{
+                $\Phi$=\Sexpr{ppp$"periode9_phi0_didf_-7"$Phi}, 
+                $\beta$=\Sexpr{ppp$"periode9_phi0_didf_-7"$incl}, 
+                $h$=\Sexpr{ppp$"periode9_phi0_didf_-7"$prof}, 
+                $O_t$=\Sexpr{ppp$"periode9_phi0_didf_-7"$N}, 
+                $O_t\circ$=\Sexpr{ppp$"periode9_phi0_didf_-7"$Nsuivis},
+                $N'_{4o}+$=\Sexpr{ppp$"periode9_phi0_didf_-7"$plus}, 
+                $N'_{4o}-$=\Sexpr{ppp$"periode9_phi0_didf_-7"$minus},
+                date= \Sexpr{iconv(ppp$"periode9_phi0_didf_-7"$date,"UTF-8")}               
+               }
+                \label{periode9}
 \end{figure}
 
 \clearpage
@@ -7194,7 +7288,7 @@ observées pondérée par les effectifs en migration.
   \centering
   \includegraphics[width=0.8\textwidth]{2025/fig_effectif_2014-2015}
   \caption[Effectif]{Saison 2014-2015.}
-  \label{fig_effectif_2014}
+  \label{fig_effectif_2015}
   % heure de fonctionnement
 \end{figure}
 %=====================================================================  
