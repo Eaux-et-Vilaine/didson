@@ -1072,7 +1072,7 @@ résultats \Sexpr{saison}. Les résultats sont comparés aux résultats des sais
 2012--2013 à 2021--2022
 \citep{briand_suivi_2014,briand_suivi_2015,briand_suivi_2016,briand_suivi_2017,
 briand_suivi_2018,briand_suivi_2019, briand_suivi_2021, briand_suivi_2022,
-briand_suivi_2023, briand_suivi_2024, briand_suivi_2026}.
+briand_suivi_2023, briand_suivi_2024, briand_suivi_2025}.
 \section{Matériel et méthodes}
 
 
@@ -3268,7 +3268,7 @@ La vanne 4 (ou le volet 4) est fermé
 
 <<taille_all, echo=FALSE, eval=FALSE,results=hide>>=
 # ce chunk c'est juste pour faires les graphes tous les calculs sont faits dans efficacité
-nat=nrow(dddp) # nombre anguilles taille 14360
+ # nombre anguilles taille 14360
 # Commenter la ligne qui suit pour prendre en compte toutes les données dans le calcul
 #dddp<-dddp[dddp$dsf_id%in%dsfindexOK,]
 
@@ -3278,7 +3278,7 @@ dddp$count<-1
 dddp$pblens <- dddp$date > dmy(23012018) & dddp$date <  dmy(23012018)
 dddp[dddp$psf_l_cm==0,]
 dddp<-dddp[!is.na(dddp$psf_l_cm)&dddp$psf_l_cm>0,]
-
+nat=nrow(dddp)
 # ci dessous attention on coupe pour des classes de distance différentes
 dddp$psf_l_cl<-cut(dddp$psf_l_cm,c(0,45,60,150)) # classes de taille
 dddp$c_radius<-cut(dddp$psf_radius_m,c(0,7,9,11,13)) # classes de distance
@@ -3524,7 +3524,7 @@ mesure que l'on s'éloigne du didson, et on retrouve une meilleure qualité des 
                 2mm,clip]{2025/qualite_distance_vanne_all}%trim l b r
                 % t
                \hspace*{25mm} \caption{\small fond (ensemble des années) \\
-                $\delta$=5-15m N=\Sexpr{vvv$nqualiteallvanne}
+                $\delta$=2-15m N=\Sexpr{vvv$nqualiteallvanne}
                 }   
                 \label{qualite_distance_vanne_all}
         \end{subfigure}
@@ -4868,28 +4868,33 @@ dev.off()
 ####################################################
 require(mixdist)
 # travail sur les tailles à moins de 7 m de distance
-tailleinf7 <- dddp$psf_l_cm[dddp$psf_radius_m<7 & dddp$saison==saison]
-taille <- dddp$psf_l_cm[dddp$saison==saison]
+tailleinf7 <- dddp$psf_l_cm[dddp$psf_radius_m<7 & dddp$dsf_season==saison]
+taille <- dddp$psf_l_cm[dddp$dsf_season==saison]
 #tail(tailleinf7[order(tailleinf7)])
 # head(tailleinf7[order(tailleinf7)])
 
-hist(tailleinf7,breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130))
-intervalsrightinf7<-hist(round(tailleinf7))$breaks[2:length(hist(round(tailleinf7))$breaks)]
+hh <- hist(tailleinf7,breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130))
+intervalsrightinf7<-hh$breaks[2:length(hh$breaks)]
 tailledfinf7<-data.frame(rightb=intervalsrightinf7,
-    N=hist(round(tailleinf7))$counts,
-    taille=hist(round(tailleinf7))$mids
+    N=hh$counts,
+    taille=hh$mids
 )
-intervalsright<-hist(round(taille))$breaks[2:length(hist(round(taille))$breaks)]
+hh2<-hist(round(taille),breaks=c(20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130))
+intervalsright <- hh2$breaks[2:length(hh2$breaks)]
 tailledf<-data.frame(rightb=intervalsright,
-    N=hist(round(taille))$counts,
-    taille=hist(round(taille))$mids
+    N=hh2$counts,
+    taille=hh2$mids
 )
 tailledfpar<-data.frame("pi"=c(0.15,0.85),#proportion
-    "mu"=c(37,60),# moyennes,
+    "mu"=c(37.5,62.5),# moyennes,
     "sigma"=c(5,10))# SD
 # fixmu vecteur pour indiquer quelles moyennes sont forcées
-mixtailledfinf7 <- mix(tailledfinf7,tailledfpar,constr =
-        mixconstr(consigma = "SFX",conmu="MFX", fixsigma=c(FALSE,FALSE),fixmu=c(TRUE,FALSE)),emsteps = 3)
+mixtailledfinf7 <- mix(tailledfinf7,tailledfpar, constr = mixconstr(
+        consigma = "SFX",
+        conmu="MFX", 
+        fixsigma=c(FALSE,FALSE),
+        fixmu=c(TRUE,FALSE)),
+    emsteps = 3)
 #mixtailledf<-mix(tailledfinf7,tailledfpar,constr =
 #				mixconstr(consigma = "NONE",conmu="NONE"),emsteps = 3)
 summary(mixtailledfinf7)
@@ -6008,6 +6013,229 @@ mu <- vvv$mu
 muinv <- (100-mu)/100
 load(file=str_c(datawdy,"D2D7j.Rdata"))
 
+# Export raw data to stacomiR ---------------------------------------------------------------------------------
+
+# dic = 23 (df = 22)
+library('DBI')
+if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
+if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
+#host <- Sys.getenv("hostmercure")
+host <- Sys.getenv("hostmercureinternal")
+user <- decrypt_string(userdistant,pois)
+password <- decrypt_string(passworddistant,pois)
+base <- c("bd_contmig_nat",host,5432,user,password)
+con <- dbConnect(drv=RPostgres::Postgres(), 
+ user = user,
+ password = password,
+ host = host,
+ port = "5432",
+ dbname = "bd_contmig_nat")
+
+# periode de fonctionnement du dispositif ---------------------------
+
+# ex = extrapolation calculés dans l'ordre, le premier surpasse le dernier
+# par exemple si la vanne est fermée, le statut sera toujours 0 même si pb technique
+#  0 Vanne ou volet fermés, quelles que soient les autres conditions d3ej$optvanne4=="0" la vanne est fermée
+#  4 => Vanne ouverte, problème de lecture ou d'écriture la position est "n" = pas de didson ou  fls (1,2) pb d'aquisition ou d'écriture
+#  2 => Pas de lecture (tous les is.na(dsr_id)), écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture
+#  1 => Lecture , vanne ou volet ouvert, didson bien positionné, pas de problème d'acquisition ou d'écriture
+# fond fond +  périodes de trantions (d3ej$optvanne4="fs")
+# surface surface + périodes de transition
+# didson penché loin du didson : vanne et didson sl en surface regarde en bas, volet et didson au fond sl regarde en haut
+#  3 => Lecture en mauvaise position, écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture)	
+
+#|tar_code|tar_libelle |tar_commentaires                                                                      |
+#|--------|------------|--------------------------------------------------------------------------------------|
+#|1       |Fonc normal |Fonctionnement normal                                                                 |
+#|2       |Arr ponctuel|Arret ponctuel lie au fonctionnement                                                  |
+#|3       |Arr maint   |Arret pour maintenance                                                                |
+#|4       |Dysfonc     |Dysfonctionnement (notamment dysfonctionnement hydraulique et dysfonctionnement video)|
+#|5       |Non connu   |Pas de suivi de donnees permettant de déterminer le fonctionnement du dispositif      |
+
+
+
+req <- new("RequeteDB")
+req@sql <- "SELECT * FROM iav.t_periodefonctdispositif_per limit 0"
+str_per <- query(req, base)
+str_per <- getquery(str_per)
+clipr::write_clip(str_per)
+
+
+
+# periodes fonctionnement DF = la vanne --------------------------------
+
+
+D2$flowing <- ifelse(D2$volvanne30+ D2$volvolet30== 0, 0, 1) # the dam is flowing at the gates or tidal flaps
+sequences <- rle(D2$flowing)
+start <- c(1,cumsum(sequences$lengths))
+start <- start[-length(start)] # the last is not a start
+end <- cumsum(sequences$lengths)
+
+sequences$values[is.na(sequences$values)] <- 0
+
+# start in 1 for 4 plus so ends at one more time period
+#> head(cbind(start,end))
+#     start end
+#[1,]     1   5
+#[2,]     5   6
+#[3,]     6   7
+#[4,]     7   9
+#[5,]     9  42
+#[6,]    42  85
+#> sequences
+#Run Length Encoding
+#  lengths: int [1:7237] 4 1 1 2 33 43 27 1 31 6 ...
+#  values : num [1:7237] 1 0 1 0 1 0 1 0 1 0 ...
+
+
+df <- 
+tibble(
+per_dis_identifiant = 22,
+per_date_debut = D2$dsf_timeinit[start],
+per_date_fin= D2$dsf_timeend[end],
+per_commentaires = NA,
+per_etat_fonctionnement= as.logical(sequences$values),                                 
+per_tar_code = sequences$values, # fonct normal  => coule                                           
+per_org_code = 'IAV')
+df[is.na(df$per_etat_fonctionnement),"per_etat_fonctionnement"] <- FALSE
+df[is.na(df$per_tar_code),"per_etat_fonctionnement"] <- 0
+
+dbWriteTable(con, "temp_df_didson", df, overwrite = TRUE)
+
+
+dbExecute(con, "INSERT INTO iav.t_periodefonctdispositif_per
+(per_dis_identifiant, per_date_debut, per_date_fin, per_commentaires, per_etat_fonctionnement, per_tar_code, per_org_code)
+SELECT per_dis_identifiant, per_date_debut, per_date_fin, per_commentaires, per_etat_fonctionnement, per_tar_code, per_org_code FROM
+temp_df_didson where per_date_fin > per_date_debut;")
+
+dbGetQuery(con, "SELECT * FROM iav.t_periodefonctdispositif_per where per_dis_identifiant = 22")
+dbGetQuery(con, "SELECT * FROM temp_df_didson")
+#TODO HERE DETAIL:  Key (per_dis_identifiant, per_org_code)=(22, IAV) is not present in table "tg_dispositif_dis
+
+# periodes fonctionnement DC = le didson --------------------------------
+# sequences <- rle(D2$ex)
+start <- c(1,cumsum(sequences$lengths)+1)
+start <- start[-length(start)] # the last number is not a start
+end <- cumsum(sequences$lengths)
+stopifnot(length(start)==length(end))
+dc <- 
+    tibble(
+        per_dis_identifiant = 23,
+        per_date_debut = D2$dsf_timeinit[start],
+        per_date_fin= D2$dsf_timeend[end],
+        per_commentaires = NA,
+        per_etat_fonctionnement= case_when(sequences$values == 0 ~ 0, # vanne fermée, arret
+            sequences$values == 1 ~ 1, # fonct normal
+            sequences$values == 3 ~ 0, # mal placé, pas de lecture
+            sequences$values == 2 ~ 0, # pas de lecture    
+            sequences$values == 4 ~0), #  didson "n" ou problème de disque ou d'aquisition                                   
+        per_tar_code = case_when(sequences$values == 0 ~ 2, # vanne fermée, arret ponctuel
+            sequences$values == 1 ~ 1, # fonct normal
+            sequences$values == 3 ~ 4, # dysfonct
+            sequences$values == 2 ~ 2, # pas de lecture = on peut considérer que c'est un arrêt normal  
+            sequences$values == 4 ~ 3), #  didson "n" ou problème de disque ou d'aquisition              
+        per_org_code = 'IAV')
+
+dbWriteTable(con, "temp_dc_didson", dc, overwrite = TRUE)
+
+
+# -- Operation --------------------------------------------------------------
+
+req <- new("RequeteDB")
+req@sql <- "SELECT * FROM iav.t_operation_ope limit 0"
+str_ope <- query(req, base)
+str_ope <- getquery(str_ope)
+
+ope <- tibble(
+ope_dic_identifiant = 23,
+ope_date_debut = daily_values_didson$date,
+ope_date_fin = daily_values_didson$date + as.difftime(tim=1,"%d","days"),
+ope_organisme = 'IAV',
+ope_operateur = 'Brice Sauvaget, Gérard Eriau',
+ope_commentaires = NA,
+ope_org_code = 'IAV'
+)
+
+dbWriteTable(con, "temp_ope_daily_didson", ope, overwrite = TRUE)
+
+dbWriteTable(con, "temp_ope_didson", ope, overwrite = TRUE)
+
+ope_identifiant <- dbGetQuery(con, "INSERT INTO iav.t_operation_ope
+(ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code)
+SELECT ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code FROM
+temp_ope_didson returning ope_identifiant;")
+
+ope$ope_identifiant <- ope_identifiant
+
+save(ope, file = str_c(datawdy,"ope_didson.Rdata"))
+
+
+dddp |>
+    select(dsf_id,
+dsf_timeinit,
+dsf_timeend,
+position,
+dsf_incl,
+dsf_distancestart,
+dsf_depth,
+dsf_fls_id,
+dsf_readok,
+dsf_filename,
+dsf_season,
+dsr_id,
+dsr_readinit,
+dsr_readend,
+dsr_reader,
+dsr_eelplus,
+dsr_eelminus,
+dsr_csotdb,
+dsr_complete,
+dsr_muletscore,
+dsr_fryscore,
+dsr_comment,
+dsr_csotismin,
+drr_filename,
+drr_date,
+drr_start,
+drr_end,
+drr_editorid,
+drr_intensity_db,
+drr_threshold_db,
+drr_csotmincluster_cm2,
+drr_csotminthreshold_db,
+drr_windowstart_m,
+drr_windowend_m,
+drr_totalfish,
+drr_id,
+drr_dsf_id,
+drr_dsr_id,
+drr_eelplus,
+drr_eelminus,
+psf_dir,
+psf_radius_m,
+psf_theta,
+psf_l_cm,
+psf_time,
+psf_date,
+psf_pan,
+psf_tilt,
+psf_roll,
+psf_species,
+psf_motion,
+psf_move,
+psf_q,
+psf_n,
+psf_comment,
+count,
+pblens,
+taille_cm,
+distance_m,
+saison,
+distancestart
+)
+# II- Export daily data to stacomiR -------------------
+# dic = 25 (df = 24) TODO
+
 daily_values_didson <- D7j |> 
     mutate(date2 = case_when(is.na(date) & day>200 ~ strptime(paste0(substring(dsf_season,1,4), day), "%Y%j"),
             is.na(date) & day<200 ~ strptime(paste0(substring(dsf_season,6,9), day), "%Y%j"),
@@ -6099,22 +6327,8 @@ stopifnot( daily_values_didson_definition$name == colnames(daily_values_didson))
 readr::write_excel_csv(daily_values_didson_definition, file= str_c(datawdy, "daily_values_didson_definition.csv"))
 readr::write_excel_csv(daily_values_didson, file= str_c(datawdy, "daily_values_didson.csv"))
 
-# Export daily data to stacomiR -------------------
 
-# dic = 23 (df = 22)
-library('DBI')
-if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configurer Rprofile.site avec les bons mots de passe et user')
-if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
-#host <- Sys.getenv("hostmercure")
-host <- Sys.getenv("hostmercureinternal")
-user <- decrypt_string(userdistant,pois)
-password <- decrypt_string(passworddistant,pois)
-base <- c("bd_contmig_nat_iav",host,5432,user,password)
-
-req <- new("RequeteDB")
-req@sql <- "SELECT * FROM iav.t_operation_ope limit 0"
-str_ope <- query(req, base)
-str_ope <- getquery(str_ope)
+# Daily values (operations)
 
 ope <- tibble(
 ope_dic_identifiant = 23,
@@ -6126,155 +6340,33 @@ ope_commentaires = NA,
 ope_org_code = 'IAV'
 )
 
-con <- dbConnect(drv=RPostgres::Postgres(), 
- user = user,
- password = password,
- host = host,
- port = "5432",
- dbname = "bd_contmig_nat_iav")
-
-dbWriteTable(con, "temp_ope_didson", ope, overwrite = TRUE)
+dbWriteTable(con, "temp_ope_daily_didson", ope, overwrite = TRUE)
 
 ope_identifiant <- dbGetQuery(con, "INSERT INTO iav.t_operation_ope
 (ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code)
 SELECT ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code FROM
-temp_ope_didson returning ope_identifiant;")
+temp_ope_daily_didson returning ope_identifiant;")
 
-# period de fonctionnement du dispositif
+ope$ope_identifiant <- ope_identifiant
 
-# ex = extrapolation calculés dans l'ordre, le premier surpasse le dernier
-# par exemple si la vanne est fermée, le statut sera toujours 0 même si pb technique
-#  0 Vanne ou volet fermés, quelles que soient les autres conditions d3ej$optvanne4=="0" la vanne est fermée
-#  4 => Vanne ouverte, problème de lecture ou d'écriture la position est "n" = pas de didson ou  fls (1,2) pb d'aquisition ou d'écriture
-#  2 => Pas de lecture (tous les is.na(dsr_id)), écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture
-#  1 => Lecture , vanne ou volet ouvert, didson bien positionné, pas de problème d'acquisition ou d'écriture
-# fond fond +  périodes de trantions (d3ej$optvanne4="fs")
-# surface surface + périodes de transition
-# didson penché loin du didson : vanne et didson sl en surface regarde en bas, volet et didson au fond sl regarde en haut
-#  3 => Lecture en mauvaise position, écoulement sur la vanne 4,  pas de problème d'acquisition ou d'écriture)	
+save(ope, file = str_c(datawdy,"ope_daily_didson.Rdata"))
 
-#|tar_code|tar_libelle |tar_commentaires                                                                      |
-#|--------|------------|--------------------------------------------------------------------------------------|
-#|1       |Fonc normal |Fonctionnement normal                                                                 |
-#|2       |Arr ponctuel|Arret ponctuel lie au fonctionnement                                                  |
-#|3       |Arr maint   |Arret pour maintenance                                                                |
-#|4       |Dysfonc     |Dysfonctionnement (notamment dysfonctionnement hydraulique et dysfonctionnement video)|
-#|5       |Non connu   |Pas de suivi de donnees permettant de déterminer le fonctionnement du dispositif      |
-
-
-
-req <- new("RequeteDB")
-req@sql <- "SELECT * FROM iav.t_periodefonctdispositif_per limit 0"
-str_per <- query(req, base)
-str_per <- getquery(str_per)
-clipr::write_clip(str_per)
-
-R.utils::seqToIntervals(dat)
-sequences <- rle(D2$ex)
-start <- c(1,cumsum(rle$lengths)+1)
-end <- cumsum(rle$lengths)
-
-dc <- 
-tibble(
-per_dis_identifiant = 23,
-per_date_debut = D2$dsf_timeinit[start],
-per_date_fin= D2$dsf_timeend[end],
-per_commentaires = NA,
-per_etat_fonctionnement= case_when(rle$values == 0 ~ 0, # vanne fermée, arret
-                                   rle$values == 1 ~ 1, # fonct normal
-                                   rle$values == 3 ~ 0, # mal placé, pas de lecture
-                                   rle$values == 2 ~ 0, # pas de lecture    
-                                   rle$values == 4 ~0), #  didson "n" ou problème de disque ou d'aquisition                                   
-per_tar_code = case_when(rle$values == 0 ~ 2, # vanne fermée, arret ponctuel
-                                   rle$values == 1 ~ 1, # fonct normal
-                                   rle$values == 3 ~ 4, # dysfonct
-                                   rle$values == 2 ~ 2, # pas de lecture = on peut considérer que c'est un arrêt normal  
-                                   rle$values == 4 ~ 3), #  didson "n" ou problème de disque ou d'aquisition              
-per_org_code = 'IAV')
-
-df <- 
-tibble(
-per_dis_identifiant = 22,
-per_date_debut = D2$dsf_timeinit[start],
-per_date_fin= D2$dsf_timeend[end],
-per_commentaires = NA,
-per_etat_fonctionnement= case_when(rle$values == 0 ~ 0, # vanne fermée, arret
-                                   rle$values == 1 ~ 1, # fonct normal
-                                   rle$values == 3 ~ 1, # mal placé, pas de lecture
-                                   rle$values == 2 ~ 1, # pas de lecture    
-                                   rle$values == 4 ~ 1), #  didson "n" ou problème de disque ou d'aquisition                                   
-per_tar_code = case_when(rle$values == 0 ~ 2, # vanne fermée, arret ponctuel
-                                   rle$values == 1 ~ 1, # fonct normal
-                                   rle$values == 3 ~ 1, # la vanne fonctionne elle est ouverte
-                                   rle$values == 2 ~ 1, # pas de lecture mais vanne ouverte (la fermeture de vanne prends toujours le dessus)
-                                   rle$values == 4 ~ 1), #  didson "n" ou problème de disque ou d'aquisition mais la vanne est ouverte              
-per_org_code = 'IAV')
-
-
-
-dddp |>
-    select(dsf_id,
-dsf_timeinit,
-dsf_timeend,
-position,
-dsf_incl,
-dsf_distancestart,
-dsf_depth,
-dsf_fls_id,
-dsf_readok,
-dsf_filename,
-dsf_season,
-dsr_id,
-dsr_readinit,
-dsr_readend,
-dsr_reader,
-dsr_eelplus,
-dsr_eelminus,
-dsr_csotdb,
-dsr_complete,
-dsr_muletscore,
-dsr_fryscore,
-dsr_comment,
-dsr_csotismin,
-drr_filename,
-drr_date,
-drr_start,
-drr_end,
-drr_editorid,
-drr_intensity_db,
-drr_threshold_db,
-drr_csotmincluster_cm2,
-drr_csotminthreshold_db,
-drr_windowstart_m,
-drr_windowend_m,
-drr_totalfish,
-drr_id,
-drr_dsf_id,
-drr_dsr_id,
-drr_eelplus,
-drr_eelminus,
-psf_dir,
-psf_radius_m,
-psf_theta,
-psf_l_cm,
-psf_time,
-psf_date,
-psf_pan,
-psf_tilt,
-psf_roll,
-psf_species,
-psf_motion,
-psf_move,
-psf_q,
-psf_n,
-psf_comment,
-count,
-pblens,
-taille_cm,
-distance_m,
-saison,
-distancestart
+#req <- new("RequeteDB")
+#req@sql <- "SELECT * FROM iav.t_lot_lot limit 0"
+#str_lot <- query(req, base)
+#str_lot <- getquery(str_lot)
+lot <- tibble(
+	lot_tax_code = "2038",
+  	lot_std_code = "AGG",
+    lot_effectif = daily_values_didson$N,
+    lot_quantite = NA,
+    lot_qte_code = NA,
+    lot_methode_obtention = 'CALCULE',
+    lot_lot_identifiant = NA,
+    lot_dev_code = 1,
+   	lot_org_code = "IAV"
 )
+
 
 
 
