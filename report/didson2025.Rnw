@@ -875,9 +875,12 @@ rouille <- "#87472D"
 turquoise <- "#008080"
 orange <- "#FF8040"
 bleu_EV <- "#00218f"
+bleu_EVf <- "#001350"
+jaune_EVf <- "#AD7000"
+orange_EVf <- "#b2513c"
+turquoise_EVf <- "#007873"
 turquoise_EV <- "#00C9C4"
 orange_EV <- "#ff7557"
-orange_EVf <- "#b2513c" # foncé
 bleu_clair_EV <- "#33b5ff"
 jaune_EV <- "#ffb428"
 grisbleu <- "#42428F"
@@ -6021,15 +6024,15 @@ if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configure
 if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
 #host <- Sys.getenv("hostmercure")
 host <- Sys.getenv("hostmercureinternal")
-user <- decrypt_string(userdistant,pois)
-password <- decrypt_string(passworddistant,pois)
-base <- c("bd_contmig_nat",host,5432,user,password)
+user <- readline("User: ")
+password <- readline("Password: ")
+base <- c("bd_contmig_nat_iav",host,5432,user,password)
 con <- dbConnect(drv=RPostgres::Postgres(), 
  user = user,
  password = password,
  host = host,
  port = "5432",
- dbname = "bd_contmig_nat")
+ dbname = "bd_contmig_nat_iav")
 
 # periode de fonctionnement du dispositif ---------------------------
 
@@ -6063,15 +6066,18 @@ clipr::write_clip(str_per)
 
 
 # periodes fonctionnement DF = la vanne --------------------------------
+# 5 =>0 (per_etat_fonctionnement) and 0 > 2 (per_tar_code) later in the code. 
 
+D2$flowing <- ifelse(D2$optvanne4 == 0, 0, 1)  
+    
 
-D2$flowing <- ifelse(D2$volvanne30+ D2$volvolet30== 0, 0, 1) # the dam is flowing at the gates or tidal flaps
+# using run length encoding to get repeated values with the same number.
 sequences <- rle(D2$flowing)
 start <- c(1,cumsum(sequences$lengths))
 start <- start[-length(start)] # the last is not a start
 end <- cumsum(sequences$lengths)
 
-sequences$values[is.na(sequences$values)] <- 0
+
 
 # start in 1 for 4 plus so ends at one more time period
 #> head(cbind(start,end))
@@ -6090,30 +6096,34 @@ sequences$values[is.na(sequences$values)] <- 0
 
 df <- 
 tibble(
-per_dis_identifiant = 22,
+per_dis_identifiant = 22, # c'est la vanne
 per_date_debut = D2$dsf_timeinit[start],
-per_date_fin= D2$dsf_timeend[end],
+per_date_fin= D2$dsf_timeinit[end],
 per_commentaires = NA,
-per_etat_fonctionnement= as.logical(sequences$values),                                 
-per_tar_code = sequences$values, # fonct normal  => coule                                           
+per_etat_fonctionnement= as.logical(sequences$values),  # boolean false when unknown (5)                               
+per_tar_code = ifelse(sequences$values == 0,2,1), # fonct normal  => coule 1, arret 2, 5 inconnu                                           
 per_org_code = 'IAV')
 df[is.na(df$per_etat_fonctionnement),"per_etat_fonctionnement"] <- FALSE
 df[is.na(df$per_tar_code),"per_etat_fonctionnement"] <- 0
 
+# Il ne doit pas y avoir de chevauchement
+stopifnot(sum(df$per_date_fin[2: nrow(df)] < df$per_date_debut[1 : (nrow(df) -1)]) ==0)
+
+
+
 dbWriteTable(con, "temp_df_didson", df, overwrite = TRUE)
 
-
+## dbExecute(con, "DELETE FROM iav.t_periodefonctdispositif_per WHERE per_dis_identifiant = 22")
 dbExecute(con, "INSERT INTO iav.t_periodefonctdispositif_per
 (per_dis_identifiant, per_date_debut, per_date_fin, per_commentaires, per_etat_fonctionnement, per_tar_code, per_org_code)
 SELECT per_dis_identifiant, per_date_debut, per_date_fin, per_commentaires, per_etat_fonctionnement, per_tar_code, per_org_code FROM
-temp_df_didson where per_date_fin > per_date_debut;")
+temp_df_didson where per_date_fin > per_date_debut;") # 7066
 
 dbGetQuery(con, "SELECT * FROM iav.t_periodefonctdispositif_per where per_dis_identifiant = 22")
-dbGetQuery(con, "SELECT * FROM temp_df_didson")
-#TODO HERE DETAIL:  Key (per_dis_identifiant, per_org_code)=(22, IAV) is not present in table "tg_dispositif_dis
+
 
 # periodes fonctionnement DC = le didson --------------------------------
-# sequences <- rle(D2$ex)
+sequences <- rle(D2$ex)
 start <- c(1,cumsum(sequences$lengths)+1)
 start <- start[-length(start)] # the last number is not a start
 end <- cumsum(sequences$lengths)
@@ -6122,52 +6132,158 @@ dc <-
     tibble(
         per_dis_identifiant = 23,
         per_date_debut = D2$dsf_timeinit[start],
-        per_date_fin= D2$dsf_timeend[end],
+        per_date_fin= D2$dsf_timeinit[end],
         per_commentaires = NA,
         per_etat_fonctionnement= case_when(sequences$values == 0 ~ 0, # vanne fermée, arret
             sequences$values == 1 ~ 1, # fonct normal
             sequences$values == 3 ~ 0, # mal placé, pas de lecture
             sequences$values == 2 ~ 0, # pas de lecture    
-            sequences$values == 4 ~0), #  didson "n" ou problème de disque ou d'aquisition                                   
+            sequences$values == 4 ~ 0 ), #  didson "n" ou problème de disque ou d'aquisition                                   
         per_tar_code = case_when(sequences$values == 0 ~ 2, # vanne fermée, arret ponctuel
             sequences$values == 1 ~ 1, # fonct normal
             sequences$values == 3 ~ 4, # dysfonct
             sequences$values == 2 ~ 2, # pas de lecture = on peut considérer que c'est un arrêt normal  
             sequences$values == 4 ~ 3), #  didson "n" ou problème de disque ou d'aquisition              
         per_org_code = 'IAV')
+ dc <- dc[!duplicated(dc[,c("per_date_debut","per_date_fin")]),]
+dc1 <- dc[-1,]
+dc1[dc$per_date_fin[2: nrow(dc)] < dc$per_date_debut[1 : (nrow(dc) -1)],]
 
 dbWriteTable(con, "temp_dc_didson", dc, overwrite = TRUE)
+dbExecute(con, "INSERT INTO iav.t_periodefonctdispositif_per
+(per_dis_identifiant, per_date_debut, per_date_fin, per_commentaires, per_etat_fonctionnement, per_tar_code, per_org_code)
+SELECT per_dis_identifiant, per_date_debut, per_date_fin, per_commentaires, per_etat_fonctionnement::integer::boolean, per_tar_code, per_org_code FROM
+temp_dc_didson where per_date_fin > per_date_debut") # 7591
+
+per_table <- dbGetQuery(con, "SELECT dis_identifiant, 
+                       case when dis_identifiant = 22 then 'dispositif de franchissement (vanne)'
+                     when dis_identifiant = 23 then 'dispositif de comptage (didson)'
+                     END as dis_type,
+				dis_commentaires,
+                per_date_debut, 
+                per_date_fin, 
+                per_commentaires,
+                 per_etat_fonctionnement, 
+                per_tar_code, 
+                per_org_code
+				FROM 
+                iav.t_periodefonctdispositif_per pfct JOIN
+				tg_dispositif_dis on dis_identifiant = per_dis_identifiant
+                WHERE dis_identifiant in (22,23);")
+
+
+xlsx::write.xlsx(x= per_table, file= file.path(datawdy, "stacomi_periode_fonctionnement.xlsx"))
+
+# --- graphiques stacomiR
+
+options(list(
+        stacomiR.dbname = "bd_contmig_nat_iav",
+        stacomiR.host = host,
+        stacomiR.port = "5432",
+        stacomiR.user = user,
+        stacomiR.password = password,
+        stacomiR.printqueries =FALSE
+    ))
+library(stacomiR)
+stacomi(TRUE,sch="iav", datawd=datawd)
+
+r_df=new("report_df")
+r_df<-choice_c(r_df,
+    22,
+    horodatedebut="2024-11-07",
+    horodatefin="2025-12-31",
+    silent=TRUE)
+#Sys.setenv(TZ='GMT')
+r_df<-connect(r_df)
+
+# normalement on doit pouvoir sortir ça directement dans le chunk calcul_debit_passe
+# mais ici j'ai fait des modifications manuelles en sql/traitementç2025
+#png(filename=file.path(imgwd,CY,"temps_fonctionnement_passe.png"),7,7,units="in",res=300)
+#g <- graph_DF(r_df@data)
+#print(g)
+#dev.off()
+
+plot(r_df,plot.type=4)
+
+png(filename=paste0(imgwdy,"report_df_annee.png"),width=10,height=6, units="in",res=300)
+t_periodefonctdispositif_per = r_df@data
+#t_periodefonctdispositif_per$horodatedebut <- force_tz(t_periodefonctdispositif_per$per_date_debut,  tzone = "Europe/Paris")
+#t_periodefonctdispositif_per$horodatefin <- force_tz(t_periodefonctdispositif_per$per_date_fin,  tzone = "Europe/Paris")
+tpp<-split_per_day(t_periodefonctdispositif_per,horodatedebut="per_date_debut",horodatefin="per_date_fin")
+g<-ggplot(tpp)+
+    geom_rect(aes(xmin=xmin,xmax=xmax,ymin=Hdeb,ymax=Hfin,col=factor(per_tar_code),fill=factor(per_tar_code)),alpha=0.5)+
+    scale_fill_manual("type",values=c("1"=bleu_EV,"2"=orange_EVf,"3"=turquoise_EV,"4"=orange_EV,"5"="#999999"),
+        labels =c("vanne ouverte","vanne fermée", "Pas de données")) +
+    scale_colour_manual("type",values=c("1"=bleu_EVf,"2"=jaune_EVf,"3"=turquoise_EVf,"4"=orange_EVf,"5"="black"),
+        labels = c("vanne ouverte", "vanne fermée","Pas de données"))+
+    ylab("Heure")+
+    scale_x_datetime() +
+    theme(
+        plot.background = element_rect(fill ="white"),
+        panel.background = element_rect(fill="white"),
+        legend.background=element_rect(fill="white"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        text=element_text(colour="black"),
+        line = element_line(colour = "grey50"),
+        legend.key=element_rect(fill="white",colour=bleu_EV),
+        axis.text=element_text(colour="black"))
+print(g)
+dev.off()
+#Sys.setenv(TZ="Europe/London") # GMT
+r_df_hist<-choice_c(r_df,
+    22,
+    horodatedebut="2012-01-01",
+    horodatefin=str_c(CY,"-12-31"),
+    silent=TRUE)
+r_df_hist<-connect(r_df_hist)
+
+# Je fais rentrer tout le graphe sur une demie colonne ça rend bien.
+
+png(filename=paste0(imgwdy,"report_df_2012_2025.png"),width=6,height=12, units="in",res=300)
+plot(r_df_hist,plot.type=1,
+    color_type_oper = 	c(
+        "Fonc normal" = bleu_EV,
+        "Arr ponctuel" = turquoise_EV,
+        "Arr maint" = jaune_EV,
+        "Dysfonc" = orange_EV,
+        "Non connu" = "#999999"
+    ),
+    color_etat=c("TRUE"=bleu_EV,
+        "FALSE"=orange_EV))
+dev.off()
+
+
+
+r_dc=new("report_dc")
+r_dc<-choice_c(r_dc,
+    23,
+    horodatedebut="2011-01-01",
+    horodatefin=str_c(CY,"-12-31"),
+    silent=TRUE)
+r_dc1 <- connect(r_dc)
+plot(r_dc1,plot.type="1",
+    color_type_oper = 	c(
+        "Fonc normal" = bleu_EV,
+        "Arr ponctuel" = turquoise_EV,
+        "Arr maint" = jaune_EV,
+        "Dysfonc" = orange_EV,
+        "Non connu" = "#999999"
+    ),
+    color_etat=c("TRUE"=turquoise_EV,
+        "FALSE"=jaune_EV))
+g_report_dc_1=get('g_report_dc_1',envir_stacomi)
+png(filename=paste0(imgwdy,"report_dc_2011_2025.png"),width=6,height=12, units="in",res=300)
+g_report_dc_1 +
+    theme(strip.background = element_rect(colour = "grey", fill = "grey20")
+    ) +
+    labs(title="Fonctionnement du dispositif de comptage",
+        x ="mois", y = "Durée")
+dev.off()
 
 
 # -- Operation --------------------------------------------------------------
 
-req <- new("RequeteDB")
-req@sql <- "SELECT * FROM iav.t_operation_ope limit 0"
-str_ope <- query(req, base)
-str_ope <- getquery(str_ope)
-
-ope <- tibble(
-ope_dic_identifiant = 23,
-ope_date_debut = daily_values_didson$date,
-ope_date_fin = daily_values_didson$date + as.difftime(tim=1,"%d","days"),
-ope_organisme = 'IAV',
-ope_operateur = 'Brice Sauvaget, Gérard Eriau',
-ope_commentaires = NA,
-ope_org_code = 'IAV'
-)
-
-dbWriteTable(con, "temp_ope_daily_didson", ope, overwrite = TRUE)
-
-dbWriteTable(con, "temp_ope_didson", ope, overwrite = TRUE)
-
-ope_identifiant <- dbGetQuery(con, "INSERT INTO iav.t_operation_ope
-(ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code)
-SELECT ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code FROM
-temp_ope_didson returning ope_identifiant;")
-
-ope$ope_identifiant <- ope_identifiant
-
-save(ope, file = str_c(datawdy,"ope_didson.Rdata"))
 
 
 dddp |>
@@ -6240,7 +6356,7 @@ daily_values_didson <- D7j |>
     mutate(date2 = case_when(is.na(date) & day>200 ~ strptime(paste0(substring(dsf_season,1,4), day), "%Y%j"),
             is.na(date) & day<200 ~ strptime(paste0(substring(dsf_season,6,9), day), "%Y%j"),
             .default = date)) |>
-   filter(is.na(date))
+   filter(!is.na(date)) |>
     rename(
         arzal_turbidity_ntu = enj_turb,
         migration_season = dsf_season,
@@ -6330,6 +6446,13 @@ readr::write_excel_csv(daily_values_didson, file= str_c(datawdy, "daily_values_d
 
 # Daily values (operations)
 
+#req <- new("RequeteDB")
+#req@sql <- "SELECT * FROM iav.t_operation_ope limit 0"
+#str_ope <- query(req, base)
+#str_ope <- getquery(str_ope)
+
+
+
 ope <- tibble(
 ope_dic_identifiant = 23,
 ope_date_debut = daily_values_didson$date,
@@ -6347,15 +6470,21 @@ ope_identifiant <- dbGetQuery(con, "INSERT INTO iav.t_operation_ope
 SELECT ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code FROM
 temp_ope_daily_didson returning ope_identifiant;")
 
-ope$ope_identifiant <- ope_identifiant
+ope$ope_identifiant <- ope_identifiant$ope_identifiant
 
 save(ope, file = str_c(datawdy,"ope_daily_didson.Rdata"))
+
+xlsx::write.xlsx(ope, file = file.path(datawdy, "operation.xlsx"))
+
 
 #req <- new("RequeteDB")
 #req@sql <- "SELECT * FROM iav.t_lot_lot limit 0"
 #str_lot <- query(req, base)
 #str_lot <- getquery(str_lot)
+
+stopifnot(nrow(ope) == nrow(daily_values_didson))
 lot <- tibble(
+    lot_ope_identifiant = ope$ope_identifiant,
 	lot_tax_code = "2038",
   	lot_std_code = "AGG",
     lot_effectif = daily_values_didson$N,
@@ -6367,7 +6496,12 @@ lot <- tibble(
    	lot_org_code = "IAV"
 )
 
+dbWriteTable(con, "temp_lot_daily_didson", lot, overwrite = TRUE)
 
+dbExecute(con, "INSERT INTO iav.t_lot_lot
+(lot_ope_identifiant, lot_tax_code, lot_std_code, lot_effectif, lot_quantite, lot_qte_code, lot_methode_obtention, lot_lot_identifiant, lot_dev_code, lot_commentaires, lot_org_code)
+SELECT lot_ope_identifiant, lot_tax_code, lot_std_code, lot_effectif, NULL, NULL, lot_methode_obtention, NULL, lot_dev_code, 'valeur journalière calculée', lot_org_code FROM temp_lot_daily_didson;")
+# 3076
 
 
 # TODO export excel
