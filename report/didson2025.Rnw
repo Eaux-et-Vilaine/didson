@@ -6015,7 +6015,7 @@ load(file=str_c(datawdy,"vvv.Rdata"))
 mu <- vvv$mu 
 muinv <- (100-mu)/100
 load(file=str_c(datawdy,"D2D7j.Rdata"))
-
+load( file = str_c(datawdy,"dddp1.Rdata"))
 # Export raw data to stacomiR ---------------------------------------------------------------------------------
 
 # dic = 23 (df = 22)
@@ -6024,9 +6024,9 @@ if (!exists("userdistant") | !exists("passworddistant")) stop('Il faut configure
 if (!exists("mainpass")) pois <- getPass(msg="Main password") else pois <- mainpass
 #host <- Sys.getenv("hostmercure")
 host <- Sys.getenv("hostmercureinternal")
-user <- readline("User: ")
-password <- readline("Password: ")
-base <- c("bd_contmig_nat_iav",host,5432,user,password)
+user <- readline("user :")
+password <- Sys.getenv("passiav")
+base <- c("bd_contmig_nat_iav", host, 5432, user, password)
 con <- dbConnect(drv=RPostgres::Postgres(), 
  user = user,
  password = password,
@@ -6286,69 +6286,7 @@ dev.off()
 
 
 
-dddp |>
-    select(dsf_id,
-dsf_timeinit,
-dsf_timeend,
-position,
-dsf_incl,
-dsf_distancestart,
-dsf_depth,
-dsf_fls_id,
-dsf_readok,
-dsf_filename,
-dsf_season,
-dsr_id,
-dsr_readinit,
-dsr_readend,
-dsr_reader,
-dsr_eelplus,
-dsr_eelminus,
-dsr_csotdb,
-dsr_complete,
-dsr_muletscore,
-dsr_fryscore,
-dsr_comment,
-dsr_csotismin,
-drr_filename,
-drr_date,
-drr_start,
-drr_end,
-drr_editorid,
-drr_intensity_db,
-drr_threshold_db,
-drr_csotmincluster_cm2,
-drr_csotminthreshold_db,
-drr_windowstart_m,
-drr_windowend_m,
-drr_totalfish,
-drr_id,
-drr_dsf_id,
-drr_dsr_id,
-drr_eelplus,
-drr_eelminus,
-psf_dir,
-psf_radius_m,
-psf_theta,
-psf_l_cm,
-psf_time,
-psf_date,
-psf_pan,
-psf_tilt,
-psf_roll,
-psf_species,
-psf_motion,
-psf_move,
-psf_q,
-psf_n,
-psf_comment,
-count,
-pblens,
-taille_cm,
-distance_m,
-saison,
-distancestart
-)
+
 # II- Export daily data to stacomiR -------------------
 # dic = 25 (df = 24) TODO
 
@@ -6444,7 +6382,164 @@ readr::write_excel_csv(daily_values_didson_definition, file= str_c(datawdy, "dai
 readr::write_excel_csv(daily_values_didson, file= str_c(datawdy, "daily_values_didson.csv"))
 
 
+values_didson_30min <- D2 |> select(-any_of(c("dsr_dsf_id", "drr_upstreammotion","drr_unknown", "drr_dsf_id", "drr_dsr_id", "round_time", "count","year","month","H","W","hourm0","day", "leap_year", "hourm","ndays", "ex3")))
+
+
+values_didson_30min_definition <- tribble( 
+   ~name, ~definition,
+    "dsf_id", "identifier of the 30 min period of operation (integer) ",
+    "dsf_timeinit", "Horodate of the start of operation",
+    "dsf_timeend", "Horodate of the end of operation",
+    "dsf_position", "Position of the didson, f = fond (deep), s = surface, n = unknown",
+    "dsf_incl", "Vertical inclination of the didson, from -75 didson looking from the surface straight to the bottom, to 30 didson looking towards the surface from a deeper position, most operation near the surface are -7 to avoid reflecting the surface.",
+    "dsf_distancestart", "Distance of first echo acquisition from the sonar",
+    "dsf_depth", "Depth of the didson in NGF, the surface is in niveauvilaine30",
+    "dsf_fls_id", "File status for the didson. 0 = OK normal recording, 1 = Acquisition problem, 2 = disk failure or writing issue, 3 = file exists the the quality is bad, e.g. poor file transfer, loss of the original file, silt clogging the lens.",
+    "dsf_readok", "Boolean has the file been read correctly",
+     "dsf_filename", "File name",
+     "dsf_season" ,  "Season of operation corresponding to the Silver eel migration season, from september to April",
+     "dsf_mois", "Month, integrer",
+     "dsf_periode", "Discrete period of operation calculated each season and grouped by dsf_position, dam operation depth (surface(s) or deep (f)), and dsf_incl (didson vertical angle)",
+     "dsr_id",  "The didson operations (t_didsonfile_dsf see unique values dsf_id and dsf_filename above, can be read by several users, or with different processing, these reading are stored in the t_didsonread_dsr file, dsr_id in the unique identifier for this file",
+     "dsr_readinit", "Beginning of file reading time",
+     "dsr_readend", "End of the file reading",
+     "dsr_reader", "Reader of the file",
+     "dsr_eelplus", "Number of eel counted downstream through the sonar cone",
+     "dsr_eelminus", "Number of eel counted upstream (migrating counter current) through the sonar cone, both eel+ and eel- are added to the total migration count",
+     "dsr_csotdb", "CSTODB extraction of the file 2.8 dB in volet (floating tidal flaps) and 2.5 dB at depth (dam operating with the gates).",
+     "dsr_complete", "Was the file complete ? i.e. without CSTOT extraction.",
+     "dsr_muletscore", "Score of mulet file reading hindrance. From 0 nothing to 5 maximum hindrance.",
+     "dsr_fryscore" , "Score of small fry hindrance to file reading from zero to 5 (large hindrance)",
+     "dsr_comment", "Commend from the reader",
+     "dsr_csotismin", "Is this line corresponding to the minimum CSOT ? Used during processing to select the best reading conditions....",
+     "dsr_pertefichiertxt", "Has this file been lot ?",
+     "drr_filename", "Name of the file in the t_didsonreadresult, the files are generated when the reader measures a fish. All files are processed and their results stored in two table (1) t_didsonreadresult_drr, which is the pendent of the t_didsonread_dsr file on which the readers note their results, (2) poissonfile_psf wich store the individual fishes, when operating each year, there is a long process of linking the dsr and drr, and ensuring the counts correspond on both ends.",
+     "drr_path", "Path to drr file",
+     "drr_date", "Date of the file acquisition",
+     "drr_start", "Time (hh:mm:ss) of file start",
+     "drr_end",  "Time (hh:mm:ss) of file end",
+     "drr_countfilename", "Path to the count file",
+     "drr_editorid", "Name of the file reader",
+     "drr_intensity_db", "Intensity DB, parameters for the CSOT",
+     "drr_threshold_db", "Threshold, parameters for the CSOT",
+     "drr_csotmincluster_cm2", "Min cluster_cm2, parameters for the CSOT",
+     "drr_csotminthreshold_db", "Min threshold, parameters for the CSOT",
+     "drr_windowstart_m", "Distance to the sonar where the window of sonar acquisition starts",
+     "drr_windowend_m", "Distance to the sonar where the window of sonar acquisition ends",
+     "drr_totalfish", "Total number of eel and lamprey or silurus counted",
+     "drr_upstream", "Number of fish counted moving upstream",
+     "drr_downstream", "Number of fish counted moving downstream",
+     "drr_id", "Integer, primary key (unique) for the drr file",
+     "drr_eelplus", "Number of eel moving downstream",
+     "drr_eelminus", "Numbe of eel moving upstream",
+     "debitvilaine30", "Average flow (m3/s) recalculated at the dam for 30 min, includes gates, tidal flaps, fishway, sluice and siphon pipes",
+     "volbarrage30", "Volume of water (m3) having passed the dam  for 30 minutes",
+     "niveauvilaine30", "Upstream water level, i.e. where the didson is positionned",
+     "niveaumer30", "Downstream water level, sea level", 
+     "volvanne30", "Gate volume (m3)",
+     "volpasse30", "Fishway volume (m3)",
+     "volsiphon30", "Siphon pipe volume (m3), siphon operate by gravity to remove lens of saline water accumulating at depth during sluice operation",
+     "volvolet30", "Tidal flaps volume (m3)",
+     "env_hvanne_tot30", "Total height of gate opening (m)",
+     "env_nvolet_tot30", "Number of opened tidal flaps",
+     "volet4", "Boolean, is tidal flap 4 (at the sonar site) flowing",
+     "vanne4", "Boolean, is gate 4 (at the sonar site) flowing",
+     "volet5", "Boolean, is tidal flap 5 flowing",
+     "vanne5", "Boolean, is gate 5 flowing",
+     "volet3", "Boolean",
+     "vanne3", "Boolean",
+     "volet2", "Boolean",
+     "vanne2", "Boolean",
+     "volet1", "Boolean",
+     "vanne1", "Boolean",
+     "hvanne4", "Height of gate 4 opening",
+     "env_volvanne1_30", "Volume of gate 1 (m3) for 30 minutes", 
+     "env_volvanne2_30", "Volume of gate 2 (m3) for 30 minutes",
+     "env_volvanne3_30", "Volume of gate 3 (m3) for 30 minutes",
+     "env_volvanne4_30", "Volume of gate 4 (m3) for 30 minutes",
+     "env_volvanne5_30", "Volume of gate 5 (m3) for 30 minutes",
+     "env_volvolet1_30", "Volume of tidal flap 1 (m3) for 30 minutes",
+     "env_volvolet2_30", "Volume of tidal flap 2 (m3) for 30 minutes",
+     "env_volvolet3_30", "Volume of tidal flap 3 (m3) for 30 minutes",
+     "env_volvolet4_30", "Volume of tidal flap 4 (m3) for 30 minutes",
+     "env_volvolet5_30", "Volume of tidal flap 5 (m3) for 30 minutes",
+     "enj_turb", "Turbidity NTU",
+     "deb_qtotalj", "Daily flow at the dam m3/s",
+     "date", "date",
+     "mois", "month",
+     "hour", "hour",
+     "pvanne4", "Percentage of volume at the dam at gate 4 env_volvanne4_30 / volbarrage30",
+     "pvolet4", "Percentage of volume at the dam at tidal flap 4 env_volvolet4_30 / volbarrage30",
+     "vol4", "Total volume at gate 4 m3",
+     "pvol4", "Percentage of the volume of water transiting throught the dam which passes at the fourth sluice opening",
+     "env_Qtotal30", "Flow at the dam in m3/s",
+     "optvanne4", "How is the gate operated. Closed 0, tidal flaps (surface) s, gate (deep) f, transitioning during the 30 minutes period sf",
+     "position", "What is the position of the didson during the 30 minute period, f3 = deep acquisition starts at 3m (some trials), f5 deep acquisition starts at 5m, n no operatio, s = surface, sl slanted operation (some trials)", 
+     "ex", " ex = extrapolation calculated in order (the first is chosen before the last - for instance if the gate is closed, the choice in ex will be 0, gate closed whatever the problem with didson acquisition.  0 => Gate 4 or tidal flap 4 closed. 4 => Gate 4 or flap 4 flowing, but problem of reading or acquisition, the position is n = no didson in place or fls (1,2) problem of data acquisition or writing. 2 => Gate 4 or flap 4 flowing, no reading (dsr_id is  NULL), and should be monitored,  no problem of data acquisition or writing.   1 => Gate 4 or flap 4 flowing, reading , sonar well positionned , no problem of data acquisition or writing. This correspond to postion depth(sonar) depth(gate), surface(sonar) surface(gate), and transition periods optvanne4 = `fs`. 3 => Gate 4 or flap 4 flowing, the sonar is badly positionned with respect to the gate operation, no problem of file acquisition or writing",
+     "lecture", "Boolean, was the sonar file read",
+     "chargevolet", "Water height on the tidal flap",
+     "hpas", "height of the water column in which the eel can migrate",
+     "area_intersect", "Area of intersection between the sonar cone and the gate in m2 (in some case if the sonar cone intersects with the bottom or the surface, part of the cone is lost",
+     "area_detframe", "Area of detection",
+     "area_migration_frame", "Area of migration for the whole gate (in m2) we assume that the migration is not taking place in the 2m near the surface in gate operation, for flap opening, the observation of eel
+led to assume that the migration frame is 6 time the height of water on the tidal flap.",
+     "psurface" , "Percentage of the surface monitored by the sonar area_intersect/area_migration_frame",
+     "year", "year",
+     "duree", "monitoring duration in minutes",
+     "indexOK","No problem with file acquision or reading (fls_id) and didson position OK (dsf_fls_id == 0 | dsf_fls_id == 3) & ex == 1",  
+     "indexOKex3", "No problem with file acquision or reading (fls_id) but the didson is in the wrong position, dsf_fls_id == 0 & ex == 3",  
+     "E0", "Efficiency of the detection (as a percentage of detection of eel passing through the cone), before 2021 the Efficiency was a weighted mean of the efficiency according to the surface of the differens polygons in the code (see report)",
+     "E", "Efficienty - calculated with a model after 2021 see report N= Nprimo4*rho/E",
+     "rho", "Coefficient to extrapolate from monitoring of little less than 30 minutes with the rotator",
+     "Nprimo4", "Number of fish counted in the detection cone Nprimo4 =drr_eelplus + drr_eelminus",
+     "No4", "Number extrapolated in the detection cone Nprimo4*rho/E",
+     "N4", "Number counted at gate 4 N4 = No4/psurface"  ,   
+     "N", "Number passing the dam N4/pvol4"
+)
+
+readr::write_excel_csv(values_didson_30min_definition, file= str_c(datawdy, "values_didson_30min_definition.csv"))
+readr::write_excel_csv(values_didson_30min, file= str_c(datawdy, "values_didson_30min.csv"))
+
+
 # Daily values (operations)
+
+fish <- dddp |>
+    select(dsf_id,
+dsr_id,
+drr_id,
+psf_dir,
+psf_radius_m,
+psf_l_cm,
+psf_time,
+psf_date,
+psf_species,
+psf_motion,
+psf_move,
+psf_comment
+)
+
+
+fish_counts_definition <- tribble(
+~name, ~definition,
+"dsf_id", "identifier of the didson file in values_didson_30min",
+"dsr_id", "identifier of the didson read file in values_didson_30min",
+"drr_id", "identifier of the didson read result file in values_didson_30min",
+"psf_dir", "Direction of the fish Up Dn",
+"psf_radius_m", "Distance at which the fish was detected m",
+"psf_l_cm", "Length of the fish in cm",
+"psf_time", "Time",
+"psf_date", "Date",
+"psf_species", "2038 = eel",
+"psf_motion", "One of Backsliding, Running, Hanging",
+"psf_move",  "In the fish appears in the cone,  <--> the fish traverses the cone width,  InOut the fish move in,  Out the fish moves in from the cone border and pops out",  
+"psf_q", "Fish quality from 1 (bad and not retained as eel), 2 bad quality retained to 5 best quality",
+"psf_comment", "Comment"
+)
+
+
+readr::write_excel_csv(fish, file= str_c(datawdy, "fish_counts.csv"))
+readr::write_excel_csv(fish_counts_definition, file= str_c(datawdy, "fish_counts_definition.csv"))
+
 
 #req <- new("RequeteDB")
 #req@sql <- "SELECT * FROM iav.t_operation_ope limit 0"
@@ -6468,7 +6563,7 @@ dbWriteTable(con, "temp_ope_daily_didson", ope, overwrite = TRUE)
 ope_identifiant <- dbGetQuery(con, "INSERT INTO iav.t_operation_ope
 (ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code)
 SELECT ope_dic_identifiant, ope_date_debut, ope_date_fin, ope_organisme, ope_operateur, ope_commentaires, ope_org_code FROM
-temp_ope_daily_didson returning ope_identifiant;")
+temp_ope_daily_didson returning ope_identifiant;") # 3076
 
 ope$ope_identifiant <- ope_identifiant$ope_identifiant
 
@@ -6483,6 +6578,8 @@ xlsx::write.xlsx(ope, file = file.path(datawdy, "operation.xlsx"))
 #str_lot <- getquery(str_lot)
 
 stopifnot(nrow(ope) == nrow(daily_values_didson))
+
+
 lot <- tibble(
     lot_ope_identifiant = ope$ope_identifiant,
 	lot_tax_code = "2038",
@@ -6501,17 +6598,52 @@ dbWriteTable(con, "temp_lot_daily_didson", lot, overwrite = TRUE)
 dbExecute(con, "INSERT INTO iav.t_lot_lot
 (lot_ope_identifiant, lot_tax_code, lot_std_code, lot_effectif, lot_quantite, lot_qte_code, lot_methode_obtention, lot_lot_identifiant, lot_dev_code, lot_commentaires, lot_org_code)
 SELECT lot_ope_identifiant, lot_tax_code, lot_std_code, lot_effectif, NULL, NULL, lot_methode_obtention, NULL, lot_dev_code, 'valeur journalière calculée', lot_org_code FROM temp_lot_daily_didson;")
-# 3076
+
+xlsx::write.xlsx(lot, file = file.path(datawdy, "lot.xlsx"))
 
 
-# TODO export excel
-# TODO ZENODO
-# TODO export stacomiR (when at LRB)
-# TODO export 30 min values
-# TODO write ZENODO
+bilA <- new("report_annual")
+bilA <- choice_c(bilA,
+		dc=c(5,6,12,23),
+		taxa=c("Anguilla anguilla"),
+		stage=c("AGG"),
+		start_year="2011",
+		end_year=CY,
+		silent=FALSE)
+bilA <- connect(bilA)	
+plot(bilA)
+
+bMM_Arzal <- new("report_mig_mult")
+bMM_Arzal <- choice_c(bMM_Arzal,
+		dc=c(23),
+		taxa=c("Anguilla anguilla"),
+		stage=c("AGG"),
+		datedebut=str_c(CY,"-01-01"),
+		datefin =str_c(CY,"-12-31"))
+bMM_Arzal <- charge(bMM_Arzal) 
+bMM_Arzal <- connect(bMM_Arzal)
+bMM_Arzal <- calcule(bMM_Arzal,silent=TRUE)
+plot(bMM_Arzal,plot.type="multiple")
+# Je vais chercher l'élément grdata qui me permet de "refaire"
+# le ggplot que je veux
+grdata <- get('grdata',envir_stacomi) 
+# je renomme le facteur DC pour les titres
+levels(grdata$DC) <- c(
+		"Didson")
+p <- ggplot(grdata,aes(x=debut_pas,y=effectif_total,fill=DC))+
+		geom_bar(position="stack", stat="identity")+
+		facet_grid(stage~.,scales="free_y")+
+		scale_fill_manual(values=c("Didson"="#66A1D2"))+ # couleurs à la main...
+		ylab("Effectif par stade et DC")+	
+		xlab("Date")+
+		theme_bw()+
+		theme(strip.background = element_rect(fill = "grey60", size = 1),
+				strip.text=element_text(colour="white")) # pour les rectangles des strip
+
 
 
 @
+
 Un total de $N_{obs}$ =                                   
  \num{\Sexpr{round(vvv$Nprim04allCY)}} anguilles argentées a été compté pour la saison \Sexpr{saison}.
 Pour l'ensemble de la période de suivi depuis 2012, cet
