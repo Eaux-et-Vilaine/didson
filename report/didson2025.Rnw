@@ -7293,8 +7293,8 @@ $Q_{j~max}~m^{3}s^{-1}$ débit maximum journalier,
 2023--2024 & {-} & 
 \num{\Sexpr{round(as.numeric(final[final$Saison=="2023-2024" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 600\\
 2024--2025 & {-} & 
-\num{\Sexpr{round(as.numeric(final[final$Saison=="2024-2025" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & XXXX\\
- \hline
+\num{\Sexpr{round(as.numeric(final[final$Saison=="2024-2025" & final$type=="$\\sum\\odot\\otimes\\oplus$(?)","$N$"]),0)}} & 1200\\
+\hline
   
 \end{tabular}
 \normalsize
