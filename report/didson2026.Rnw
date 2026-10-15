@@ -415,7 +415,7 @@ load_library <- function(necessary) {
   }
 }
 load_library("stringr") # text handling
-CY <- 2026
+CY <- 2025
 saison <- str_c((CY - 1), "-", CY)
 debut <- str_c(CY - 1, "-09-01 00:00:00")
 fin <- str_c(CY, "-05-01 00:00:00")
@@ -1026,8 +1026,8 @@ estuaires et de coloniser les aux eaux continentales.
 Depuis plusieurs décennies, son stock a connu une déclin important, lié à la
 combinaison de facteurs tels que la surpêche, la dégradation des habitats, les obstacles à la migration
 et les changements environnementaux. Cette situation préoccupante a conduit l'Union internationale pour la conservation 
-de la nature (UICN) à classer l'espèce comme « en danger critique
-d'extinction ». Il est ainsi très important d'analyser l'effet des mesures de
+de la nature (UICN) à classer l'espèce comme "en danger critique
+d'extinction". Il est ainsi très important d'analyser l'effet des mesures de
 gestion et de restauration prises au niveau national pour déterminer si nous
 sommes en train de restaurer ses populations.
 L'objectif à long
